@@ -7,14 +7,341 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.1"
-  }
   public: {
     Tables: {
-      [_ in never]: never
+      members: {
+        Row: {
+          id: string
+          name: string
+          email: string | null
+          phone: string | null
+          role: Database["public"]["Enums"]["member_role"]
+          instruments: string[] | null
+          voice_type: string | null
+          is_active: boolean | null
+          joined_date: string | null
+          notes: string | null
+          avatar_url: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          name: string
+          email?: string | null
+          phone?: string | null
+          role: Database["public"]["Enums"]["member_role"]
+          instruments?: string[] | null
+          voice_type?: string | null
+          is_active?: boolean | null
+          joined_date?: string | null
+          notes?: string | null
+          avatar_url?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          name?: string
+          email?: string | null
+          phone?: string | null
+          role?: Database["public"]["Enums"]["member_role"]
+          instruments?: string[] | null
+          voice_type?: string | null
+          is_active?: boolean | null
+          joined_date?: string | null
+          notes?: string | null
+          avatar_url?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+      }
+      songs: {
+        Row: {
+          id: string
+          name: string
+          type: Database["public"]["Enums"]["song_type"]
+          key: string
+          tempo: Database["public"]["Enums"]["tempo_type"]
+          is_favorite: boolean | null
+          lyrics: string | null
+          chords: string | null
+          notes: string | null
+          audio_url: string | null
+          sheet_music_url: string | null
+          youtube_url: string | null
+          duration_minutes: number | null
+          created_by: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          name: string
+          type: Database["public"]["Enums"]["song_type"]
+          key: string
+          tempo: Database["public"]["Enums"]["tempo_type"]
+          is_favorite?: boolean | null
+          lyrics?: string | null
+          chords?: string | null
+          notes?: string | null
+          audio_url?: string | null
+          sheet_music_url?: string | null
+          youtube_url?: string | null
+          duration_minutes?: number | null
+          created_by?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          name?: string
+          type?: Database["public"]["Enums"]["song_type"]
+          key?: string
+          tempo?: Database["public"]["Enums"]["tempo_type"]
+          is_favorite?: boolean | null
+          lyrics?: string | null
+          chords?: string | null
+          notes?: string | null
+          audio_url?: string | null
+          sheet_music_url?: string | null
+          youtube_url?: string | null
+          duration_minutes?: number | null
+          created_by?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+      }
+      rehearsals: {
+        Row: {
+          id: string
+          date: string
+          time: string
+          location: string
+          type: Database["public"]["Enums"]["rehearsal_type"]
+          notes: string | null
+          is_completed: boolean | null
+          created_by: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          date: string
+          time: string
+          location: string
+          type: Database["public"]["Enums"]["rehearsal_type"]
+          notes?: string | null
+          is_completed?: boolean | null
+          created_by?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          date?: string
+          time?: string
+          location?: string
+          type?: Database["public"]["Enums"]["rehearsal_type"]
+          notes?: string | null
+          is_completed?: boolean | null
+          created_by?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+      }
+      rehearsal_songs: {
+        Row: {
+          id: string
+          rehearsal_id: string
+          song_id: string
+          order_position: number
+          leader_id: string | null
+          notes: string | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          rehearsal_id: string
+          song_id: string
+          order_position: number
+          leader_id?: string | null
+          notes?: string | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          rehearsal_id?: string
+          song_id?: string
+          order_position?: number
+          leader_id?: string | null
+          notes?: string | null
+          created_at?: string | null
+        }
+      }
+      rehearsal_attendance: {
+        Row: {
+          id: string
+          rehearsal_id: string
+          member_id: string
+          status: Database["public"]["Enums"]["attendance_status"] | null
+          notes: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          rehearsal_id: string
+          member_id: string
+          status?: Database["public"]["Enums"]["attendance_status"] | null
+          notes?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          rehearsal_id?: string
+          member_id?: string
+          status?: Database["public"]["Enums"]["attendance_status"] | null
+          notes?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+      }
+      services: {
+        Row: {
+          id: string
+          name: string
+          date: string
+          time: string
+          type: Database["public"]["Enums"]["service_type"]
+          location: string
+          theme: string | null
+          notes: string | null
+          is_completed: boolean | null
+          created_by: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          name: string
+          date: string
+          time: string
+          type: Database["public"]["Enums"]["service_type"]
+          location: string
+          theme?: string | null
+          notes?: string | null
+          is_completed?: boolean | null
+          created_by?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          name?: string
+          date?: string
+          time?: string
+          type?: Database["public"]["Enums"]["service_type"]
+          location?: string
+          theme?: string | null
+          notes?: string | null
+          is_completed?: boolean | null
+          created_by?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+      }
+      service_songs: {
+        Row: {
+          id: string
+          service_id: string
+          song_id: string
+          order_position: number
+          leader_id: string | null
+          notes: string | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          service_id: string
+          song_id: string
+          order_position: number
+          leader_id?: string | null
+          notes?: string | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          service_id?: string
+          song_id?: string
+          order_position?: number
+          leader_id?: string | null
+          notes?: string | null
+          created_at?: string | null
+        }
+      }
+      service_assignments: {
+        Row: {
+          id: string
+          service_id: string
+          member_id: string
+          role: string
+          notes: string | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          service_id: string
+          member_id: string
+          role: string
+          notes?: string | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          service_id?: string
+          member_id?: string
+          role?: string
+          notes?: string | null
+          created_at?: string | null
+        }
+      }
+      ministry_rules: {
+        Row: {
+          id: string
+          title: string
+          content: string
+          category: string | null
+          order_position: number | null
+          is_active: boolean | null
+          created_by: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          title: string
+          content: string
+          category?: string | null
+          order_position?: number | null
+          is_active?: boolean | null
+          created_by?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          title?: string
+          content?: string
+          category?: string | null
+          order_position?: number | null
+          is_active?: boolean | null
+          created_by?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +350,12 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      attendance_status: "confirmed" | "pending" | "absent"
+      member_role: "Director" | "Vocalista" | "Instrumentista" | "Técnico" | "Coordinador"
+      rehearsal_type: "General" | "Vocal" | "Instrumental"
+      service_type: "Domingo Mañana" | "Domingo Noche" | "Miércoles" | "Especial" | "Evento"
+      song_type: "Alabanza" | "Adoración" | "Ministración" | "Congregacional"
+      tempo_type: "Rápido" | "Moderado" | "Lento"
     }
     CompositeTypes: {
       [_ in never]: never

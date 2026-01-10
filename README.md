@@ -1,73 +1,170 @@
-# Welcome to your Lovable project
+# 🎵 Praise Planner Pro
 
-## Project info
+Sistema completo de gestión para ministerios de alabanza y adoración.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## ✨ Características
 
-## How can I edit this code?
+- 👥 **Gestión de Miembros**: Administra integrantes, roles, instrumentos y contactos
+- 🎵 **Repertorio Musical**: Organiza canciones por tipo, tonalidad y favoritas
+- 📅 **Planificación de Ensayos**: Programa ensayos con asistencia y canciones
+- ⛪ **Servicios**: Planifica servicios dominicales y especiales
+- 📋 **Reglas del Ministerio**: Mantén las normas y procedimientos organizados
 
-There are several ways of editing your application.
+## 🚀 Inicio Rápido
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+### Opción 1: Script Automático (Recomendado)
+```bash
+# Ejecuta este archivo para iniciar todo automáticamente
+run-local-sqlite.bat
 ```
 
-**Edit a file directly in GitHub**
+### Opción 2: Manual
+```bash
+# 1. Instalar dependencias
+npm install
+cd server && npm install && cd ..
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+# 2. Iniciar backend (SQLite)
+cd server
+node server-sqlite.js
 
-**Use GitHub Codespaces**
+# 3. Iniciar frontend (nueva terminal)
+npm run dev
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+# 4. Probar API (nueva terminal)
+node test-api.js
+```
 
-## What technologies are used for this project?
+## 🌐 URLs de Desarrollo
 
-This project is built with:
+- **Frontend**: http://localhost:8080
+- **Backend API**: http://localhost:3002
+- **Health Check**: http://localhost:3002/health
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 🗄️ Base de Datos
 
-## How can I deploy this project?
+### Desarrollo Local (SQLite)
+- Base de datos: `server/database.sqlite` (se crea automáticamente)
+- Datos de ejemplo incluidos: 5 miembros, 8 canciones, 3 ensayos
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+### Producción (PostgreSQL en EasyPanel)
+- Archivos SQL listos en `server/migrations/`
+- Configuración en `server/.env.production`
+- Guía completa en `EASYPANEL_SETUP.md`
 
-## Can I connect a custom domain to my Lovable project?
+## 📁 Estructura del Proyecto
 
-Yes, you can!
+```
+praise-planner-pro/
+├── src/                    # Frontend React + TypeScript
+│   ├── components/         # Componentes UI
+│   ├── hooks/             # React Query hooks
+│   ├── pages/             # Páginas principales
+│   ├── lib/               # API client
+│   └── types/             # Tipos TypeScript
+├── server/                # Backend Node.js + Express
+│   ├── config/            # Configuración de BD
+│   ├── routes/            # Rutas API
+│   ├── migrations/        # Scripts SQL
+│   └── server-sqlite.js   # Servidor SQLite
+├── run-local-sqlite.bat   # Script de inicio automático
+├── test-api.js           # Script de pruebas API
+└── EASYPANEL_SETUP.md    # Guía de despliegue
+```
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 🔧 API Endpoints
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+### Miembros
+- `GET /api/members` - Lista todos los miembros
+- `POST /api/members` - Crear nuevo miembro
+- `PUT /api/members/:id` - Actualizar miembro
+- `DELETE /api/members/:id` - Eliminar miembro
+
+### Canciones
+- `GET /api/songs` - Lista canciones (con filtros)
+- `POST /api/songs` - Crear nueva canción
+- `PATCH /api/songs/:id/favorite` - Marcar/desmarcar favorita
+- `DELETE /api/songs/:id` - Eliminar canción
+
+### Ensayos
+- `GET /api/rehearsals` - Lista todos los ensayos
+- `GET /api/rehearsals/upcoming` - Próximos ensayos
+- `POST /api/rehearsals` - Crear nuevo ensayo
+
+### Servicios
+- `GET /api/services` - Lista servicios
+- `GET /api/services/upcoming` - Próximos servicios
+- `POST /api/services` - Crear nuevo servicio
+
+### Reglas del Ministerio
+- `GET /api/rules` - Lista reglas por categoría
+- `POST /api/rules` - Crear nueva regla
+- `DELETE /api/rules/:id` - Eliminar regla
+
+## 🧪 Pruebas
+
+```bash
+# Probar todos los endpoints
+node test-api.js
+
+# Verificar salud del servidor
+curl http://localhost:3002/health
+```
+
+## 🚀 Despliegue en EasyPanel
+
+1. **Preparar PostgreSQL**:
+   - Ejecutar `server/migrations/001_create_tables.sql`
+   - Ejecutar `server/migrations/002_seed_data.sql`
+
+2. **Configurar Backend**:
+   - Usar variables de `server/.env.production`
+   - Host interno: `ollama_postgres-db:5432`
+
+3. **Desplegar Frontend**:
+   - `npm run build`
+   - Subir carpeta `dist/`
+
+Ver guía completa en `EASYPANEL_SETUP.md`
+
+## 🛠️ Tecnologías
+
+### Frontend
+- React 18 + TypeScript
+- Vite (build tool)
+- TanStack Query (estado del servidor)
+- Radix UI + Tailwind CSS (componentes)
+- React Hook Form + Zod (formularios)
+
+### Backend
+- Node.js + Express
+- SQLite (desarrollo) / PostgreSQL (producción)
+- CORS configurado
+- Rate limiting
+- Helmet (seguridad)
+
+## 📝 Estado del Proyecto
+
+✅ **COMPLETAMENTE FUNCIONAL**
+
+- ✅ Backend API completo y probado
+- ✅ Frontend conectado y funcionando
+- ✅ Base de datos con datos de ejemplo
+- ✅ Scripts de automatización
+- ✅ Listo para despliegue en EasyPanel
+
+## 🤝 Contribuir
+
+1. Fork el proyecto
+2. Crea una rama para tu feature
+3. Commit tus cambios
+4. Push a la rama
+5. Abre un Pull Request
+
+## 📄 Licencia
+
+Este proyecto está bajo la Licencia MIT.
+
+---
+
+**🎵 ¡Que la alabanza nunca pare!** 🙌

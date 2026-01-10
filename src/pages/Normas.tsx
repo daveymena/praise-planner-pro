@@ -1,166 +1,195 @@
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { 
-  Clock,
-  Users,
-  Shirt,
-  Heart,
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
+import {
+  Plus,
   BookOpen,
-  Music,
-  CheckCircle2
+  Edit,
+  Trash2,
+  Loader2
 } from "lucide-react";
 import { useState } from "react";
+import { useMinistryRulesByCategory, useDeleteMinistryRule } from "@/hooks/useMinistryRules";
+import { toast } from "sonner";
+import type { Database } from "@/integrations/supabase/types";
 
-interface Rule {
-  id: number;
-  title: string;
-  description: string;
-  icon: React.ElementType;
-}
+type MinistryRule = Database['public']['Tables']['ministry_rules']['Row'] & {
+  created_by_member: { name: string } | null;
+};
 
-const rules: Rule[] = [
-  {
-    id: 1,
-    title: "Puntualidad",
-    description: "Llegar al menos 15 minutos antes de los ensayos y servicios. El tiempo es un recurso valioso y el respeto hacia los demás comienza con la puntualidad.",
-    icon: Clock
-  },
-  {
-    id: 2,
-    title: "Asistencia",
-    description: "Mantener una asistencia mínima del 80% a los ensayos. En caso de no poder asistir, avisar con anticipación al director. La constancia es clave para la excelencia.",
-    icon: Users
-  },
-  {
-    id: 3,
-    title: "Vestimenta",
-    description: "Usar ropa apropiada y modesta para los servicios. El ministerio representa a Cristo, nuestra apariencia debe reflejar respeto y dignidad.",
-    icon: Shirt
-  },
-  {
-    id: 4,
-    title: "Actitud en el Altar",
-    description: "Mantener una actitud de adoración genuina. No somos artistas sino adoradores. El enfoque siempre debe estar en glorificar a Dios, no en nosotros mismos.",
-    icon: Heart
-  },
-  {
-    id: 5,
-    title: "Preparación Personal",
-    description: "Estudiar las canciones antes de los ensayos. Conocer la letra, acordes y estructura. La preparación individual beneficia a todo el grupo.",
-    icon: BookOpen
-  },
-  {
-    id: 6,
-    title: "Vida Devocional",
-    description: "Mantener una vida de oración y comunión con Dios activa. No podemos ministrar lo que no vivimos. La adoración comienza en lo secreto.",
-    icon: Music
-  }
-];
+const categoryColors = {
+  "Ensayos": "bg-blue-500/10 text-blue-600 border-blue-500/20",
+  "Servicios": "bg-purple-500/10 text-purple-600 border-purple-500/20",
+  "General": "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+  "Instrumentos": "bg-amber-500/10 text-amber-600 border-amber-500/20",
+  "Espiritual": "bg-red-500/10 text-red-600 border-red-500/20",
+  "Vestimenta": "bg-pink-500/10 text-pink-600 border-pink-500/20",
+};
 
 export default function Normas() {
-  const [accepted, setAccepted] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [editingRule, setEditingRule] = useState<MinistryRule | null>(null);
+
+  const { data: rulesByCategory, isLoading, error } = useMinistryRulesByCategory();
+  const deleteRule = useDeleteMinistryRule();
+
+  const handleDeleteRule = async (rule: MinistryRule) => {
+    if (!confirm(`¿Estás seguro de eliminar "${rule.title}"?`)) return;
+
+    try {
+      await deleteRule.mutateAsync(rule.id);
+      toast.success("Norma eliminada exitosamente");
+    } catch (error) {
+      toast.error("Error al eliminar la norma");
+    }
+  };
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center py-12">
+            <p className="text-red-500">Error al cargar las normas</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-12 fade-in">
-          <h1 className="text-3xl lg:text-4xl font-serif font-bold text-foreground">
-            Normas del Ministerio 📝
-          </h1>
-          <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">
-            Lineamientos para servir con excelencia y mantener la unidad del equipo de alabanza.
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 fade-in">
+          <div>
+            <h1 className="text-3xl font-serif font-bold text-foreground">
+              Normas del Ministerio 📋
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              Directrices y reglas para el buen funcionamiento del ministerio
+            </p>
+          </div>
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="btn-gold">
+                <Plus className="w-4 h-4 mr-2" />
+                Nueva Norma
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Nueva Norma</DialogTitle>
+                <DialogDescription>Establezca una nueva norma para el ministerio.</DialogDescription>
+              </DialogHeader>
+              <p className="text-muted-foreground">Formulario de norma próximamente...</p>
+            </DialogContent>
+          </Dialog>
         </div>
 
-        {/* Spiritual Quote */}
-        <div className="card-elevated p-8 mb-8 text-center fade-in bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-          <p className="text-lg text-foreground italic font-serif">
-            "Hágase todo decentemente y con orden"
-          </p>
-          <p className="text-primary font-medium mt-2">
-            — 1 Corintios 14:40
-          </p>
-        </div>
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        )}
 
-        {/* Rules */}
-        <div className="space-y-4 mb-8">
-          {rules.map((rule, index) => {
-            const Icon = rule.icon;
-            
-            return (
-              <div 
-                key={rule.id}
-                className="card-elevated p-6 slide-up"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <div className="flex gap-5">
-                  <div className="w-12 h-12 rounded-xl gold-gradient flex items-center justify-center flex-shrink-0">
-                    <Icon className="w-6 h-6 text-primary-foreground" />
+        {/* Rules by Category */}
+        {!isLoading && rulesByCategory && (
+          <div className="space-y-8">
+            {Object.keys(rulesByCategory).length === 0 ? (
+              <div className="text-center py-12 card-elevated">
+                <BookOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground mb-4">No hay normas registradas</p>
+                <Button
+                  className="btn-gold"
+                  onClick={() => setIsCreateDialogOpen(true)}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Crear Primera Norma
+                </Button>
+              </div>
+            ) : (
+              Object.entries(rulesByCategory).map(([category, rules], categoryIndex) => (
+                <div key={category} className="slide-up" style={{ animationDelay: `${categoryIndex * 100}ms` }}>
+                  <div className="flex items-center gap-3 mb-4">
+                    <Badge className={categoryColors[category as keyof typeof categoryColors] || categoryColors.General}>
+                      {category}
+                    </Badge>
+                    <div className="h-px bg-border flex-1" />
                   </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-foreground mb-2">
-                      {rule.title}
-                    </h3>
-                    <p className="text-muted-foreground leading-relaxed">
-                      {rule.description}
-                    </p>
+
+                  <div className="space-y-4">
+                    {rules.map((rule, ruleIndex) => (
+                      <div
+                        key={rule.id}
+                        className="card-elevated p-6 group"
+                        style={{ animationDelay: `${(categoryIndex * 100) + (ruleIndex * 50)}ms` }}
+                      >
+                        <div className="flex items-start justify-between mb-3">
+                          <h3 className="text-lg font-semibold text-foreground">
+                            {rule.title}
+                          </h3>
+                          <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setEditingRule(rule)}
+                                >
+                                  <Edit className="w-3.5 h-3.5" />
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="max-w-2xl">
+                                <DialogHeader>
+                                  <DialogTitle>Editar Norma</DialogTitle>
+                                  <DialogDescription>Modifique el contenido de la norma.</DialogDescription>
+                                </DialogHeader>
+                                <p className="text-muted-foreground">Formulario de edición próximamente...</p>
+                              </DialogContent>
+                            </Dialog>
+
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDeleteRule(rule)}
+                              disabled={deleteRule.isPending}
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
+                        </div>
+
+                        <p className="text-muted-foreground leading-relaxed mb-3">
+                          {rule.content}
+                        </p>
+
+                        {rule.created_by_member && (
+                          <p className="text-xs text-muted-foreground">
+                            Creado por: {rule.created_by_member.name}
+                          </p>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Important Note */}
-        <div className="card-elevated p-6 mb-8 border-amber-500/30 bg-amber-500/5">
-          <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
-            ⚠️ Recordatorio Importante
-          </h3>
-          <p className="text-muted-foreground text-sm">
-            El ministerio de alabanza no es solo un talento, es un llamado. Cada integrante es 
-            responsable de mantener una vida íntegra que respalde su servicio. Si atraviesas 
-            dificultades personales, acércate al liderazgo para recibir apoyo.
-          </p>
-        </div>
-
-        {/* Acceptance */}
-        <div className="card-elevated p-6 slide-up">
-          <div className="flex items-start gap-4">
-            <Checkbox 
-              id="accept" 
-              checked={accepted}
-              onCheckedChange={(checked) => setAccepted(checked === true)}
-              className="mt-1"
-            />
-            <div className="flex-1">
-              <label 
-                htmlFor="accept" 
-                className="text-foreground font-medium cursor-pointer"
-              >
-                He leído y acepto las normas del ministerio
-              </label>
-              <p className="text-sm text-muted-foreground mt-1">
-                Al aceptar, me comprometo a seguir estos lineamientos y a servir con excelencia.
-              </p>
-            </div>
+              ))
+            )}
           </div>
+        )}
 
-          <Button 
-            className={`w-full mt-6 ${accepted ? 'btn-gold' : ''}`}
-            disabled={!accepted}
-          >
-            <CheckCircle2 className="w-4 h-4 mr-2" />
-            Confirmar Compromiso
-          </Button>
-        </div>
-
-        {/* Footer Quote */}
-        <div className="text-center mt-12 py-8 border-t border-border/50">
-          <p className="text-muted-foreground italic">
-            🕊️ "La app ordena para que el Espíritu fluya mejor"
-          </p>
+        {/* Spiritual Note */}
+        <div className="mt-12 p-6 rounded-xl bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/10 fade-in">
+          <div className="text-center">
+            <BookOpen className="w-8 h-8 text-primary mx-auto mb-3" />
+            <p className="text-muted-foreground italic mb-2">
+              "Todo se haga decentemente y con orden."
+            </p>
+            <p className="text-xs text-primary font-medium">
+              — 1 Corintios 14:40
+            </p>
+          </div>
         </div>
       </div>
     </Layout>

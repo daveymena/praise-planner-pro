@@ -9,22 +9,16 @@ import {
   Calendar,
   ArrowRight,
   Clock,
-  MapPin
+  MapPin,
+  Loader2
 } from "lucide-react";
 import { Link } from "react-router-dom";
-
-const stats = [
-  { title: "Próximo Ensayo", value: "Jueves", subtitle: "19:30 hrs", icon: Mic2 },
-  { title: "Canciones", value: "24", subtitle: "en repertorio", icon: Music },
-  { title: "Integrantes", value: "12", subtitle: "activos", icon: Users, trend: "up" as const },
-  { title: "Servicios", value: "4", subtitle: "este mes", icon: Church },
-];
-
-const upcomingRehearsals = [
-  { id: 1, date: "Jueves 18", time: "19:30", place: "Templo Principal", type: "General" },
-  { id: 2, date: "Sábado 20", time: "16:00", place: "Sala de Ensayo", type: "Vocal" },
-  { id: 3, date: "Jueves 25", time: "19:30", place: "Templo Principal", type: "General" },
-];
+import { useUpcomingRehearsals } from "@/hooks/useRehearsals";
+import { useUpcomingServices } from "@/hooks/useServices";
+import { useSongs } from "@/hooks/useSongs";
+import { useMembers } from "@/hooks/useMembers";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 const quickActions = [
   { label: "Nuevo Ensayo", path: "/ensayos", icon: Mic2 },
@@ -34,6 +28,55 @@ const quickActions = [
 ];
 
 export default function Index() {
+  const { data: upcomingRehearsals, isLoading: loadingRehearsals } = useUpcomingRehearsals();
+  const { data: upcomingServices, isLoading: loadingServices } = useUpcomingServices();
+  const { data: songs, isLoading: loadingSongs } = useSongs();
+  const { data: members, isLoading: loadingMembers } = useMembers();
+
+  // Calculate stats
+  const totalSongs = songs?.length || 0;
+  const activeMembers = members?.filter(m => m.is_active)?.length || 0;
+  const nextRehearsal = upcomingRehearsals?.[0];
+  const thisMonthServices = upcomingServices?.filter(service => {
+    const serviceDate = new Date(service.date);
+    const now = new Date();
+    return serviceDate.getMonth() === now.getMonth() && serviceDate.getFullYear() === now.getFullYear();
+  })?.length || 0;
+
+  const stats = [
+    { 
+      title: "Próximo Ensayo", 
+      value: nextRehearsal ? format(new Date(nextRehearsal.date), "EEEE", { locale: es }) : "N/A", 
+      subtitle: nextRehearsal ? nextRehearsal.time : "Sin programar", 
+      icon: Mic2 
+    },
+    { 
+      title: "Canciones", 
+      value: loadingSongs ? "..." : totalSongs.toString(), 
+      subtitle: "en repertorio", 
+      icon: Music 
+    },
+    { 
+      title: "Integrantes", 
+      value: loadingMembers ? "..." : activeMembers.toString(), 
+      subtitle: "activos", 
+      icon: Users, 
+      trend: "up" as const 
+    },
+    { 
+      title: "Servicios", 
+      value: loadingServices ? "..." : thisMonthServices.toString(), 
+      subtitle: "este mes", 
+      icon: Church 
+    },
+  ];
+
+  const formatRehearsalDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const dayName = format(date, "EEEE", { locale: es });
+    const dayNumber = format(date, "d");
+    return { dayName, dayNumber };
+  };
   return (
     <Layout>
       <div className="max-w-7xl mx-auto space-y-8">
@@ -69,44 +112,65 @@ export default function Index() {
               </Link>
             </div>
             
-            <div className="space-y-4">
-              {upcomingRehearsals.map((rehearsal, index) => (
-                <div 
-                  key={rehearsal.id}
-                  className="flex items-center gap-4 p-4 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <div className="w-14 h-14 rounded-xl gold-gradient flex flex-col items-center justify-center text-primary-foreground">
-                    <span className="text-xs font-medium">
-                      {rehearsal.date.split(' ')[0]}
-                    </span>
-                    <span className="text-lg font-bold">
-                      {rehearsal.date.split(' ')[1]}
-                    </span>
-                  </div>
-                  
-                  <div className="flex-1">
-                    <h3 className="font-medium text-foreground">
-                      Ensayo {rehearsal.type}
-                    </h3>
-                    <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5" />
-                        {rehearsal.time}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <MapPin className="w-3.5 h-3.5" />
-                        {rehearsal.place}
-                      </span>
+            {loadingRehearsals ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
+              </div>
+            ) : upcomingRehearsals && upcomingRehearsals.length > 0 ? (
+              <div className="space-y-4">
+                {upcomingRehearsals.slice(0, 3).map((rehearsal, index) => {
+                  const { dayName, dayNumber } = formatRehearsalDate(rehearsal.date);
+                  return (
+                    <div 
+                      key={rehearsal.id}
+                      className="flex items-center gap-4 p-4 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors"
+                      style={{ animationDelay: `${index * 100}ms` }}
+                    >
+                      <div className="w-14 h-14 rounded-xl gold-gradient flex flex-col items-center justify-center text-primary-foreground">
+                        <span className="text-xs font-medium capitalize">
+                          {dayName.slice(0, 3)}
+                        </span>
+                        <span className="text-lg font-bold">
+                          {dayNumber}
+                        </span>
+                      </div>
+                      
+                      <div className="flex-1">
+                        <h3 className="font-medium text-foreground">
+                          Ensayo {rehearsal.type}
+                        </h3>
+                        <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3.5 h-3.5" />
+                            {rehearsal.time}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <MapPin className="w-3.5 h-3.5" />
+                            {rehearsal.location}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <Link to={`/ensayos`}>
+                        <Button variant="outline" size="sm">
+                          Ver detalles
+                        </Button>
+                      </Link>
                     </div>
-                  </div>
-                  
-                  <Button variant="outline" size="sm">
-                    Ver detalles
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <Mic2 className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                <p className="text-muted-foreground">No hay ensayos programados</p>
+                <Link to="/ensayos">
+                  <Button className="mt-3 btn-gold" size="sm">
+                    Programar Ensayo
                   </Button>
-                </div>
-              ))}
-            </div>
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Quick Actions */}
