@@ -16,6 +16,7 @@ import {
   Mic2
 } from "lucide-react";
 import { useState } from "react";
+import { RehearsalForm } from "@/components/rehearsals/RehearsalForm";
 import { useRehearsals, useUpdateAttendance } from "@/hooks/useRehearsals";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -24,13 +25,14 @@ import type { Rehearsal, RehearsalSong, RehearsalAttendance } from "@/types/api"
 
 // Los tipos ya están importados desde @/types/api, no necesitamos redefinirlos
 
-const typeColors = {
+const typeColors: Record<string, string> = {
   General: "bg-primary/10 text-primary border-primary/20",
   Vocal: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
   Instrumental: "bg-blue-500/10 text-blue-600 border-blue-500/20",
 };
 
 export default function Ensayos() {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedRehearsal, setSelectedRehearsal] = useState<Rehearsal | null>(null);
   const { data: rehearsals, isLoading, error } = useRehearsals();
   const updateAttendance = useUpdateAttendance();
@@ -81,19 +83,19 @@ export default function Ensayos() {
               {isLoading ? "Cargando..." : `Planifica y organiza los ensayos del ministerio`}
             </p>
           </div>
-          <Dialog>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button className="btn-gold">
                 <Plus className="w-4 h-4 mr-2" />
                 Nuevo Ensayo
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="sm:max-w-[500px]">
               <DialogHeader>
                 <DialogTitle>Nuevo Ensayo</DialogTitle>
                 <DialogDescription>Programe un nuevo ensayo para el ministerio.</DialogDescription>
               </DialogHeader>
-              <p className="text-muted-foreground">Formulario de ensayo próximamente...</p>
+              <RehearsalForm onSuccess={() => setIsDialogOpen(false)} />
             </DialogContent>
           </Dialog>
         </div>
@@ -114,19 +116,19 @@ export default function Ensayos() {
                 <div className="text-center py-12 card-elevated">
                   <Mic2 className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
                   <p className="text-muted-foreground mb-4">No hay ensayos programados</p>
-                  <Dialog>
+                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                     <DialogTrigger asChild>
                       <Button className="btn-gold">
                         <Plus className="w-4 h-4 mr-2" />
                         Programar Primer Ensayo
                       </Button>
                     </DialogTrigger>
-                    <DialogContent>
+                    <DialogContent className="sm:max-w-[500px]">
                       <DialogHeader>
                         <DialogTitle>Nuevo Ensayo</DialogTitle>
                         <DialogDescription>Programe el primer ensayo para comenzar.</DialogDescription>
                       </DialogHeader>
-                      <p className="text-muted-foreground">Formulario de ensayo próximamente...</p>
+                      <RehearsalForm onSuccess={() => setIsDialogOpen(false)} />
                     </DialogContent>
                   </Dialog>
                 </div>
@@ -165,7 +167,7 @@ export default function Ensayos() {
                           </div>
                         </div>
                       </div>
-                      <Badge className={typeColors[rehearsal.type]}>
+                      <Badge className={typeColors[rehearsal.type] || typeColors.General}>
                         {rehearsal.type}
                       </Badge>
                     </div>
