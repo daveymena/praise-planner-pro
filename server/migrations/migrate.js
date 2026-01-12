@@ -34,6 +34,7 @@ export async function runMigrations() {
     console.error('❌ Migration failed:', error);
     // We categorize the error but don't crash the server entirely if it's just "relation already exists"
     // However, for a fresh deploy, we want to know it failed.
-    throw error;
+    // throw error; 
+    console.error('⚠️ Migration failed but continuing server startup to allow debugging.');
   }
 }
