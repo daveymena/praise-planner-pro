@@ -12,6 +12,8 @@ import rehearsalsRoutes from './routes/rehearsals.js';
 import servicesRoutes from './routes/services.js';
 import rulesRoutes from './routes/rules.js';
 
+import { runMigrations } from './migrations/migrate.js';
+
 dotenv.config();
 
 const app = express();
@@ -25,7 +27,8 @@ app.use(helmet({
       connectSrc: ["'self'", "http://localhost:3003", "https://ollama-app-ministerio-alabanza.ginee6.easypanel.host"],
       imgSrc: ["'self'", "data:", "blob:", "https:"],
       scriptSrc: ["'self'", "'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
     },
   },
 }));
@@ -103,12 +106,26 @@ app.get('*', (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
-  console.log('🚀 Praise Planner Pro Server started');
-  console.log(`📡 Server running on port ${PORT}`);
-  console.log(`🌐 API URL: http://localhost:${PORT}`);
-  console.log(`🔗 Health check: http://localhost:${PORT}/health`);
-  console.log('🎵 Ready to serve the ministry!');
-});
+const startServer = async () => {
+  try {
+    // Run migrations before starting server
+    if (process.env.NODE_ENV === 'production' || process.env.RUN_MIGRATIONS === 'true') {
+      await runMigrations();
+    }
+
+    app.listen(PORT, () => {
+      console.log('🚀 Praise Planner Pro Server started');
+      console.log(`📡 Server running on port ${PORT}`);
+      console.log(`🌐 API URL: http://localhost:${PORT}`);
+      console.log(`🔗 Health check: http://localhost:${PORT}/health`);
+      console.log('🎵 Ready to serve the ministry!');
+    });
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+startServer();
 
 export default app;
