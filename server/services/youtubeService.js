@@ -69,35 +69,37 @@ export class YoutubeService {
             console.error('Error in YoutubeService:', error);
             throw new Error('Failed to fetch YouTube video details');
         }
+    }
+
     /**
      * Search for a video by query and return the first result
      */
     async searchVideo(query) {
-            try {
-                const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query + ' official audio')}`;
-                const { data } = await axios.get(searchUrl, {
-                    headers: {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36'
-                    }
-                });
-
-                // Extract the first video ID from the page source
-                // YouTube results often come in a JSON blob called ytInitialData
-                const match = data.match(/"videoId":"([^"]*)"/);
-                const videoId = match ? match[1] : null;
-
-                if (videoId) {
-                    return {
-                        videoId,
-                        url: `https://www.youtube.com/watch?v=${videoId}`
-                    };
+        try {
+            const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query + ' official audio')}`;
+            const { data } = await axios.get(searchUrl, {
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36'
                 }
-                return null;
-            } catch (error) {
-                console.error('Error searching YouTube:', error.message);
-                return null;
+            });
+
+            // Extract the first video ID from the page source
+            // YouTube results often come in a JSON blob called ytInitialData
+            const match = data.match(/"videoId":"([^"]*)"/);
+            const videoId = match ? match[1] : null;
+
+            if (videoId) {
+                return {
+                    videoId,
+                    url: `https://www.youtube.com/watch?v=${videoId}`
+                };
             }
+            return null;
+        } catch (error) {
+            console.error('Error searching YouTube:', error.message);
+            return null;
         }
     }
+}
 
-    export const youtubeService = new YoutubeService();
+export const youtubeService = new YoutubeService();
