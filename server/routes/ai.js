@@ -32,7 +32,7 @@ router.post('/extract-song', async (req, res) => {
 
         // Flow 1: Search Query (Backend searches web, then AI processes)
         if (type === 'search' || searchQuery) {
-            const query = searchQuery || name;
+            const query = searchQuery || req.body.name;
             console.log(`🌐 Searching web for: ${query}`);
 
             // Search lyrics and youtube simultaneously
@@ -64,7 +64,9 @@ router.post('/extract-song', async (req, res) => {
         else if (url || type === 'url') {
             console.log(`🔍 Extracting from YouTube: ${url}`);
             const videoDetails = await youtubeService.getVideoDetails(url);
-            context = `YouTube Video Data:\nTitle: ${videoDetails.title}\nDescription: ${videoDetails.description}\nTranscript: ${videoDetails.transcript}\nURL: ${url}`;
+            // Limit description to avoid polluting context
+            const cleanDesc = (videoDetails.description || "").substring(0, 500);
+            context = `[DATOS DE YOUTUBE]\nTítulo: ${videoDetails.title}\nDescripción: ${cleanDesc}\nTranscripción: ${videoDetails.transcript}\nURL: ${url}`;
             sourceInfo = "YouTube + AI";
         }
 

@@ -33,10 +33,14 @@ export class YoutubeService {
 
             const $ = cheerio.load(data);
 
-            // Try multiple sources for the title
+            // Try multiple sources for the title and description
             let title = $('meta[property="og:title"]').attr('content') ||
                 $('meta[name="title"]').attr('content') ||
                 $('title').text() ||
+                '';
+
+            let description = $('meta[property="og:description"]').attr('content') ||
+                $('meta[name="description"]').attr('content') ||
                 '';
 
             // Clean up title (remove " - YouTube" suffix)

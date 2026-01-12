@@ -7,7 +7,7 @@ class LyricsService {
             console.log(`🔍 Searching lyrics for: ${query}`);
 
             // Perform a search on Google (via basic scraping with a realistic user agent)
-            const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(query + ' letras acordes')}`;
+            const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(query + ' letras acordes lacuerda letras.com')}`;
 
             const { data: searchHtml } = await axios.get(searchUrl, {
                 headers: {
