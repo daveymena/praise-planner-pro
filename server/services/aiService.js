@@ -1,15 +1,16 @@
 import axios from 'axios';
 
 class AiService {
-    constructor() {
-        this.baseUrl = process.env.OLLAMA_URL; // e.g. https://davey-ollama2.mapf5v.easypanel.host
-        // Default model fallback
-        this.model = process.env.OLLAMA_MODEL || 'llama3.2:3b';
-        this.fastModel = process.env.OLLAMA_MODEL_FAST || 'gemma2:2b';
+    get baseUrl() {
+        return process.env.OLLAMA_URL;
+    }
+
+    get defaultModel() {
+        return process.env.OLLAMA_MODEL || 'llama3.2:3b';
     }
 
     async getBestAvailableModel() {
-        if (!this.baseUrl) return this.model;
+        if (!this.baseUrl) return this.defaultModel;
 
         try {
             console.log('🔎 Checking available Ollama models...');
@@ -49,7 +50,7 @@ class AiService {
             console.warn(error.message);
         }
 
-        return this.model; // Fallback to config default if check fails
+        return this.defaultModel; // Fallback to config default if check fails
     }
 
     async extractSongData(textContext) {

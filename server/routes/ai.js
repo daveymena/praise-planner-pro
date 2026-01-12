@@ -42,12 +42,12 @@ router.post('/extract-song', async (req, res) => {
             ]);
 
             if (webLyrics) {
-                context += `\nWeb Search Results for lyrics/chords:\n${webLyrics}`;
+                context += `\n[FUENTE PRINCIPAL (LETRA Y ACORDES)]:\n${webLyrics}\n`;
                 sourceInfo = "Web Search + AI";
             }
 
             if (ytVideo) {
-                context += `\nReference YouTube Video: ${ytVideo.url}`;
+                context += `\n[REFERENCIA VIDEO YOUTUBE]: ${ytVideo.url}\n`;
                 if (!webLyrics) sourceInfo = "YouTube + AI";
             }
 
