@@ -69,8 +69,8 @@ class AiService {
 
       REGLAS ESTRICTAS DE EXTRACCIÓN:
       1. Devuelve ESTRICTAMENTE JSON válido.
-      2. LETRA (lyrics): Debe ser un STRING (texto) con la letra completa. NO uses objetos ni arreglos dentro de este campo.
-      3. ACORDES (chords): Debe ser un STRING (texto) con el cifrado. NO uses objetos ni arreglos.
+      2. LETRA (lyrics): Debe ser un STRING (texto) con la letra limpia y completa. ELIMINA cualquier acorde (ej: G, Am7, D...) que esté mezclado con el texto.
+      3. ACORDES (chords): Debe ser un STRING (texto) con el cifrado musical. NO incluyas la letra en este campo, solo la estructura de los acordes.
       4. TIPO (type): Elige EXACTAMENTE UNO: "Alabanza", "Adoración", "Ministración", "Congregacional".
       5. TEMPO (tempo): Elige EXACTAMENTE UNO: "Rápido", "Moderado", "Lento".
       6. TONALIDAD (key): Una sola nota musical principal (ej: "G").
