@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3003/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:3003/api');
 
 class ApiClient {
   private baseURL: string;
@@ -9,7 +9,7 @@ class ApiClient {
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
-    
+
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
@@ -20,7 +20,7 @@ class ApiClient {
 
     try {
       const response = await fetch(url, config);
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
@@ -68,7 +68,7 @@ class ApiClient {
     if (filters?.type) params.append('type', filters.type);
     if (filters?.favorite) params.append('favorite', 'true');
     if (filters?.search) params.append('search', filters.search);
-    
+
     const query = params.toString() ? `?${params.toString()}` : '';
     return this.request(`/songs${query}`);
   }

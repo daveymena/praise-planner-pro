@@ -18,7 +18,17 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      connectSrc: ["'self'", "http://localhost:3003", "https://ollama-app-ministerio-alabanza.ginee6.easypanel.host"],
+      imgSrc: ["'self'", "data:", "blob:", "https:"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+    },
+  },
+}));
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:8080',
   credentials: true
