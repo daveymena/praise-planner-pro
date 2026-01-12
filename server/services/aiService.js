@@ -61,18 +61,28 @@ class AiService {
         const selectedModel = await this.getBestAvailableModel();
 
         const prompt = `
-      Extract song details from the text below.
-      Input Text:
+      Eres un experto en música cristiana y alabanza profesional.
+      Analiza el siguiente texto (que puede ser letra, acordes o información de una canción) y extrae los detalles técnicos para completar un formulario.
+
+      TEXTO DE ENTRADA:
       "${textContext.substring(0, 4000).replace(/"/g, "'")}"
 
-      Return strictly valid JSON. Format:
+      REGLAS CRUCIALES:
+      1. Devuelve ESTRICTAMENTE JSON válido.
+      2. No inventes información si no es razonable, pero intenta deducir el TONO y TEMPO si hay acordes.
+      3. El campo "lyrics" debe contener la letra limpia y estructurada.
+      4. El campo "chords" debe contener el cifrado armónico si está presente.
+      5. "type" debe ser uno de: "Alabanza", "Adoración", "Ministración", "Congregacional".
+      6. "tempo" debe ser uno de: "Rápido", "Moderado", "Lento".
+
+      FORMATO JSON DE SALIDA:
       {
-        "name": "Song Title",
-        "type": "Alabanza" | "Adoración" | "Congregacional",
-        "key": "Key (e.g. C, G)",
-        "tempo": "Rápido" | "Moderado" | "Lento",
-        "lyrics": "Lyrics text",
-        "chords": "Chords text"
+        "name": "Título de la canción",
+        "type": "Alabanza | Adoración | Ministración | Congregacional",
+        "key": "Tono (ej: E, G, Am)",
+        "tempo": "Rápido | Moderado | Lento",
+        "lyrics": "Texto de la letra...",
+        "chords": "Cifrado de acordes..."
       }
     `;
 

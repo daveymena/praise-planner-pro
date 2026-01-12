@@ -1,88 +1,80 @@
 import express from 'express';
 import { youtubeService } from '../services/youtubeService.js';
 import { aiService } from '../services/aiService.js';
+import { lyricsService } from '../services/lyricsService.js';
 
 const router = express.Router();
 
 // POST /api/ai/extract-song
 router.post('/extract-song', async (req, res) => {
     try {
-        const { url } = req.body;
+        const { url, text, searchQuery, type } = req.body;
+        let context = "";
+        let sourceInfo = "AI Internal Knowledge";
 
-        if (!url) {
-            return res.status(400).json({ error: 'YouTube URL is required' });
+        // Flow 1: Search Query (Backend searches web, then AI processes)
+        if (type === 'search' || searchQuery) {
+            const query = searchQuery || req.body.name;
+            console.log(`🌐 Searching web for: ${query}`);
+            const webLyrics = await lyricsService.searchAndGetLyrics(query);
+            if (webLyrics) {
+                context = `Web Search Results for "${query}":\n${webLyrics}`;
+                sourceInfo = "Web Search + AI";
+            } else {
+                context = `Song Name: ${query}`;
+                console.warn('⚠️ Web search returned no results, relying on AI knowledge.');
+            }
+        }
+        // Flow 2: Manual Paste
+        else if (text) {
+            context = `Pasted Text Content:\n${text}`;
+            sourceInfo = "Manual Paste + AI";
+        }
+        // Flow 3: Legacy YouTube URL
+        else if (url) {
+            console.log(`🔍 Extracting from YouTube: ${url}`);
+            const videoDetails = await youtubeService.getVideoDetails(url);
+            context = `Title: ${videoDetails.title}\nDescription: ${videoDetails.description}\nTranscript: ${videoDetails.transcript}`;
+            sourceInfo = "YouTube + AI";
         }
 
-        console.log(`🔍 Extracting song data from: ${url}`);
-
-        // 1. Fetch YouTube Data
-        const videoDetails = await youtubeService.getVideoDetails(url);
-        console.log(`✅ YouTube Data Fetched: ${videoDetails.title}`);
-
-        // 2. Prepare context for AI
-        const context = `
-      Title: ${videoDetails.title}
-      Description: ${videoDetails.description}
-      Transcript/Lyrics: ${videoDetails.transcript}
-    `;
+        if (!context && !searchQuery) {
+            return res.status(400).json({ error: 'At least URL, Text, or Search Query is required' });
+        }
 
         // 3. Call AI
-        // 3. Call AI with Fallback/Hybrid Logic
-        let extractedData = {};
-        try {
-            extractedData = await aiService.extractSongData(context);
-            console.log('✅ AI Extraction successful');
-        } catch (aiError) {
-            console.warn('⚠️ AI Extraction failed or timed out. Using YouTube data as fallback.');
-            console.warn(aiError.message);
-            // Allow extractedData to remain empty so we fill it with YouTube data below
-        }
-
-        // 4. Merge & Validate Logic (Hybrid + Normalization)
+        const extractedData = await aiService.extractSongData(context || `Song: ${searchQuery}`);
+        console.log(`✅ AI Extraction successful via ${sourceInfo}`);
 
         // Helper to normalize Enum values for Frontend Dropdowns
         const normalizeTempo = (t) => {
             if (!t) return 'Moderado';
             const lower = t.toLowerCase();
-            if (lower.includes('rapido') || lower.includes('fast') || lower.includes('upbeat')) return 'Rápido';
+            if (lower.includes('rapido') || lower.includes('fast') || lower.includes('upbeat') || lower.includes('rápido')) return 'Rápido';
             if (lower.includes('lento') || lower.includes('slow') || lower.includes('ballad')) return 'Lento';
             return 'Moderado';
         };
 
         const normalizeType = (t) => {
-            if (!t) return 'Alabanza'; // Default
+            if (!t) return 'Alabanza';
             const lower = t.toLowerCase();
-            if (lower.includes('adoracion') || lower.includes('worship')) return 'Adoración';
-            if (lower.includes('ministracion') || lower.includes('ministry')) return 'Ministración';
-            if (lower.includes('congregacion')) return 'Congregacional';
+            if (lower.includes('adoracion') || lower.includes('worship') || lower.includes('adoración')) return 'Adoración';
+            if (lower.includes('ministracion') || lower.includes('ministry') || lower.includes('ministración')) return 'Ministración';
+            if (lower.includes('congregacion') || lower.includes('congregacional')) return 'Congregacional';
             return 'Alabanza';
         };
 
         const finalData = {
-            name: (extractedData.name && extractedData.name !== 'YouTube') ? extractedData.name : videoDetails.title,
+            name: extractedData.name || searchQuery || '',
             type: normalizeType(extractedData.type),
             key: extractedData.key || '',
             tempo: normalizeTempo(extractedData.tempo),
-            lyrics: extractedData.lyrics || videoDetails.transcript || '',
+            lyrics: extractedData.lyrics || '',
             chords: extractedData.chords || ''
         };
 
-        // Hallucination Check: If lyrics look broken (repetition), revert to transcript
-        if (finalData.lyrics && finalData.lyrics.length > 50) {
-            const sample = finalData.lyrics.substring(0, 50);
-            if (finalData.lyrics.includes("Tranquilo, tranquilo") || finalData.lyrics.includes(sample + sample)) {
-                console.warn('⚠️ Detected repetition hallucination. Reverting lyrics to raw transcript.');
-                finalData.lyrics = videoDetails.transcript || '';
-            }
-        }
-
-        // Remove prompt leakage if present
-        if (finalData.lyrics && finalData.lyrics.includes("Full lyrics formatted")) {
-            finalData.lyrics = videoDetails.transcript || '';
-        }
-
         res.json({
-            source: 'ai_hybrid',
+            source: sourceInfo,
             data: finalData
         });
 

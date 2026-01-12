@@ -78,35 +78,50 @@ export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
   };
 
   const [isExtracting, setIsExtracting] = useState(false);
+  const [showPasteArea, setShowPasteArea] = useState(false);
+  const [pastedText, setPastedText] = useState("");
 
-  const handleAutoFill = async () => {
-    const url = form.getValues('youtube_url');
-    if (!url) return;
+  const handleAIAutoFill = async (mode: 'search' | 'paste') => {
+    const name = form.getValues('name');
+    if (mode === 'search' && !name) {
+      toast.error("Escribe el nombre de la canción para buscar");
+      return;
+    }
+
+    if (mode === 'paste' && !pastedText) {
+      toast.error("Pega el texto de la letra o acordes");
+      return;
+    }
 
     setIsExtracting(true);
     try {
-      // Use relative path which works for both dev (proxy) and prod
       const response = await fetch('/api/ai/extract-song', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url })
+        body: JSON.stringify({
+          type: mode,
+          searchQuery: mode === 'search' ? name : undefined,
+          text: mode === 'paste' ? pastedText : undefined
+        })
       });
 
       if (!response.ok) throw new Error('Failed to extract data');
 
-      const { data } = await response.json();
+      const { data, source } = await response.json();
 
       if (data.name) form.setValue('name', data.name);
-      if (data.type) form.setValue('type', data.type); // Added Type
+      if (data.type) form.setValue('type', data.type);
       if (data.key) form.setValue('key', data.key);
       if (data.tempo) form.setValue('tempo', data.tempo);
       if (data.lyrics) form.setValue('lyrics', data.lyrics);
       if (data.chords) form.setValue('chords', data.chords);
 
-      toast.success("¡Datos extraídos con Inteligencia Artificial!");
+      toast.success(`✓ Autocompletado vía ${source}`);
+      setShowPasteArea(false);
+      setPastedText("");
     } catch (error) {
       console.error(error);
-      toast.error("No se pudo extraer la información. Verifica la URL.");
+      toast.error("No se pudo completar la información. Intenta pegar el texto manualmente.");
     } finally {
       setIsExtracting(false);
     }
@@ -225,34 +240,64 @@ export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
 
         </div>
 
-        <div className="flex gap-4 items-end">
-          <FormField
-            control={form.control}
-            name="youtube_url"
-            render={({ field }) => (
-              <FormItem className="flex-1">
-                <FormLabel>URL de YouTube (opcional)</FormLabel>
-                <FormControl>
-                  <Input placeholder="https://youtube.com/watch?v=..." {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button
-            type="button"
-            variant="secondary"
-            className="mb-8"
-            disabled={isExtracting || !form.watch('youtube_url')}
-            onClick={handleAutoFill}
-          >
-            {isExtracting ? (
-              <span className="animate-spin mr-2">✨</span>
-            ) : (
-              <span className="mr-2">✨</span>
-            )}
-            {isExtracting ? 'Analizando...' : 'Auto-completar con IA'}
-          </Button>
+        <div className="bg-muted/30 p-4 rounded-lg border border-dashed border-primary/30 space-y-4">
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div className="space-y-1">
+              <h4 className="text-sm font-semibold flex items-center gap-2">
+                <span className="text-primary">✨</span> Asistente IA de Autocompletado
+              </h4>
+              <p className="text-xs text-muted-foreground">
+                Escribe el nombre y usa la IA para rellenar todo el formulario.
+              </p>
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="default"
+                disabled={isExtracting || !form.watch('name')}
+                onClick={() => handleAIAutoFill('search')}
+                className="bg-primary/90 hover:bg-primary"
+              >
+                {isExtracting ? (
+                  <span className="animate-spin mr-2">⏳</span>
+                ) : (
+                  <span className="mr-2">🔍</span>
+                )}
+                {isExtracting ? 'Buscando...' : 'Completar con IA'}
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isExtracting}
+                onClick={() => setShowPasteArea(!showPasteArea)}
+              >
+                <span className="mr-2">📋</span>
+                {showPasteArea ? 'Cerrar' : 'Pegar y Formatear'}
+              </Button>
+            </div>
+          </div>
+
+          {showPasteArea && (
+            <div className="space-y-3 pt-2 animate-in fade-in slide-in-from-top-1">
+              <Textarea
+                placeholder="Pega aquí la letra y/o acordes que encontraste en Google o cualquier otro sitio..."
+                className="min-h-[150px] text-sm font-mono"
+                value={pastedText}
+                onChange={(e) => setPastedText(e.target.value)}
+              />
+              <Button
+                type="button"
+                className="w-full"
+                variant="secondary"
+                disabled={isExtracting || !pastedText}
+                onClick={() => handleAIAutoFill('paste')}
+              >
+                {isExtracting ? 'Procesando Texto...' : '✨ Formatear y Rellenar Formulario'}
+              </Button>
+            </div>
+          )}
         </div>
 
         <FormField
