@@ -18,22 +18,29 @@ class AiService {
 
             console.log('📋 Available models:', availableModels);
 
-            // 1. Try Primary Model
-            if (availableModels.some(m => m.includes(this.model))) {
-                console.log(`✅ Using primary model: ${this.model}`);
-                return this.model;
+            // Priority List based on User's available models (Fastest first)
+            const preferredModels = [
+                'llama3.2:1b',  // Ultra fast (1.3GB)
+                'gemma2:2b',    // Fast (1.6GB)
+                'qwen2.5:3b',   // Good Balance (1.9GB)
+                'llama3.2:3b'   // Original default
+            ];
+
+            console.log('📋 Available models on server:', availableModels);
+
+            // Find the first matching model from our preference list
+            for (const preferred of preferredModels) {
+                const match = availableModels.find(m => m.includes(preferred));
+                if (match) {
+                    console.log(`✅ Selected optimal model: ${match}`);
+                    return match;
+                }
             }
 
-            // 2. Try Fast/Fallback Model
-            if (availableModels.some(m => m.includes(this.fastModel))) {
-                console.log(`⚠️ Primary model not found. Using fallback: ${this.fastModel}`);
-                return this.fastModel;
-            }
-
-            // 3. Last Resort: Use the first available model
+            // Fallback: Use the first available model if none of the preferred ones match
             if (availableModels.length > 0) {
                 const firstModel = availableModels[0];
-                console.log(`⚠️ No preferred models found. Using available: ${firstModel}`);
+                console.log(`⚠️ No preferred models found. Fail-safe to: ${firstModel}`);
                 return firstModel;
             }
 
@@ -85,7 +92,8 @@ class AiService {
                 format: "json", // Force JSON mode if supported by the model/version
                 options: {
                     temperature: 0.1 // Low temperature for deterministic extraction
-                }
+                },
+                timeout: 300000 // 5 minutes timeout (to prevent hanging forever, but usually enough for low-resource CPUs)
             });
 
             const jsonResponse = response.data.response;
