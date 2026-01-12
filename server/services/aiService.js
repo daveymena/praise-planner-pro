@@ -61,39 +61,34 @@ class AiService {
         const selectedModel = await this.getBestAvailableModel();
 
         const prompt = `
-      You are a specialized assistant for a Worship Ministry.
-      Extract the following song details from the provided text (Title, Description, and Transcript/Lyrics).
-      
-      Return ONLY valid JSON (no markdown, no explanations) with this exact structure:
+      Extract song details from the text below.
+      Input Text:
+      "${textContext.substring(0, 4000).replace(/"/g, "'")}"
+
+      Return strictly valid JSON. Format:
       {
         "name": "Song Title",
-        "key": "Musical Key (e.g. C, D, Em) - infer if possible, otherwise leave empty",
+        "key": "Key (e.g. C, G)",
         "tempo": "Rápido" | "Moderado" | "Lento",
-        "lyrics": "Full lyrics formatted with line breaks",
-        "chords": "Chords/Chart in text format if found, otherwise empty"
+        "lyrics": "Lyrics text",
+        "chords": "Chords text"
       }
-
-      Input Text:
-      ${textContext.substring(0, 6000)} -- Truncated to avoid context limit
     `;
 
         try {
-            // Try with the "Fast" model first? Or just the standard one?
-            // The user suggested using the "fast" model availability check, 
-            // but for extraction quality, Llama 3.2 is likely better than Gemma 2b.
-            // Let's us the standard MODEL variable as primary.
-
             console.log(`🤖 Sending request to Ollama (${selectedModel})...`);
 
             const response = await axios.post(`${this.baseUrl}/api/generate`, {
                 model: selectedModel,
                 prompt: prompt,
                 stream: false,
-                format: "json", // Force JSON mode if supported by the model/version
+                format: "json",
                 options: {
-                    temperature: 0.1 // Low temperature for deterministic extraction
+                    temperature: 0.3,       // Higher temp to avoid 1-word loops
+                    repeat_penalty: 1.2,    // Strong penalty for repetition (fixes "Tranquilo, tranquilo...")
+                    num_ctx: 4096           // Ensure enough context window
                 },
-                timeout: 300000 // 5 minutes timeout (to prevent hanging forever, but usually enough for low-resource CPUs)
+                timeout: 300000 // 5 minutes timeout
             });
 
             const jsonResponse = response.data.response;

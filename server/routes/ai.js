@@ -27,12 +27,44 @@ router.post('/extract-song', async (req, res) => {
     `;
 
         // 3. Call AI
-        const extractedData = await aiService.extractSongData(context);
-        console.log('✅ AI Extraction Complete');
+        // 3. Call AI with Fallback/Hybrid Logic
+        let extractedData = {};
+        try {
+            extractedData = await aiService.extractSongData(context);
+            console.log('✅ AI Extraction successful');
+        } catch (aiError) {
+            console.warn('⚠️ AI Extraction failed or timed out. Using YouTube data as fallback.');
+            console.warn(aiError.message);
+            // Allow extractedData to remain empty so we fill it with YouTube data below
+        }
+
+        // 4. Merge & Validate Logic (The "Hybrid" Approach)
+        // If AI returned garbage or nothing, use the raw YouTube data.
+        const finalData = {
+            name: (extractedData.name && extractedData.name !== 'YouTube') ? extractedData.name : videoDetails.title,
+            key: extractedData.key || '',
+            tempo: extractedData.tempo || 'Moderado',
+            lyrics: extractedData.lyrics || videoDetails.transcript || '',
+            chords: extractedData.chords || ''
+        };
+
+        // Hallucination Check: If lyrics look broken (repetition), revert to transcript
+        if (finalData.lyrics && finalData.lyrics.length > 50) {
+            const sample = finalData.lyrics.substring(0, 50);
+            if (finalData.lyrics.includes("Tranquilo, tranquilo") || finalData.lyrics.includes(sample + sample)) {
+                console.warn('⚠️ Detected repetition hallucination. Reverting lyrics to raw transcript.');
+                finalData.lyrics = videoDetails.transcript || '';
+            }
+        }
+
+        // Remove prompt leakage if present
+        if (finalData.lyrics && finalData.lyrics.includes("Full lyrics formatted")) {
+            finalData.lyrics = videoDetails.transcript || '';
+        }
 
         res.json({
-            source: 'ai',
-            data: extractedData
+            source: 'ai_hybrid',
+            data: finalData
         });
 
     } catch (error) {
