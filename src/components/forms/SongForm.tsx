@@ -97,6 +97,7 @@ export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
       const { data } = await response.json();
 
       if (data.name) form.setValue('name', data.name);
+      if (data.type) form.setValue('type', data.type); // Added Type
       if (data.key) form.setValue('key', data.key);
       if (data.tempo) form.setValue('tempo', data.tempo);
       if (data.lyrics) form.setValue('lyrics', data.lyrics);

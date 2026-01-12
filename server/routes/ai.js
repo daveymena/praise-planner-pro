@@ -38,12 +38,31 @@ router.post('/extract-song', async (req, res) => {
             // Allow extractedData to remain empty so we fill it with YouTube data below
         }
 
-        // 4. Merge & Validate Logic (The "Hybrid" Approach)
-        // If AI returned garbage or nothing, use the raw YouTube data.
+        // 4. Merge & Validate Logic (Hybrid + Normalization)
+
+        // Helper to normalize Enum values for Frontend Dropdowns
+        const normalizeTempo = (t) => {
+            if (!t) return 'Moderado';
+            const lower = t.toLowerCase();
+            if (lower.includes('rapido') || lower.includes('fast') || lower.includes('upbeat')) return 'Rápido';
+            if (lower.includes('lento') || lower.includes('slow') || lower.includes('ballad')) return 'Lento';
+            return 'Moderado';
+        };
+
+        const normalizeType = (t) => {
+            if (!t) return 'Alabanza'; // Default
+            const lower = t.toLowerCase();
+            if (lower.includes('adoracion') || lower.includes('worship')) return 'Adoración';
+            if (lower.includes('ministracion') || lower.includes('ministry')) return 'Ministración';
+            if (lower.includes('congregacion')) return 'Congregacional';
+            return 'Alabanza';
+        };
+
         const finalData = {
             name: (extractedData.name && extractedData.name !== 'YouTube') ? extractedData.name : videoDetails.title,
+            type: normalizeType(extractedData.type),
             key: extractedData.key || '',
-            tempo: extractedData.tempo || 'Moderado',
+            tempo: normalizeTempo(extractedData.tempo),
             lyrics: extractedData.lyrics || videoDetails.transcript || '',
             chords: extractedData.chords || ''
         };

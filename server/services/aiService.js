@@ -68,6 +68,7 @@ class AiService {
       Return strictly valid JSON. Format:
       {
         "name": "Song Title",
+        "type": "Alabanza" | "Adoración" | "Congregacional",
         "key": "Key (e.g. C, G)",
         "tempo": "Rápido" | "Moderado" | "Lento",
         "lyrics": "Lyrics text",
