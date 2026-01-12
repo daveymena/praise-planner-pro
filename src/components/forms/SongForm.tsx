@@ -12,6 +12,8 @@ import { useCreateSong, useUpdateSong } from "@/hooks/useSongs";
 import { useMembers } from "@/hooks/useMembers";
 import { toast } from "sonner";
 import type { CreateSongData } from "@/types/api";
+import { Music, ExternalLink, Youtube, Search, ClipboardList, Sparkles, Loader2 } from "lucide-react";
+import type { Database } from "@/integrations/supabase/types";
 
 const songSchema = z.object({
   name: z.string().min(1, "El nombre es requerido"),
@@ -218,7 +220,6 @@ export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="duration_minutes"
@@ -237,8 +238,41 @@ export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
               </FormItem>
             )}
           />
-
         </div>
+
+        <FormField
+          control={form.control}
+          name="youtube_url"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="flex items-center gap-2">
+                <Youtube className="w-4 h-4 text-red-600" />
+                URL de YouTube (Video de referencia)
+              </FormLabel>
+              <FormControl>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    {...field}
+                    className="flex-1"
+                  />
+                  {field.value && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => window.open(field.value, '_blank')}
+                      title="Abrir video en YouTube"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <div className="bg-muted/30 p-4 rounded-lg border border-dashed border-primary/30 space-y-4">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
@@ -251,20 +285,31 @@ export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
               </p>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button
                 type="button"
                 variant="default"
                 disabled={isExtracting || !form.watch('name')}
                 onClick={() => handleAIAutoFill('search')}
-                className="bg-primary/90 hover:bg-primary"
+                className="bg-primary/90 hover:bg-primary flex-1 sm:flex-none"
               >
                 {isExtracting ? (
-                  <span className="animate-spin mr-2">⏳</span>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 ) : (
-                  <span className="mr-2">🔍</span>
+                  <Search className="w-4 h-4 mr-2" />
                 )}
                 {isExtracting ? 'Buscando...' : 'Completar con IA'}
+              </Button>
+
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={isExtracting || !form.watch('youtube_url')}
+                onClick={() => handleAIAutoFill('url')}
+                className="flex-1 sm:flex-none"
+              >
+                <Youtube className="w-4 h-4 mr-2" />
+                Usar Video
               </Button>
 
               <Button
@@ -272,9 +317,10 @@ export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
                 variant="outline"
                 disabled={isExtracting}
                 onClick={() => setShowPasteArea(!showPasteArea)}
+                className="flex-1 sm:flex-none"
               >
-                <span className="mr-2">📋</span>
-                {showPasteArea ? 'Cerrar' : 'Pegar y Formatear'}
+                <ClipboardList className="w-4 h-4 mr-2" />
+                {showPasteArea ? 'Cerrar' : 'Pegar Texto'}
               </Button>
             </div>
           </div>

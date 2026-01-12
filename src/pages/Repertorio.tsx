@@ -11,9 +11,10 @@ import {
   Star,
   Play,
   ExternalLink,
-  Edit,
   Trash2,
-  Loader2
+  Loader2,
+  Youtube,
+  Info
 } from "lucide-react";
 import { useState } from "react";
 import { useSongs, useToggleSongFavorite, useDeleteSong } from "@/hooks/useSongs";
@@ -41,6 +42,13 @@ export default function Repertorio() {
   const [showFavorites, setShowFavorites] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingSong, setEditingSong] = useState<Song | null>(null);
+  const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
+
+  const getYoutubeVideoId = (url: string) => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  };
 
   const { data: songs, isLoading, error } = useSongs({
     type: selectedType || undefined,
@@ -195,49 +203,64 @@ export default function Repertorio() {
                           }`} />
                       </button>
                     </div>
-                    <Badge className={`mt-2 ${typeColors[song.type]}`}>
+                    <Badge className={`mt-2 ${typeColors[song.type as keyof typeof typeColors] || 'bg-gray-500/10 text-gray-600 border-gray-500/20'}`}>
                       {song.type}
                     </Badge>
                   </div>
-                  {song.youtube_url && (
-                    <a
-                      href={song.youtube_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => handleToggleFavorite(song)}
+                      disabled={toggleFavorite.isPending}
+                      className="p-1.5 hover:bg-secondary rounded-full transition-colors"
                     >
-                      <Play className="w-4 h-4 text-primary ml-0.5" />
-                    </a>
-                  )}
+                      <Star className={`w-5 h-5 transition-colors ${song.is_favorite
+                        ? 'text-amber-500 fill-amber-500'
+                        : 'text-muted-foreground hover:text-amber-500'
+                        }`} />
+                    </button>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <div className="flex items-center gap-4 text-sm text-muted-foreground bg-muted/20 p-2 rounded-md border border-border/30">
                   <div className="flex items-center gap-1.5">
-                    <Music className="w-3.5 h-3.5" />
+                    <Music className="w-3.5 h-3.5 text-primary" />
                     <span>Tono: <strong className="text-foreground">{song.key}</strong></span>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className={`w-2 h-2 rounded-full ${tempoColors[song.tempo].replace('text-', 'bg-')}`} />
-                    <span>{song.tempo}</span>
+                  <div className="flex items-center gap-1.5 border-l border-border/50 pl-4">
+                    <span className={`w-2.5 h-2.5 rounded-full ${tempoColors[song.tempo as keyof typeof tempoColors] || 'text-gray-500'}`} style={{ backgroundColor: 'currentColor' }} />
+                    <span className="text-foreground font-medium">{song.tempo}</span>
                   </div>
                 </div>
 
                 {song.notes && (
-                  <p className="mt-3 text-xs text-muted-foreground italic bg-secondary/50 p-2 rounded-lg">
-                    "{song.notes}"
+                  <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground italic bg-secondary/30 p-2 rounded border-l-2 border-primary/20">
+                    <Info className="w-3 h-3 inline mr-1 mb-0.5" />
+                    {song.notes}
                   </p>
                 )}
 
-                <div className="flex gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex gap-2 mt-4 pt-2 border-t border-border/50">
+                  {song.youtube_url && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => setSelectedVideoUrl(song.youtube_url || null)}
+                    >
+                      <Youtube className="w-3.5 h-3.5 mr-1.5" />
+                      Video
+                    </Button>
+                  )}
+
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button
-                        variant="outline"
+                        variant="ghost"
                         size="sm"
                         className="flex-1"
                         onClick={() => setEditingSong(song)}
                       >
-                        <Edit className="w-3.5 h-3.5 mr-1" />
+                        <Edit className="w-3.5 h-3.5 mr-1.5" />
                         Editar
                       </Button>
                     </DialogTrigger>
@@ -284,6 +307,25 @@ export default function Repertorio() {
           </div>
         )}
       </div>
+
+      {/* Video Player Dialog */}
+      <Dialog open={!!selectedVideoUrl} onOpenChange={(open) => !open && setSelectedVideoUrl(null)}>
+        <DialogContent className="max-w-4xl p-0 overflow-hidden bg-black border-none">
+          {selectedVideoUrl && (
+            <div className="aspect-video w-full">
+              <iframe
+                width="100%"
+                height="100%"
+                src={`https://www.youtube.com/embed/${getYoutubeVideoId(selectedVideoUrl)}?autoplay=1`}
+                title="YouTube video player"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 }
