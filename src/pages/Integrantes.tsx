@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { MemberForm } from "@/components/forms/MemberForm";
 import {
   Plus,
   Search,
@@ -109,7 +110,10 @@ export default function Integrantes() {
                 <DialogTitle>Nuevo Integrante</DialogTitle>
                 <DialogDescription>Registre un nuevo miembro en el ministerio.</DialogDescription>
               </DialogHeader>
-              <p className="text-muted-foreground">Formulario de integrante próximamente...</p>
+              <MemberForm
+                onSuccess={() => setIsCreateDialogOpen(false)}
+                onCancel={() => setIsCreateDialogOpen(false)}
+              />
             </DialogContent>
           </Dialog>
         </div>
@@ -175,7 +179,7 @@ export default function Integrantes() {
                       <h3 className="font-semibold text-foreground truncate">
                         {member.name}
                       </h3>
-                      <Badge className={`mt-1 ${roleColors[member.role]}`}>
+                      <Badge className={`mt-1 ${roleColors[member.role as keyof typeof roleColors] || ''}`}>
                         <RoleIcon className="w-3 h-3 mr-1" />
                         {member.role}
                       </Badge>
@@ -242,7 +246,11 @@ export default function Integrantes() {
                           <DialogTitle>Editar Integrante</DialogTitle>
                           <DialogDescription>Actualice la información del integrante.</DialogDescription>
                         </DialogHeader>
-                        <p className="text-muted-foreground">Formulario de edición próximamente...</p>
+                        <MemberForm
+                          member={editingMember}
+                          onSuccess={() => setEditingMember(null)}
+                          onCancel={() => setEditingMember(null)}
+                        />
                       </DialogContent>
                     </Dialog>
 

@@ -154,10 +154,27 @@ class ApiClient {
     return this.request('/services/upcoming');
   }
 
+  async getService(id: string) {
+    return this.request(`/services/${id}`);
+  }
+
   async createService(data: any) {
     return this.request('/services', {
       method: 'POST',
       body: JSON.stringify(data),
+    });
+  }
+
+  async updateService(id: string, data: any) {
+    return this.request(`/services/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteService(id: string) {
+    return this.request(`/services/${id}`, {
+      method: 'DELETE',
     });
   }
 

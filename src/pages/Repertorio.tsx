@@ -14,7 +14,8 @@ import {
   Trash2,
   Loader2,
   Youtube,
-  Info
+  Info,
+  Sparkles
 } from "lucide-react";
 import { useState } from "react";
 import { useSongs, useToggleSongFavorite, useDeleteSong } from "@/hooks/useSongs";
@@ -109,24 +110,35 @@ export default function Repertorio() {
               {isLoading ? "Cargando..." : `${songs?.length || 0} canciones en el repertorio`}
             </p>
           </div>
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="btn-gold">
-                <Plus className="w-4 h-4 mr-2" />
-                Agregar Canción
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Nueva Canción</DialogTitle>
-                <DialogDescription>Complete los detalles para agregar una nueva canción al repertorio.</DialogDescription>
-              </DialogHeader>
-              <SongForm
-                onSuccess={() => setIsCreateDialogOpen(false)}
-                onCancel={() => setIsCreateDialogOpen(false)}
-              />
-            </DialogContent>
-          </Dialog>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              className="border-primary/50 text-primary hover:bg-primary/5 shadow-sm"
+              onClick={() => setIsCreateDialogOpen(true)}
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              Buscador IA
+            </Button>
+
+            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="btn-gold">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Agregar Canción
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Nueva Canción</DialogTitle>
+                  <DialogDescription>Complete los detalles para agregar una nueva canción al repertorio.</DialogDescription>
+                </DialogHeader>
+                <SongForm
+                  onSuccess={() => setIsCreateDialogOpen(false)}
+                  onCancel={() => setIsCreateDialogOpen(false)}
+                />
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
         {/* Filters */}
