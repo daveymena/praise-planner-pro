@@ -10,7 +10,9 @@ import membersRoutes from './routes/members.js';
 import songsRoutes from './routes/songs.js';
 import rehearsalsRoutes from './routes/rehearsals.js';
 import servicesRoutes from './routes/services.js';
+import servicesRoutes from './routes/services.js';
 import rulesRoutes from './routes/rules.js';
+import aiRoutes from './routes/ai.js';
 
 import { runMigrations } from './migrations/migrate.js';
 
@@ -75,6 +77,7 @@ app.use('/api/songs', songsRoutes);
 app.use('/api/rehearsals', rehearsalsRoutes);
 app.use('/api/services', servicesRoutes);
 app.use('/api/rules', rulesRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

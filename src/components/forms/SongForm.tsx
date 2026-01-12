@@ -77,6 +77,40 @@ export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
     }
   };
 
+  const [isExtracting, setIsExtracting] = useState(false);
+
+  const handleAutoFill = async () => {
+    const url = form.getValues('youtube_url');
+    if (!url) return;
+
+    setIsExtracting(true);
+    try {
+      // Use relative path which works for both dev (proxy) and prod
+      const response = await fetch('/api/ai/extract-song', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+      });
+
+      if (!response.ok) throw new Error('Failed to extract data');
+
+      const { data } = await response.json();
+
+      if (data.name) form.setValue('name', data.name);
+      if (data.key) form.setValue('key', data.key);
+      if (data.tempo) form.setValue('tempo', data.tempo);
+      if (data.lyrics) form.setValue('lyrics', data.lyrics);
+      if (data.chords) form.setValue('chords', data.chords);
+
+      toast.success("¡Datos extraídos con Inteligencia Artificial!");
+    } catch (error) {
+      console.error(error);
+      toast.error("No se pudo extraer la información. Verifica la URL.");
+    } finally {
+      setIsExtracting(false);
+    }
+  };
+
   const keys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "Bb", "Eb", "Ab", "Db"];
 
   return (
@@ -176,9 +210,9 @@ export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
               <FormItem>
                 <FormLabel>Duración (minutos)</FormLabel>
                 <FormControl>
-                  <Input 
-                    type="number" 
-                    placeholder="5" 
+                  <Input
+                    type="number"
+                    placeholder="5"
                     {...field}
                     onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
                   />
@@ -188,11 +222,14 @@ export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
             )}
           />
 
+        </div>
+
+        <div className="flex gap-4 items-end">
           <FormField
             control={form.control}
             name="youtube_url"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="flex-1">
                 <FormLabel>URL de YouTube (opcional)</FormLabel>
                 <FormControl>
                   <Input placeholder="https://youtube.com/watch?v=..." {...field} />
@@ -201,6 +238,20 @@ export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
               </FormItem>
             )}
           />
+          <Button
+            type="button"
+            variant="secondary"
+            className="mb-8"
+            disabled={isExtracting || !form.watch('youtube_url')}
+            onClick={handleAutoFill}
+          >
+            {isExtracting ? (
+              <span className="animate-spin mr-2">✨</span>
+            ) : (
+              <span className="mr-2">✨</span>
+            )}
+            {isExtracting ? 'Analizando...' : 'Auto-completar con IA'}
+          </Button>
         </div>
 
         <FormField
@@ -228,7 +279,7 @@ export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
             <FormItem>
               <FormLabel>Letra (opcional)</FormLabel>
               <FormControl>
-                <Textarea 
+                <Textarea
                   placeholder="Escribe la letra de la canción..."
                   className="min-h-[100px]"
                   {...field}
@@ -246,7 +297,7 @@ export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
             <FormItem>
               <FormLabel>Acordes (opcional)</FormLabel>
               <FormControl>
-                <Textarea 
+                <Textarea
                   placeholder="C - G - Am - F..."
                   className="min-h-[80px]"
                   {...field}
@@ -264,7 +315,7 @@ export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
             <FormItem>
               <FormLabel>Notas (opcional)</FormLabel>
               <FormControl>
-                <Textarea 
+                <Textarea
                   placeholder="Notas adicionales sobre la canción..."
                   {...field}
                 />
