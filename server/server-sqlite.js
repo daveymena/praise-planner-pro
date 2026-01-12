@@ -8,6 +8,7 @@ const app = express();
 const PORT = process.env.PORT || 3003;
 
 // Middleware
+// Middleware
 app.use(helmet());
 app.use(cors({
   origin: 'http://localhost:8080',
@@ -23,22 +24,103 @@ app.use(limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// JWT Secret
+const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key';
+
+// Auth Middleware
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) return res.sendStatus(401);
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403);
+    req.user = user;
+    next();
+  });
+};
+
+// Auth API
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { name, email, password, instruments } = req.body;
+    const db = await getDatabase();
+
+    // Check if user exists
+    const existing = await db.get('SELECT id FROM members WHERE email = ?', [email]);
+    if (existing) {
+      return res.status(400).json({ error: 'El correo ya está registrado' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const instrumentsJson = JSON.stringify(instruments || []);
+
+    const result = await db.run(`
+      INSERT INTO members (name, email, password, instruments, role, is_active)
+      VALUES (?, ?, ?, ?, 'member', 1)
+    `, [name, email, hashedPassword, instrumentsJson]);
+
+    const user = { id: result.lastID, name, email, role: 'member' };
+    const token = jwt.sign(user, JWT_SECRET, { expiresIn: '24h' });
+
+    res.status(201).json({ user, token });
+  } catch (error) {
+    console.error('Error registering user:', error);
+    res.status(500).json({ error: 'Error al registrar usuario' });
+  }
+});
+
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const db = await getDatabase();
+
+    const member = await db.get('SELECT * FROM members WHERE email = ?', [email]);
+    if (!member) {
+      return res.status(400).json({ error: 'Credenciales inválidas' });
+    }
+
+    // Support legacy users without password (optional, or force reset)
+    if (!member.password) {
+      // For now, allow login if no password set? No, secure it.
+      return res.status(400).json({ error: 'Usuario migrado sin contraseña. Contacte admin.' });
+    }
+
+    const validPassword = await bcrypt.compare(password, member.password);
+    if (!validPassword) {
+      return res.status(400).json({ error: 'Credenciales inválidas' });
+    }
+
+    const user = { id: member.id, name: member.name, email: member.email, role: member.role };
+    const token = jwt.sign(user, JWT_SECRET, { expiresIn: '24h' });
+
+    res.json({ user, token });
+  } catch (error) {
+    console.error('Error logging in:', error);
+    res.status(500).json({ error: 'Error al iniciar sesión' });
+  }
+});
+
 // Health check
 app.get('/health', async (req, res) => {
   try {
     const db = await getDatabase();
     await db.get('SELECT 1');
-    res.json({ 
-      status: 'OK', 
+    res.json({
+      status: 'OK',
       message: 'Praise Planner Pro API is running',
       database: 'SQLite Connected',
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    res.status(500).json({ 
-      status: 'ERROR', 
+    res.status(500).json({
+      status: 'ERROR',
       message: 'Database connection failed',
-      error: error.message 
+      error: error.message
     });
   }
 });
@@ -52,13 +134,13 @@ app.get('/api/members', async (req, res) => {
       WHERE is_active = 1 
       ORDER BY name ASC
     `);
-    
+
     // Parse instruments JSON
     const parsedMembers = members.map(member => ({
       ...member,
       instruments: member.instruments ? JSON.parse(member.instruments) : []
     }));
-    
+
     res.json(parsedMembers);
   } catch (error) {
     console.error('Error fetching members:', error);
@@ -71,7 +153,7 @@ app.get('/api/songs', async (req, res) => {
   try {
     const { type, favorite, search } = req.query;
     const db = await getDatabase();
-    
+
     let query = `
       SELECT s.*, m.name as created_by_name 
       FROM songs s
@@ -107,11 +189,11 @@ app.get('/api/songs', async (req, res) => {
 // Create song
 app.post('/api/songs', async (req, res) => {
   try {
-    const { 
-      name, type, key, tempo, is_favorite, lyrics, chords, 
-      notes, youtube_url, duration_minutes, created_by 
+    const {
+      name, type, key, tempo, is_favorite, lyrics, chords,
+      notes, youtube_url, duration_minutes, created_by
     } = req.body;
-    
+
     const db = await getDatabase();
     const result = await db.run(`
       INSERT INTO songs (
@@ -120,7 +202,7 @@ app.post('/api/songs', async (req, res) => {
       )
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [name, type, key, tempo, is_favorite ? 1 : 0, lyrics, chords, notes, youtube_url, duration_minutes, created_by]);
-    
+
     const newSong = await db.get('SELECT * FROM songs WHERE id = ?', [result.lastID]);
     res.status(201).json(newSong);
   } catch (error) {
@@ -134,20 +216,20 @@ app.patch('/api/songs/:id/favorite', async (req, res) => {
   try {
     const { id } = req.params;
     const { is_favorite } = req.body;
-    
+
     const db = await getDatabase();
     await db.run(`
       UPDATE songs 
       SET is_favorite = ?, updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `, [is_favorite ? 1 : 0, id]);
-    
+
     const updatedSong = await db.get('SELECT * FROM songs WHERE id = ?', [id]);
-    
+
     if (!updatedSong) {
       return res.status(404).json({ error: 'Song not found' });
     }
-    
+
     res.json(updatedSong);
   } catch (error) {
     console.error('Error updating song favorite:', error);
@@ -160,13 +242,13 @@ app.delete('/api/songs/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const db = await getDatabase();
-    
+
     const result = await db.run('DELETE FROM songs WHERE id = ?', [id]);
-    
+
     if (result.changes === 0) {
       return res.status(404).json({ error: 'Song not found' });
     }
-    
+
     res.json({ message: 'Song deleted successfully' });
   } catch (error) {
     console.error('Error deleting song:', error);
@@ -186,14 +268,14 @@ app.get('/api/rehearsals', async (req, res) => {
       LEFT JOIN members m ON r.created_by = m.id
       ORDER BY r.date DESC
     `);
-    
+
     // Add empty arrays for related data (simplified version)
     const rehearsalsWithRelations = rehearsals.map(rehearsal => ({
       ...rehearsal,
       rehearsal_songs: [],
       rehearsal_attendance: []
     }));
-    
+
     res.json(rehearsalsWithRelations);
   } catch (error) {
     console.error('Error fetching rehearsals:', error);
@@ -215,13 +297,13 @@ app.get('/api/rehearsals/upcoming', async (req, res) => {
       ORDER BY r.date ASC
       LIMIT 5
     `);
-    
+
     const rehearsalsWithRelations = rehearsals.map(rehearsal => ({
       ...rehearsal,
       rehearsal_songs: [],
       rehearsal_attendance: []
     }));
-    
+
     res.json(rehearsalsWithRelations);
   } catch (error) {
     console.error('Error fetching upcoming rehearsals:', error);
@@ -259,7 +341,7 @@ app.get('/api/rules', async (req, res) => {
       WHERE mr.is_active = 1
       ORDER BY mr.category, mr.order_position
     `);
-    
+
     // Group by category
     const grouped = rules.reduce((acc, rule) => {
       const category = rule.category || 'General';
@@ -269,7 +351,7 @@ app.get('/api/rules', async (req, res) => {
       acc[category].push(rule);
       return acc;
     }, {});
-    
+
     res.json(grouped);
   } catch (error) {
     console.error('Error fetching rules:', error);
@@ -282,17 +364,17 @@ app.delete('/api/rules/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const db = await getDatabase();
-    
+
     const result = await db.run(`
       UPDATE ministry_rules 
       SET is_active = 0, updated_at = CURRENT_TIMESTAMP
       WHERE id = ? AND is_active = 1
     `, [id]);
-    
+
     if (result.changes === 0) {
       return res.status(404).json({ error: 'Rule not found' });
     }
-    
+
     res.json({ message: 'Rule deleted successfully' });
   } catch (error) {
     console.error('Error deleting rule:', error);
@@ -306,13 +388,13 @@ app.patch('/api/rehearsals/:id/attendance', async (req, res) => {
     const { id: rehearsalId } = req.params;
     const { memberId, status } = req.body;
     const db = await getDatabase();
-    
+
     // First, check if attendance record exists
     const existing = await db.get(`
       SELECT id FROM rehearsal_attendance 
       WHERE rehearsal_id = ? AND member_id = ?
     `, [rehearsalId, memberId]);
-    
+
     let result;
     if (existing) {
       // Update existing record
@@ -321,12 +403,12 @@ app.patch('/api/rehearsals/:id/attendance', async (req, res) => {
         SET status = ?
         WHERE rehearsal_id = ? AND member_id = ?
       `, [status, rehearsalId, memberId]);
-      
+
       const updated = await db.get(`
         SELECT * FROM rehearsal_attendance 
         WHERE rehearsal_id = ? AND member_id = ?
       `, [rehearsalId, memberId]);
-      
+
       res.json(updated);
     } else {
       // Create new record
@@ -334,11 +416,11 @@ app.patch('/api/rehearsals/:id/attendance', async (req, res) => {
         INSERT INTO rehearsal_attendance (rehearsal_id, member_id, status)
         VALUES (?, ?, ?)
       `, [rehearsalId, memberId, status]);
-      
+
       const newRecord = await db.get(`
         SELECT * FROM rehearsal_attendance WHERE id = ?
       `, [result.lastID]);
-      
+
       res.json(newRecord);
     }
   } catch (error) {

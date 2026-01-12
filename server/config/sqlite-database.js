@@ -36,6 +36,7 @@ async function initializeTables() {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       email TEXT UNIQUE,
+      password TEXT, -- New password column
       phone TEXT,
       instruments TEXT, -- JSON array
       role TEXT DEFAULT 'member',

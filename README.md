@@ -1,8 +1,49 @@
+<<<<<<< HEAD
 # 🎵 Praise Planner Pro
 
 Sistema completo de gestión para ministerios de alabanza y adoración.
 
 ## ✨ Características
+=======
+# Praise Planner Pro
+
+Aplicación de planificación para ministerios de alabanza construida con React, TypeScript, Vite y Supabase.
+
+## 🚀 Despliegue en Easypanel
+
+Este proyecto está configurado para desplegarse en Easypanel usando Docker.
+
+### Variables de Entorno Requeridas
+
+En Easypanel, debes configurar las siguientes variables de entorno como **Build Arguments**:
+
+- `VITE_SUPABASE_URL`: La URL de tu proyecto Supabase (ej: `https://tu-proyecto.supabase.co` o `http://tu-supabase-url:8000` si es self-hosted)
+- `VITE_SUPABASE_PUBLISHABLE_KEY`: La clave pública (anon key) de tu proyecto Supabase
+
+**Nota:** Si estás usando Supabase self-hosted con tu base de datos PostgreSQL, necesitas:
+1. La URL de Supabase API (no la URL de PostgreSQL directamente)
+2. La clave anon/public key de Supabase
+
+Si tienes PostgreSQL directamente y quieres usar Supabase self-hosted, necesitas configurar Supabase para que use tu base de datos PostgreSQL como backend.
+
+### Configuración en Easypanel
+
+1. Crea un nuevo servicio en Easypanel
+2. Selecciona "Git" como fuente
+3. Conecta el repositorio: `https://github.com/daveymena/praise-planner-pro.git`
+4. En la sección de Build Arguments, agrega:
+   - `VITE_SUPABASE_URL` = tu URL de Supabase
+   - `VITE_SUPABASE_PUBLISHABLE_KEY` = tu clave pública de Supabase
+5. El puerto debe ser `80` (ya configurado en el Dockerfile)
+6. Easypanel detectará automáticamente el Dockerfile
+
+### Estructura del Proyecto
+
+El proyecto incluye:
+- `Dockerfile`: Configuración multi-stage para producción
+- `nginx.conf`: Configuración de Nginx para servir la aplicación
+- `.dockerignore`: Archivos excluidos del build de Docker
+>>>>>>> 547bf4b29666d8a4068b92295cae21fc2f742582
 
 - 👥 **Gestión de Miembros**: Administra integrantes, roles, instrumentos y contactos
 - 🎵 **Repertorio Musical**: Organiza canciones por tipo, tonalidad y favoritas
