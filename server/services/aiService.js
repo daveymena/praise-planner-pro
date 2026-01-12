@@ -21,10 +21,10 @@ class AiService {
 
             // Priority List based on User's available models (Fastest first)
             const preferredModels = [
-                'llama3.2:1b',  // Ultra fast (1.3GB)
-                'gemma2:2b',    // Fast (1.6GB)
-                'qwen2.5:3b',   // Good Balance (1.9GB)
-                'llama3.2:3b'   // Original default
+                'qwen2.5:3b',   // Best instruction following / Fast (1.9GB)
+                'gemma2:2b',    // Good balance (1.6GB)
+                'llama3.2:3b',  // Stable (2.0GB)
+                'llama3.2:1b'   // Ultra fast but "too smart" with formatting (1.3GB)
             ];
 
             console.log('📋 Available models on server:', availableModels);
@@ -62,30 +62,31 @@ class AiService {
         const selectedModel = await this.getBestAvailableModel();
 
         const prompt = `
-      Eres un experto en música cristiana y alabanza profesional.
-      Analiza el siguiente texto (que puede ser letra, acordes o información de una canción) y extrae los detalles técnicos para completar un formulario.
+      Analiza el siguiente texto y extrae los detalles técnicos para completar un formulario de música.
 
       TEXTO DE ENTRADA:
       "${textContext.substring(0, 8000).replace(/"/g, "'")}"
-      REGLAS CRUCIALES:
-      1. Devuelve ESTRICTAMENTE JSON válido.
-      2. Extrae la LETRA COMPLETA (FULL LYRICS). No resumas, no cortes. Captura cada estrofa y coro.
-      3. Extrae todos los ACORDES (FULL CHORDS) si están presentes, preservando el cifrado.
-      4. Si hay acordes sobre la letra en el texto original, intenta separarlos: pon la letra limpia en "lyrics" y una versión funcional de los acordes en "chords".
-      5. "type" debe ser uno de: "Alabanza", "Adoración", "Ministración", "Congregacional".
-      6. "tempo" debe ser uno de: "Rápido", "Moderado", "Lento".
-      7. No inventes información, pero deduce Tono y Tempo si el texto lo permite.
 
-      FORMATO JSON DE SALIDA:
+      REGLAS ESTRICTAS DE EXTRACCIÓN:
+      1. Devuelve ESTRICTAMENTE JSON válido.
+      2. LETRA (lyrics): Debe ser un STRING (texto) con la letra completa. NO uses objetos ni arreglos dentro de este campo.
+      3. ACORDES (chords): Debe ser un STRING (texto) con el cifrado. NO uses objetos ni arreglos.
+      4. TIPO (type): Elige EXACTAMENTE UNO: "Alabanza", "Adoración", "Ministración", "Congregacional".
+      5. TEMPO (tempo): Elige EXACTAMENTE UNO: "Rápido", "Moderado", "Lento".
+      6. TONALIDAD (key): Una sola nota musical principal (ej: "G").
+      7. DURACIÓN (duration_minutes): Solo número entero.
+      8. Siempre prioriza la información del [TEXTO DE ENTRADA] sobre tu conocimiento interno.
+
+      FORMATO JSON:
       {
-        "name": "Título de la canción",
-        "type": "Alabanza | Adoración | Ministración | Congregacional",
-        "key": "Tono (ej: E, G, Am)",
-        "tempo": "Rápido | Moderado | Lento",
+        "name": "Título exacto",
+        "type": "Selección única",
+        "key": "Nota única",
+        "tempo": "Selección única",
         "duration_minutes": 5,
-        "youtube_url": "https://www.youtube.com/watch?v=...",
-        "lyrics": "LA LETRA COMPLETA AQUÍ (SIN RECLORTES)",
-        "chords": "LITERALMENTE TODOS LOS ACORDES O CIFRADO AQUÍ"
+        "youtube_url": "URL",
+        "lyrics": "LA LETRA COMPLETA COMO TEXTO",
+        "chords": "EL CIFRADO COMPLETO COMO TEXTO"
       }
     `;
 

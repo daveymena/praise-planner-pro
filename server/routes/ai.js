@@ -23,6 +23,23 @@ const normalizeType = (t) => {
     return 'Alabanza';
 };
 
+const normalizeKey = (k) => {
+    if (!k) return '';
+    // Extract first musical note pattern (e.g. C, G#, Am, Eb) from strings like "G major (G-D-Em)"
+    const match = k.toString().match(/([A-G][#b]?(m|maj|min|7|sus[24]|dim|aug)?)/i);
+    if (match) {
+        let note = match[1];
+        // Basic clean up: capitalize root, lowercase 'm'
+        note = note.charAt(0).toUpperCase() + note.slice(1).toLowerCase();
+        // Limit recognized keys to avoid weirdness
+        const validKeys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "Bb", "Eb", "Ab", "Db", "Cm", "Dm", "Em", "Fm", "Gm", "Am", "Bm"];
+        if (validKeys.includes(note)) return note;
+        // If not in list, just return the root note
+        return note.charAt(0).toUpperCase() + (note[1] === '#' || note[1] === 'b' ? note[1] : '');
+    }
+    return k.toString().substring(0, 5).trim();
+};
+
 // POST /api/ai/extract-song
 router.post('/extract-song', async (req, res) => {
     try {
@@ -73,15 +90,38 @@ router.post('/extract-song', async (req, res) => {
         // 3. Call AI
         const extractedData = await aiService.extractSongData(context);
 
+        // Fail-safe: ensure lyrics and chords are strings (smaller models sometimes return objects)
+        const ensureString = (val) => {
+            if (typeof val === 'string') return val;
+            if (!val) return '';
+
+            // If it's an object or array, try to flatten it into readable text
+            if (typeof val === 'object') {
+                const parts = [];
+                const flatten = (obj) => {
+                    if (typeof obj === 'string') {
+                        parts.push(obj);
+                    } else if (Array.isArray(obj)) {
+                        obj.forEach(flatten);
+                    } else if (obj !== null) {
+                        Object.values(obj).forEach(flatten);
+                    }
+                };
+                flatten(val);
+                return parts.join('\n').trim();
+            }
+            return String(val);
+        };
+
         const finalData = {
             name: extractedData.name || searchQuery || '',
             type: normalizeType(extractedData.type),
-            key: extractedData.key || '',
+            key: normalizeKey(extractedData.key),
             tempo: normalizeTempo(extractedData.tempo),
             duration_minutes: extractedData.duration_minutes || 5,
             youtube_url: extractedData.youtube_url || url || '',
-            lyrics: extractedData.lyrics || '',
-            chords: extractedData.chords || ''
+            lyrics: ensureString(extractedData.lyrics),
+            chords: ensureString(extractedData.chords)
         };
 
         res.json({
