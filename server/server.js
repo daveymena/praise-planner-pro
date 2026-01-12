@@ -17,6 +17,9 @@ import { runMigrations } from './migrations/migrate.js';
 dotenv.config();
 
 const app = express();
+// Enable trust proxy for EasyPanel/Traefik
+app.set('trust proxy', 1);
+
 const PORT = process.env.PORT || 3001;
 
 // Middleware

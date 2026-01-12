@@ -15,6 +15,9 @@ COPY server/package*.json ./server/
 WORKDIR /app/server
 RUN npm install --production
 
+# Copy supabase migrations (needed for backend)
+COPY supabase/ ../supabase/
+
 # Copy backend source code
 COPY server/ ./
 
