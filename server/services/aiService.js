@@ -81,6 +81,8 @@ class AiService {
         "type": "Alabanza | Adoración | Ministración | Congregacional",
         "key": "Tono (ej: E, G, Am)",
         "tempo": "Rápido | Moderado | Lento",
+        "duration_minutes": 5,
+        "youtube_url": "https://www.youtube.com/watch?v=...",
         "lyrics": "Texto de la letra...",
         "chords": "Cifrado de acordes..."
       }

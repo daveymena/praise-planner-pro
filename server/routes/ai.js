@@ -5,6 +5,24 @@ import { lyricsService } from '../services/lyricsService.js';
 
 const router = express.Router();
 
+// Helper to normalize Enum values for Frontend Dropdowns
+const normalizeTempo = (t) => {
+    if (!t) return 'Moderado';
+    const lower = t.toString().toLowerCase();
+    if (lower.includes('rapido') || lower.includes('fast') || lower.includes('upbeat') || lower.includes('rápido')) return 'Rápido';
+    if (lower.includes('lento') || lower.includes('slow') || lower.includes('ballad')) return 'Lento';
+    return 'Moderado';
+};
+
+const normalizeType = (t) => {
+    if (!t) return 'Alabanza';
+    const lower = t.toString().toLowerCase();
+    if (lower.includes('adoracion') || lower.includes('worship') || lower.includes('adoración')) return 'Adoración';
+    if (lower.includes('ministracion') || lower.includes('ministry') || lower.includes('ministración')) return 'Ministración';
+    if (lower.includes('congregacion') || lower.includes('congregacional')) return 'Congregacional';
+    return 'Alabanza';
+};
+
 // POST /api/ai/extract-song
 router.post('/extract-song', async (req, res) => {
     try {
@@ -14,61 +32,52 @@ router.post('/extract-song', async (req, res) => {
 
         // Flow 1: Search Query (Backend searches web, then AI processes)
         if (type === 'search' || searchQuery) {
-            const query = searchQuery || req.body.name;
+            const query = searchQuery || name;
             console.log(`🌐 Searching web for: ${query}`);
-            const webLyrics = await lyricsService.searchAndGetLyrics(query);
+
+            // Search lyrics and youtube simultaneously
+            const [webLyrics, ytVideo] = await Promise.all([
+                lyricsService.searchAndGetLyrics(query),
+                youtubeService.searchVideo(query)
+            ]);
+
             if (webLyrics) {
-                context = `Web Search Results for "${query}":\n${webLyrics}`;
+                context += `\nWeb Search Results for lyrics/chords:\n${webLyrics}`;
                 sourceInfo = "Web Search + AI";
-            } else {
+            }
+
+            if (ytVideo) {
+                context += `\nReference YouTube Video: ${ytVideo.url}`;
+                if (!webLyrics) sourceInfo = "YouTube + AI";
+            }
+
+            if (!context) {
                 context = `Song Name: ${query}`;
                 console.warn('⚠️ Web search returned no results, relying on AI knowledge.');
             }
         }
-        // Flow 2: Manual Paste
+        // ... (remaining cases stay mostly same but ensure context is built)
         else if (text) {
             context = `Pasted Text Content:\n${text}`;
             sourceInfo = "Manual Paste + AI";
         }
-        // Flow 3: Legacy YouTube URL
-        else if (url) {
+        else if (url || type === 'url') {
             console.log(`🔍 Extracting from YouTube: ${url}`);
             const videoDetails = await youtubeService.getVideoDetails(url);
-            context = `Title: ${videoDetails.title}\nDescription: ${videoDetails.description}\nTranscript: ${videoDetails.transcript}`;
+            context = `YouTube Video Data:\nTitle: ${videoDetails.title}\nDescription: ${videoDetails.description}\nTranscript: ${videoDetails.transcript}\nURL: ${url}`;
             sourceInfo = "YouTube + AI";
         }
 
-        if (!context && !searchQuery) {
-            return res.status(400).json({ error: 'At least URL, Text, or Search Query is required' });
-        }
-
         // 3. Call AI
-        const extractedData = await aiService.extractSongData(context || `Song: ${searchQuery}`);
-        console.log(`✅ AI Extraction successful via ${sourceInfo}`);
-
-        // Helper to normalize Enum values for Frontend Dropdowns
-        const normalizeTempo = (t) => {
-            if (!t) return 'Moderado';
-            const lower = t.toLowerCase();
-            if (lower.includes('rapido') || lower.includes('fast') || lower.includes('upbeat') || lower.includes('rápido')) return 'Rápido';
-            if (lower.includes('lento') || lower.includes('slow') || lower.includes('ballad')) return 'Lento';
-            return 'Moderado';
-        };
-
-        const normalizeType = (t) => {
-            if (!t) return 'Alabanza';
-            const lower = t.toLowerCase();
-            if (lower.includes('adoracion') || lower.includes('worship') || lower.includes('adoración')) return 'Adoración';
-            if (lower.includes('ministracion') || lower.includes('ministry') || lower.includes('ministración')) return 'Ministración';
-            if (lower.includes('congregacion') || lower.includes('congregacional')) return 'Congregacional';
-            return 'Alabanza';
-        };
+        const extractedData = await aiService.extractSongData(context);
 
         const finalData = {
             name: extractedData.name || searchQuery || '',
             type: normalizeType(extractedData.type),
             key: extractedData.key || '',
             tempo: normalizeTempo(extractedData.tempo),
+            duration_minutes: extractedData.duration_minutes || 5,
+            youtube_url: extractedData.youtube_url || url || '',
             lyrics: extractedData.lyrics || '',
             chords: extractedData.chords || ''
         };

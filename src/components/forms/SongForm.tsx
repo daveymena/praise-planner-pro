@@ -117,6 +117,8 @@ export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
       if (data.tempo) form.setValue('tempo', data.tempo);
       if (data.lyrics) form.setValue('lyrics', data.lyrics);
       if (data.chords) form.setValue('chords', data.chords);
+      if (data.youtube_url) form.setValue('youtube_url', data.youtube_url);
+      if (data.duration_minutes) form.setValue('duration_minutes', data.duration_minutes);
 
       toast.success(`✓ Autocompletado vía ${source}`);
       setShowPasteArea(false);
@@ -133,6 +135,50 @@ export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
 
   return (
     <Form {...form}>
+      <div className="mb-8 space-y-4">
+        {/* Google-like Search Bar */}
+        <div className="relative group">
+          <div className="absolute -inset-1 bg-gradient-to-r from-primary/50 to-gold/50 rounded-2xl blur opacity-25 group-focus-within:opacity-100 transition duration-1000 group-focus-within:duration-200"></div>
+          <div className="relative flex items-center bg-background border-2 border-primary/20 rounded-2xl p-1.5 focus-within:border-primary/50 transition-all shadow-xl">
+            <div className="flex-1 flex items-center px-4">
+              <Search className="w-5 h-5 text-muted-foreground mr-3" />
+              <input
+                type="text"
+                placeholder="Busca cualquier canción (ej: Way Maker, La Bondad de Dios...)"
+                className="w-full bg-transparent border-none focus:ring-0 text-lg py-2 outline-none"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (e.currentTarget.value) {
+                      form.setValue('name', e.currentTarget.value);
+                      handleAIAutoFill('search');
+                    }
+                  }
+                }}
+                onChange={(e) => form.setValue('name', e.target.value)}
+                value={form.watch('name')}
+              />
+            </div>
+            <Button
+              type="button"
+              className="rounded-xl px-6 py-6 h-auto btn-gold shadow-md"
+              disabled={isExtracting || !form.watch('name')}
+              onClick={() => handleAIAutoFill('search')}
+            >
+              {isExtracting ? (
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              ) : (
+                <Sparkles className="w-5 h-5 mr-2" />
+              )}
+              {isExtracting ? 'Buscando...' : 'Completar con IA'}
+            </Button>
+          </div>
+          <p className="text-[10px] text-center mt-2 text-muted-foreground/70 italic">
+            Escribe el nombre de la canción y presiona "Completar con IA" para rellenar todo el formulario automáticamente.
+          </p>
+        </div>
+      </div>
+
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
@@ -274,42 +320,28 @@ export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
           )}
         />
 
-        <div className="bg-muted/30 p-4 rounded-lg border border-dashed border-primary/30 space-y-4">
+        <div className="bg-muted/30 p-4 rounded-xl border-2 border-dashed border-primary/20 space-y-4">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div className="space-y-1">
-              <h4 className="text-sm font-semibold flex items-center gap-2">
-                <span className="text-primary">✨</span> Asistente IA de Autocompletado
-              </h4>
-              <p className="text-xs text-muted-foreground">
-                Escribe el nombre y usa la IA para rellenar todo el formulario.
-              </p>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <ClipboardList className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold">Asistente de Texto</h4>
+                <p className="text-xs text-muted-foreground">Pega contenido para extraer datos.</p>
+              </div>
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                variant="default"
-                disabled={isExtracting || !form.watch('name')}
-                onClick={() => handleAIAutoFill('search')}
-                className="bg-primary/90 hover:bg-primary flex-1 sm:flex-none"
-              >
-                {isExtracting ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <Search className="w-4 h-4 mr-2" />
-                )}
-                {isExtracting ? 'Buscando...' : 'Completar con IA'}
-              </Button>
-
+            <div className="flex gap-2 w-full md:w-auto">
               <Button
                 type="button"
                 variant="secondary"
                 disabled={isExtracting || !form.watch('youtube_url')}
                 onClick={() => handleAIAutoFill('url')}
-                className="flex-1 sm:flex-none"
+                className="flex-1 md:flex-none"
               >
                 <Youtube className="w-4 h-4 mr-2" />
-                Usar Video
+                Extraer del URL
               </Button>
 
               <Button
@@ -317,30 +349,28 @@ export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
                 variant="outline"
                 disabled={isExtracting}
                 onClick={() => setShowPasteArea(!showPasteArea)}
-                className="flex-1 sm:flex-none"
+                className="flex-1 md:flex-none"
               >
-                <ClipboardList className="w-4 h-4 mr-2" />
-                {showPasteArea ? 'Cerrar' : 'Pegar Texto'}
+                {showPasteArea ? 'Ocultar' : 'Pegar Letras/Acordes'}
               </Button>
             </div>
           </div>
 
           {showPasteArea && (
-            <div className="space-y-3 pt-2 animate-in fade-in slide-in-from-top-1">
+            <div className="space-y-3 pt-2 animate-in fade-in slide-in-from-top-2">
               <Textarea
-                placeholder="Pega aquí la letra y/o acordes que encontraste en Google o cualquier otro sitio..."
-                className="min-h-[150px] text-sm font-mono"
+                placeholder="Pega aquí la letra o acordes..."
+                className="min-h-[120px] text-sm font-mono border-2"
                 value={pastedText}
                 onChange={(e) => setPastedText(e.target.value)}
               />
               <Button
                 type="button"
-                className="w-full"
-                variant="secondary"
+                className="w-full btn-gold"
                 disabled={isExtracting || !pastedText}
                 onClick={() => handleAIAutoFill('paste')}
               >
-                {isExtracting ? 'Procesando Texto...' : '✨ Formatear y Rellenar Formulario'}
+                {isExtracting ? 'Procesando...' : '✨ Analizar y Rellenar'}
               </Button>
             </div>
           )}
