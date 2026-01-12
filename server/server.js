@@ -10,7 +10,6 @@ import membersRoutes from './routes/members.js';
 import songsRoutes from './routes/songs.js';
 import rehearsalsRoutes from './routes/rehearsals.js';
 import servicesRoutes from './routes/services.js';
-import servicesRoutes from './routes/services.js';
 import rulesRoutes from './routes/rules.js';
 import aiRoutes from './routes/ai.js';
 
