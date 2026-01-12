@@ -32,8 +32,22 @@ export class YoutubeService {
             });
 
             const $ = cheerio.load(data);
-            const title = $('meta[property="og:title"]').attr('content') || $('title').text();
-            const description = $('meta[property="og:description"]').attr('content') || '';
+
+            // Try multiple sources for the title
+            let title = $('meta[property="og:title"]').attr('content') ||
+                $('meta[name="title"]').attr('content') ||
+                $('title').text() ||
+                '';
+
+            // Clean up title (remove " - YouTube" suffix)
+            title = title.replace(/- YouTube$/, '').trim();
+
+            // Additional cleanup (sometimes title is "Video Name - YouTube")
+            if (title === 'YouTube') {
+                // Try fetching from JSON-LD if available (advanced fallback)
+                // or just leave it empty to trigger client-side validation
+                title = '';
+            }
 
             // 2. Get Transcript (if available)
             let transcriptText = '';
