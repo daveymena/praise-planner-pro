@@ -160,24 +160,17 @@ CREATE TRIGGER update_services_updated_at BEFORE UPDATE ON services FOR EACH ROW
 CREATE TRIGGER update_rehearsal_attendance_updated_at BEFORE UPDATE ON rehearsal_attendance FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_ministry_rules_updated_at BEFORE UPDATE ON ministry_rules FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Enable Row Level Security
-ALTER TABLE members ENABLE ROW LEVEL SECURITY;
-ALTER TABLE songs ENABLE ROW LEVEL SECURITY;
-ALTER TABLE rehearsals ENABLE ROW LEVEL SECURITY;
-ALTER TABLE rehearsal_songs ENABLE ROW LEVEL SECURITY;
-ALTER TABLE rehearsal_attendance ENABLE ROW LEVEL SECURITY;
-ALTER TABLE services ENABLE ROW LEVEL SECURITY;
-ALTER TABLE service_songs ENABLE ROW LEVEL SECURITY;
-ALTER TABLE service_assignments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE ministry_rules ENABLE ROW LEVEL SECURITY;
+-- Row Level Security (RLS) is disabled for self-hosted deployment
+-- The application layer (Node.js) handles authentication and authorization.
 
--- Create policies (for now, allow all authenticated users)
-CREATE POLICY "Allow all for authenticated users" ON members FOR ALL TO authenticated USING (true);
-CREATE POLICY "Allow all for authenticated users" ON songs FOR ALL TO authenticated USING (true);
-CREATE POLICY "Allow all for authenticated users" ON rehearsals FOR ALL TO authenticated USING (true);
-CREATE POLICY "Allow all for authenticated users" ON rehearsal_songs FOR ALL TO authenticated USING (true);
-CREATE POLICY "Allow all for authenticated users" ON rehearsal_attendance FOR ALL TO authenticated USING (true);
-CREATE POLICY "Allow all for authenticated users" ON services FOR ALL TO authenticated USING (true);
-CREATE POLICY "Allow all for authenticated users" ON service_songs FOR ALL TO authenticated USING (true);
-CREATE POLICY "Allow all for authenticated users" ON service_assignments FOR ALL TO authenticated USING (true);
-CREATE POLICY "Allow all for authenticated users" ON ministry_rules FOR ALL TO authenticated USING (true);
+-- ALTER TABLE members ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE songs ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE rehearsals ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE rehearsal_songs ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE rehearsal_attendance ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE services ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE service_songs ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE service_assignments ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE ministry_rules ENABLE ROW LEVEL SECURITY;
+
+-- Policies removed as 'authenticated' role does not exist in standard Postgres
