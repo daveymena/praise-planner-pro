@@ -61,19 +61,35 @@ class LyricsService {
 
             const $lyrics = cheerio.load(lyricsHtml);
 
-            // Basic extraction of main content (this is a fuzzy approach)
-            // Most lyrics sites put content in <pre>, <div class="lyrics">, etc.
-            let content = $lyrics('pre').text() ||
-                $lyrics('.lyric-content').text() ||
-                $lyrics('.lyrics').text() ||
-                $lyrics('article').text();
+            // Targeted extraction strategy
+            let content = "";
 
-            // If still empty, just grab high-frequency text elements
+            if (targetUrl.includes('lacuerda.net')) {
+                content = $lyrics('pre').text();
+            } else if (targetUrl.includes('letras.com')) {
+                content = $lyrics('.cnt-letra').text() || $lyrics('article').text();
+            } else if (targetUrl.includes('cifraclub.com')) {
+                content = $lyrics('pre').text() || $lyrics('.cifra-container').text();
+            } else if (targetUrl.includes('venus.com')) { // genius or others
+                content = $lyrics('[class^="Lyrics__Container"]').text() || $lyrics('.lyrics').text();
+            }
+
+            // Universal fallback
+            if (!content || content.length < 100) {
+                content = $lyrics('pre').text() ||
+                    $lyrics('.lyric-content').text() ||
+                    $lyrics('.lyrics').text() ||
+                    $lyrics('article').text() ||
+                    $lyrics('.cnt-letra').text();
+            }
+
+            // High-frequency paragraph fallback
             if (!content || content.length < 100) {
                 content = $lyrics('p').map((i, el) => $lyrics(el).text()).get().join('\n');
             }
 
-            return content.substring(0, 5000); // Limit context size
+            // Clean up and limit to a safe but large context size
+            return content.replace(/\n\s*\n/g, '\n\n').trim().substring(0, 10000);
 
         } catch (error) {
             console.error('❌ Lyrics Search Error:', error.message);
