@@ -99,9 +99,10 @@ class AiService {
                 stream: false,
                 format: "json",
                 options: {
-                    temperature: 0.3,       // Higher temp to avoid 1-word loops
-                    repeat_penalty: 1.2,    // Strong penalty for repetition (fixes "Tranquilo, tranquilo...")
-                    num_ctx: 4096           // Ensure enough context window
+                    temperature: 0.1,       // Lower temperature for more consistency
+                    repeat_penalty: 1.1,
+                    num_ctx: 4096,          // Stable context window
+                    num_predict: 2048       // Avoid truncated lyrics
                 },
                 timeout: 300000 // 5 minutes timeout
             });

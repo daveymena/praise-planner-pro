@@ -16,7 +16,7 @@ class LyricsService {
                         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
                     },
-                    timeout: 5000
+                    timeout: 15000
                 });
 
                 const $ = cheerio.load(searchHtml);
@@ -87,7 +87,16 @@ class LyricsService {
             let content = "";
 
             // Site-specific high-precision selectors
-            if (targetUrl.includes('lacuerda.net')) content = $lyrics('pre').text();
+            if (targetUrl.includes('lacuerda.net')) {
+                // Try multiple common containers on LaCuerda
+                content = $lyrics('#m_texto').text() ||
+                    $lyrics('pre').text() ||
+                    $lyrics('#body_texto').text() ||
+                    $lyrics('.texto').text();
+
+                // Cleanup: remove ads or scripts if they got caught
+                content = content.replace(/\{[^{}]*\}/g, '').trim();
+            }
             else if (targetUrl.includes('letras.com')) content = $lyrics('.cnt-letra').text() || $lyrics('article').text();
             else if (targetUrl.includes('cifraclub.com')) content = $lyrics('pre').text() || $lyrics('.cifra-container').text();
 

@@ -63,11 +63,18 @@ export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
   const onSubmit = async (data: SongFormData) => {
     setIsSubmitting(true);
     try {
+      // Clean data: convert empty strings to null for UUID fields or optional strings
+      const payload = {
+        ...data,
+        created_by: data.created_by === "" ? null : data.created_by,
+        youtube_url: data.youtube_url === "" ? null : data.youtube_url,
+      };
+
       if (song) {
-        await updateSong.mutateAsync({ id: song.id, ...data });
+        await updateSong.mutateAsync({ id: song.id, ...payload });
         toast.success("Canción actualizada exitosamente");
       } else {
-        await createSong.mutateAsync(data);
+        await createSong.mutateAsync(payload);
         toast.success("Canción creada exitosamente");
       }
       onSuccess?.();
@@ -83,8 +90,10 @@ export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
   const [showPasteArea, setShowPasteArea] = useState(false);
   const [pastedText, setPastedText] = useState("");
 
-  const handleAIAutoFill = async (mode: 'search' | 'paste') => {
+  const handleAIAutoFill = async (mode: 'search' | 'paste' | 'url') => {
     const name = form.getValues('name');
+    const url = form.getValues('youtube_url');
+
     if (mode === 'search' && !name) {
       toast.error("Escribe el nombre de la canción para buscar");
       return;
@@ -92,6 +101,11 @@ export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
 
     if (mode === 'paste' && !pastedText) {
       toast.error("Pega el texto de la letra o acordes");
+      return;
+    }
+
+    if (mode === 'url' && !url) {
+      toast.error("Escribe o pega una URL de YouTube");
       return;
     }
 
@@ -103,7 +117,8 @@ export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
         body: JSON.stringify({
           type: mode,
           searchQuery: mode === 'search' ? name : undefined,
-          text: mode === 'paste' ? pastedText : undefined
+          text: mode === 'paste' ? pastedText : undefined,
+          url: mode === 'url' ? url : undefined
         })
       });
 

@@ -8,15 +8,15 @@ const router = express.Router();
 // Helper to normalize Enum values for Frontend Dropdowns
 const normalizeTempo = (t) => {
     if (!t) return 'Moderado';
-    const lower = t.toString().toLowerCase();
-    if (lower.includes('rapido') || lower.includes('fast') || lower.includes('upbeat') || lower.includes('rápido')) return 'Rápido';
-    if (lower.includes('lento') || lower.includes('slow') || lower.includes('ballad')) return 'Lento';
+    const lower = t.toString().toLowerCase().trim();
+    if (lower.includes('rapido') || lower.includes('fast') || lower.includes('rápido')) return 'Rápido';
+    if (lower.includes('lento') || lower.includes('slow')) return 'Lento';
     return 'Moderado';
 };
 
 const normalizeType = (t) => {
     if (!t) return 'Alabanza';
-    const lower = t.toString().toLowerCase();
+    const lower = t.toString().toLowerCase().trim();
     if (lower.includes('adoracion') || lower.includes('worship') || lower.includes('adoración')) return 'Adoración';
     if (lower.includes('ministracion') || lower.includes('ministry') || lower.includes('ministración')) return 'Ministración';
     if (lower.includes('congregacion') || lower.includes('congregacional')) return 'Congregacional';

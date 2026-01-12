@@ -186,6 +186,29 @@ app.get('/api/songs', async (req, res) => {
   }
 });
 
+// GET /api/songs/:id
+app.get('/api/songs/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const db = await getDatabase();
+    const song = await db.get(`
+      SELECT s.*, m.name as created_by_name 
+      FROM songs s
+      LEFT JOIN members m ON s.created_by = m.id
+      WHERE s.id = ?
+    `, [id]);
+
+    if (!song) {
+      return res.status(404).json({ error: 'Song not found' });
+    }
+
+    res.json(song);
+  } catch (error) {
+    console.error('Error fetching song:', error);
+    res.status(500).json({ error: 'Failed to fetch song' });
+  }
+});
+
 // Create song
 app.post('/api/songs', async (req, res) => {
   try {
@@ -208,6 +231,37 @@ app.post('/api/songs', async (req, res) => {
   } catch (error) {
     console.error('Error creating song:', error);
     res.status(500).json({ error: 'Failed to create song' });
+  }
+});
+
+// Update song
+app.put('/api/songs/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      name, type, key, tempo, is_favorite, lyrics, chords,
+      notes, youtube_url, duration_minutes
+    } = req.body;
+
+    const db = await getDatabase();
+    await db.run(`
+      UPDATE songs 
+      SET name = ?, type = ?, key = ?, tempo = ?, is_favorite = ?,
+          lyrics = ?, chords = ?, notes = ?, youtube_url = ?, 
+          duration_minutes = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `, [name, type, key, tempo, is_favorite ? 1 : 0, lyrics, chords, notes, youtube_url, duration_minutes, id]);
+
+    const updatedSong = await db.get('SELECT * FROM songs WHERE id = ?', [id]);
+
+    if (!updatedSong) {
+      return res.status(404).json({ error: 'Song not found' });
+    }
+
+    res.json(updatedSong);
+  } catch (error) {
+    console.error('Error updating song:', error);
+    res.status(500).json({ error: 'Failed to update song' });
   }
 });
 

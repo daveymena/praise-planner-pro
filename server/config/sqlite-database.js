@@ -52,7 +52,7 @@ async function initializeTables() {
       name TEXT NOT NULL,
       type TEXT DEFAULT 'worship', -- worship, special, hymn
       key TEXT,
-      tempo INTEGER,
+      tempo TEXT,
       is_favorite INTEGER DEFAULT 0,
       lyrics TEXT,
       chords TEXT,
