@@ -73,14 +73,22 @@ router.post('/', async (req, res) => {
       notes, youtube_url, created_by
     } = req.body;
 
+    // Get the member ID for the authenticated user
+    const memberResult = await pool.query(
+      'SELECT id FROM members WHERE user_id = $1 AND ministry_id = $2',
+      [req.user.id, req.user.ministryId]
+    );
+
+    const createdByMemberId = memberResult.rows.length > 0 ? memberResult.rows[0].id : null;
+
     const result = await pool.query(`
       INSERT INTO songs (
         ministry_id, name, type, key, is_favorite, lyrics, chords, 
         notes, youtube_url, created_by
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NULLIF($10, '')::uuid)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       RETURNING *
-    `, [req.user.ministryId, name, type, key, is_favorite, lyrics, chords, notes, youtube_url, created_by]);
+    `, [req.user.ministryId, name, type, key, is_favorite, lyrics, chords, notes, youtube_url, createdByMemberId]);
 
     res.status(201).json(result.rows[0]);
   } catch (error) {

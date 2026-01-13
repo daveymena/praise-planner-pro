@@ -72,30 +72,51 @@ router.post('/extract-song', async (req, res) => {
         let context = "";
         let sourceInfo = "AI Internal Knowledge";
 
-        // Flow 1: Search Query (Backend searches web, then AI processes)
+        // Flow 1: Search Query (Backend extracts EVERYTHING, AI just organizes)
         if (type === 'search' || searchQuery) {
             const query = searchQuery || req.body.name;
-            console.log(`🌐 Searching web for: ${query}`);
+            console.log(`🌐 Backend extracting FULL content for: ${query}`);
 
-            // Search lyrics and youtube simultaneously
-            const [webLyrics, ytVideo] = await Promise.all([
-                lyricsService.searchAndGetLyrics(query),
-                youtubeService.searchVideo(query)
-            ]);
+            // Get complete lyrics from web
+            const fullContent = await lyricsService.searchAndGetLyrics(query);
 
-            if (webLyrics) {
-                context += `\n[FUENTE PRINCIPAL (LETRA Y ACORDES)]:\n${webLyrics}\n`;
-                sourceInfo = "Web Search + AI";
-            }
+            if (fullContent) {
+                console.log(`✅ Backend extracted ${fullContent.length} characters`);
 
-            if (ytVideo) {
-                context += `\n[REFERENCIA VIDEO YOUTUBE]: ${ytVideo.url}\n`;
-                if (!webLyrics) sourceInfo = "YouTube + AI";
-            }
+                // Try logic-based separation first (NO AI)
+                const separated = lyricsService.separateLyricsAndChords(fullContent);
+                const detectedKey = lyricsService.detectKey(fullContent);
 
-            if (!context) {
+                // Get YouTube video
+                const ytVideo = await youtubeService.searchVideo(query);
+
+                // If we have good separated content, use it directly
+                if (separated.lyrics.length > 200) {
+                    console.log(`✅ Using logic-based extraction (NO AI needed)`);
+                    const finalData = {
+                        name: query.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+                        type: 'Adoración', // Default, user can change
+                        key: detectedKey,
+                        youtube_url: ytVideo?.url || '',
+                        lyrics: separated.lyrics,
+                        chords: separated.chords
+                    };
+
+                    return res.json({
+                        source: 'Backend Extraction (Logic-Based)',
+                        data: finalData
+                    });
+                }
+
+                // If logic-based didn't work well, use AI to organize
+                console.log(`🤖 Using AI to organize extracted content...`);
+                context = `[CONTENIDO COMPLETO EXTRAÍDO DE INTERNET]:\n${fullContent}\n\n[VIDEO YOUTUBE]: ${ytVideo?.url || 'No encontrado'}`;
+                sourceInfo = "Web Extraction + AI Formatting";
+            } else {
+                // No web content, fall back to AI knowledge
                 context = `Song Name: ${query}`;
-                console.warn('⚠️ Web search returned no results, relying on AI knowledge.');
+                console.warn('⚠️ Web extraction failed, using AI knowledge only');
+                sourceInfo = "AI Knowledge Only";
             }
         }
         // ... (remaining cases stay mostly same but ensure context is built)
@@ -104,12 +125,43 @@ router.post('/extract-song', async (req, res) => {
             sourceInfo = "Manual Paste + AI";
         }
         else if (url || type === 'url') {
-            console.log(`🔍 Extracting from YouTube: ${url}`);
-            const videoDetails = await youtubeService.getVideoDetails(url);
-            // Limit description to avoid polluting context
-            const cleanDesc = (videoDetails.description || "").substring(0, 500);
-            context = `[DATOS DE YOUTUBE]\nTítulo: ${videoDetails.title}\nDescripción: ${cleanDesc}\nTranscripción: ${videoDetails.transcript}\nURL: ${url}`;
-            sourceInfo = "YouTube + AI";
+            const targetUrl = url.includes('api/proxy')
+                ? decodeURIComponent(new URL(url, 'http://localhost').searchParams.get('url'))
+                : url;
+
+            if (targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be')) {
+                console.log(`🔍 Extracting from YouTube: ${targetUrl}`);
+                const videoDetails = await youtubeService.getVideoDetails(targetUrl);
+                const cleanDesc = (videoDetails.description || "").substring(0, 500);
+                context = `[DATOS DE YOUTUBE]\nTítulo: ${videoDetails.title}\nDescripción: ${cleanDesc}\nTranscripción: ${videoDetails.transcript}\nURL: ${targetUrl}`;
+                sourceInfo = "YouTube + AI";
+            } else {
+                console.log(`🔍 Extracting from Website: ${targetUrl}`);
+                const fullContent = await lyricsService.getLyricsFromUrl(targetUrl);
+                if (fullContent) {
+                    const separated = lyricsService.separateLyricsAndChords(fullContent);
+                    const detectedKey = lyricsService.detectKey(fullContent);
+
+                    // Return logic-based extraction immediately if good
+                    if (separated.lyrics.length > 200) {
+                        return res.json({
+                            source: 'Website Extraction (Logic-Based)',
+                            data: {
+                                name: targetUrl.split('/').pop()?.replace(/(-|.shtml|.html)/g, ' ').toUpperCase() || 'Canción Web',
+                                type: 'Adoración',
+                                key: detectedKey,
+                                youtube_url: '',
+                                lyrics: separated.lyrics,
+                                chords: separated.chords
+                            }
+                        });
+                    }
+                    context = `[CONTENIDO WEB EXTRAÍDO]:\n${fullContent}\nURL: ${targetUrl}`;
+                    sourceInfo = "Website + AI Formatting";
+                } else {
+                    throw new Error("No se pudo extraer contenido de este sitio web");
+                }
+            }
         }
 
         // 3. Call AI
@@ -167,7 +219,8 @@ router.post('/extract-song', async (req, res) => {
         console.error('❌ Extraction Failed:', error.message);
         res.status(500).json({
             error: 'Extraction failed',
-            details: error.message
+            details: error.message,
+            debug: error.stack?.substring(0, 100)
         });
     }
 });

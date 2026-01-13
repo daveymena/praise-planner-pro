@@ -1,22 +1,51 @@
--- Reset schema for SaaS multi-tenancy conversion
-DROP SCHEMA IF EXISTS public CASCADE;
-CREATE SCHEMA public;
+-- Safe schema initialization - preserves existing data
+CREATE SCHEMA IF NOT EXISTS public;
 GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO public;
 
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Create enum types
-CREATE TYPE song_type AS ENUM ('Alabanza', 'Adoración', 'Ministración', 'Congregacional');
-CREATE TYPE rehearsal_type AS ENUM ('General', 'Vocal', 'Instrumental');
-CREATE TYPE member_role AS ENUM ('Director', 'Vocalista', 'Instrumentista', 'Técnico', 'Coordinador');
-CREATE TYPE attendance_status AS ENUM ('confirmed', 'pending', 'absent');
-CREATE TYPE service_type AS ENUM ('Domingo Mañana', 'Domingo Noche', 'Miércoles', 'Especial', 'Evento');
-CREATE TYPE user_role AS ENUM ('admin', 'member');
+-- Create enum types (safe - only if not exists)
+-- Create enum types safely (only if they don't exist)
+DO $$ BEGIN
+    CREATE TYPE song_type AS ENUM ('Alabanza', 'Adoración', 'Ministración', 'Congregacional');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+    CREATE TYPE rehearsal_type AS ENUM ('General', 'Vocal', 'Instrumental');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+    CREATE TYPE member_role AS ENUM ('Director', 'Vocalista', 'Instrumentista', 'Técnico', 'Coordinador');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+    CREATE TYPE attendance_status AS ENUM ('confirmed', 'pending', 'absent');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+    CREATE TYPE service_type AS ENUM ('Domingo Mañana', 'Domingo Noche', 'Miércoles', 'Especial', 'Evento');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+    CREATE TYPE user_role AS ENUM ('admin', 'member');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
 -- Ministries table (organizaciones independientes)
-CREATE TABLE ministries (
+CREATE TABLE IF NOT EXISTS ministries (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(200) NOT NULL,
     invite_code VARCHAR(10) UNIQUE NOT NULL,
@@ -25,7 +54,7 @@ CREATE TABLE ministries (
 );
 
 -- Users table (autenticación)
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
@@ -36,7 +65,7 @@ CREATE TABLE users (
 );
 
 -- Members table (integrantes del ministerio)
-CREATE TABLE members (
+CREATE TABLE IF NOT EXISTS members (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     ministry_id UUID REFERENCES ministries(id) ON DELETE CASCADE,
     user_id UUID REFERENCES users(id) ON DELETE SET NULL, -- Si el miembro tiene acceso al sistema
@@ -56,7 +85,7 @@ CREATE TABLE members (
 );
 
 -- Songs table (repertorio limpio)
-CREATE TABLE songs (
+CREATE TABLE IF NOT EXISTS songs (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     ministry_id UUID REFERENCES ministries(id) ON DELETE CASCADE,
     name VARCHAR(200) NOT NULL,
@@ -75,7 +104,7 @@ CREATE TABLE songs (
 );
 
 -- Rehearsals table (ensayos)
-CREATE TABLE rehearsals (
+CREATE TABLE IF NOT EXISTS rehearsals (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     ministry_id UUID REFERENCES ministries(id) ON DELETE CASCADE,
     date DATE NOT NULL,
@@ -90,7 +119,7 @@ CREATE TABLE rehearsals (
 );
 
 -- Rehearsal songs
-CREATE TABLE rehearsal_songs (
+CREATE TABLE IF NOT EXISTS rehearsal_songs (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     rehearsal_id UUID REFERENCES rehearsals(id) ON DELETE CASCADE,
     song_id UUID REFERENCES songs(id) ON DELETE CASCADE,
@@ -102,7 +131,7 @@ CREATE TABLE rehearsal_songs (
 );
 
 -- Rehearsal attendance
-CREATE TABLE rehearsal_attendance (
+CREATE TABLE IF NOT EXISTS rehearsal_attendance (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     rehearsal_id UUID REFERENCES rehearsals(id) ON DELETE CASCADE,
     member_id UUID REFERENCES members(id) ON DELETE CASCADE,
@@ -114,7 +143,7 @@ CREATE TABLE rehearsal_attendance (
 );
 
 -- Services table
-CREATE TABLE services (
+CREATE TABLE IF NOT EXISTS services (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     ministry_id UUID REFERENCES ministries(id) ON DELETE CASCADE,
     name VARCHAR(200) NOT NULL,
@@ -131,7 +160,7 @@ CREATE TABLE services (
 );
 
 -- Service songs
-CREATE TABLE service_songs (
+CREATE TABLE IF NOT EXISTS service_songs (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     service_id UUID REFERENCES services(id) ON DELETE CASCADE,
     song_id UUID REFERENCES songs(id) ON DELETE CASCADE,
@@ -143,7 +172,7 @@ CREATE TABLE service_songs (
 );
 
 -- Service assignments
-CREATE TABLE service_assignments (
+CREATE TABLE IF NOT EXISTS service_assignments (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     service_id UUID REFERENCES services(id) ON DELETE CASCADE,
     member_id UUID REFERENCES members(id) ON DELETE CASCADE,
@@ -154,7 +183,7 @@ CREATE TABLE service_assignments (
 );
 
 -- Ministry rules/norms table
-CREATE TABLE ministry_rules (
+CREATE TABLE IF NOT EXISTS ministry_rules (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     ministry_id UUID REFERENCES ministries(id) ON DELETE CASCADE,
     title VARCHAR(200) NOT NULL,

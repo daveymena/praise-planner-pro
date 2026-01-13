@@ -220,11 +220,11 @@ export default function Ensayos() {
                             .map((songData, idx) => (
                               <div key={idx} className="flex items-center justify-between p-3 rounded-lg bg-secondary/30">
                                 <span className="text-sm text-foreground">
-                                  {songData.songs?.name || 'Canción sin nombre'}
+                                  {songData.song?.name || 'Canción sin nombre'}
                                 </span>
                                 <div className="flex items-center gap-2">
                                   <Badge variant="outline" className="text-xs">
-                                    {songData.songs?.key || 'N/A'}
+                                    {songData.song?.key || 'N/A'}
                                   </Badge>
                                   <span className="text-xs text-muted-foreground">
                                     {songData.leader?.name || 'Sin líder'}

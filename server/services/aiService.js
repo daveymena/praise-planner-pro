@@ -62,28 +62,42 @@ class AiService {
         const selectedModel = await this.getBestAvailableModel();
 
         const prompt = `
-      Eres un experto en música cristiana contemporánea (Worship). Analiza el texto y extrae la información técnica.
+      Eres un experto en música cristiana contemporánea (Worship). Tu trabajo es extraer y organizar información de canciones.
 
-      TEXTO DE ENTRADA:
-      "${textContext.substring(0, 8000).replace(/"/g, "'")}"
+      TEXTO DE ENTRADA (puede contener letras, acordes, o ambos):
+      "${textContext.substring(0, 15000).replace(/"/g, "'")}"
 
-      REGLAS DE ORO (SÍGUELAS ESTRICTAMENTE):
-      1. Devuelve SOLO JSON puro.
-      2. NOMBRE (name): Título oficial (ej: "Reckless Love"). No agregues prefijos como "The overwhelmed...".
-      3. TIPO (type): Clasificación obligatoria (Alabanza, Adoración, Ministración o Congregacional).
-      4. TONALIDAD (key): Detecta la tonalidad exacta (ej: "G", "A#m", "Eb"). USA FORMATO AMERICANO. Esta es la parte más importante.
-      5. LETRA (lyrics): Sin acordes, bien formateada por versos y coros.
-      6. ACORDES (chords): Estructura pura de acordes por secciones.
-      7. Si no encuentras una URL de YouTube en el texto, usa tu conocimiento para poner la del video oficial más popular.
+      INSTRUCCIONES CRÍTICAS:
 
-      FORMATO DE RESPUESTA:
+      1. **LETRA (lyrics)**: 
+         - Debe contener SOLO el texto cantado, SIN acordes intercalados
+         - Estructura completa: Intro, Verso 1, Verso 2, Coro, Puente, Final, etc.
+         - Formato limpio con saltos de línea entre secciones
+         - NO incluyas símbolos como [Am], {C}, (Dm) - esos van en "chords"
+         - Si la letra está incompleta en el contexto, COMPLÉTALA con tu conocimiento
+         - NO uses "..." ni cortes - letra COMPLETA
+
+      2. **ACORDES (chords)**:
+         - Estructura de acordes separada del texto
+         - Formato: "Intro: G C Em D\\nVerso: G D Em C\\n..."
+         - Solo la progresión, sin letras intercaladas
+
+      3. **YOUTUBE**: 
+         - Si encuentras "[REFERENCIA VIDEO YOUTUBE]: URL", úsala exactamente
+         - Si no hay URL en el contexto, genera la más popular de YouTube
+
+      4. **TONALIDAD (key)**: Detecta la tonalidad principal (ej: "G", "Am", "D#")
+
+      5. **TIPO**: Solo estas opciones: "Alabanza", "Adoración", "Ministración", "Congregacional"
+
+      FORMATO JSON (OBLIGATORIO):
       {
-        "name": "Título Corto Oficial",
-        "type": "Clasificación",
-        "key": "Nota (ej: D#m)",
-        "youtube_url": "https://youtube.com/watch?v=...",
-        "lyrics": "Letra limpia...",
-        "chords": "Acordes puros..."
+        "name": "Título de la Canción",
+        "type": "Adoración",
+        "key": "G",
+        "youtube_url": "https://www.youtube.com/watch?v=...",
+        "lyrics": "Intro\\n\\nVerso 1:\\nAquí estás te veo moverse...\\n\\nCoro:\\nMilagroso abres caminos...",
+        "chords": "Intro: G C Em D\\nVerso: G D Em C\\nCoro: C G D Em"
       }
     `;
 
@@ -96,15 +110,13 @@ class AiService {
                 stream: false,
                 format: "json",
                 options: {
-                    temperature: 0.2,       // Low temperature for consistency
-                    top_p: 0.9,            // Nucleus sampling for quality
-                    top_k: 40,             // Limit token selection
-                    repeat_penalty: 1.2,   // Avoid repetition
-                    num_ctx: 8192,         // Large context for full lyrics
-                    num_predict: 3072,     // Allow longer responses for complete lyrics
-                    stop: ["</s>", "USER:", "ASSISTANT:"] // Stop tokens
-                },
-                timeout: 300000 // 5 minutes timeout
+                    temperature: 0.2,       // Low for consistency
+                    num_ctx: 12288,         // Large context for full content
+                    num_predict: 5120,      // Enough tokens for complete lyrics
+                    top_k: 40,
+                    repeat_penalty: 1.1,
+                    stop: ["</s>"]
+                }
             });
 
             const jsonResponse = response.data.response;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -31,11 +31,12 @@ type SongFormData = z.infer<typeof songSchema>;
 
 interface SongFormProps {
   song?: Database['public']['Tables']['songs']['Row'];
+  prefilledData?: Partial<SongFormData>;
   onSuccess?: () => void;
   onCancel?: () => void;
 }
 
-export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
+export function SongForm({ song, prefilledData, onSuccess, onCancel }: SongFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { data: members } = useMembers();
   const createSong = useCreateSong();
@@ -44,17 +45,34 @@ export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
   const form = useForm<SongFormData>({
     resolver: zodResolver(songSchema),
     defaultValues: {
-      name: song?.name || "",
-      type: song?.type || "Alabanza",
-      key: song?.key || "",
-      is_favorite: song?.is_favorite || false,
-      lyrics: song?.lyrics || "",
-      chords: song?.chords || "",
-      notes: song?.notes || "",
-      youtube_url: song?.youtube_url || "",
-      created_by: song?.created_by || "",
+      name: prefilledData?.name || song?.name || "",
+      type: prefilledData?.type || song?.type || "Alabanza",
+      key: prefilledData?.key || song?.key || "",
+      is_favorite: prefilledData?.is_favorite || song?.is_favorite || false,
+      lyrics: prefilledData?.lyrics || song?.lyrics || "",
+      chords: prefilledData?.chords || song?.chords || "",
+      notes: prefilledData?.notes || song?.notes || "",
+      youtube_url: prefilledData?.youtube_url || song?.youtube_url || "",
+      created_by: prefilledData?.created_by || song?.created_by || "",
     },
   });
+
+  // Update form when prefilledData changes (e.g. from external capture)
+  useEffect(() => {
+    if (prefilledData) {
+      form.reset({
+        name: prefilledData.name || "",
+        type: prefilledData.type || "Alabanza",
+        key: prefilledData.key || "",
+        is_favorite: prefilledData.is_favorite || false,
+        lyrics: prefilledData.lyrics || "",
+        chords: prefilledData.chords || "",
+        notes: prefilledData.notes || "",
+        youtube_url: prefilledData.youtube_url || "",
+        created_by: prefilledData.created_by || "",
+      });
+    }
+  }, [prefilledData, form]);
 
   const onSubmit = async (data: SongFormData) => {
     setIsSubmitting(true);

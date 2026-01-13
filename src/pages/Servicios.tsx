@@ -12,7 +12,8 @@ import {
   ChevronRight,
   Loader2,
   Trash2,
-  Edit
+  Edit,
+  MapPin
 } from "lucide-react";
 import { useState } from "react";
 import { useServices, useDeleteService } from "@/hooks/useServices";

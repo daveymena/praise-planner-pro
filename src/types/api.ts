@@ -132,6 +132,13 @@ export interface CreateRehearsalData {
   location: string;
   type: Rehearsal['type'];
   notes?: string;
+  songs?: {
+    song_id: string;
+    leader_id?: string;
+    notes?: string;
+    order_position?: number;
+  }[];
+  members?: string[];
   created_by?: string;
 }
 

@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { SongForm } from "@/components/forms/SongForm";
+import { UnifiedSongSearch } from "@/components/songs/UnifiedSongSearch";
 import {
   Plus,
   Search,
@@ -15,7 +16,9 @@ import {
   Loader2,
   Youtube,
   Info,
-  Sparkles
+  Sparkles,
+  Edit,
+  FileText
 } from "lucide-react";
 import { useState } from "react";
 import { useSongs, useToggleSongFavorite, useDeleteSong } from "@/hooks/useSongs";
@@ -37,13 +40,23 @@ export default function Repertorio() {
   const [showFavorites, setShowFavorites] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingSong, setEditingSong] = useState<Song | null>(null);
-  const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
+  const [capturedData, setCapturedData] = useState<any>(null);
+
 
   const getYoutubeVideoId = (url: string) => {
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = url.match(regExp);
     return (match && match[2].length === 11) ? match[2] : null;
   };
+
+  // Miniaturas de YouTube
+  const getYoutubeThumbnail = (url?: string | null) => {
+    if (!url) return null;
+    const videoId = getYoutubeVideoId(url);
+    return videoId ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` : null;
+  };
+
+  const [viewingSong, setViewingSong] = useState<Song | null>(null);
 
   const { data: songs, isLoading, error } = useSongs({
     type: selectedType || undefined,
@@ -60,7 +73,7 @@ export default function Repertorio() {
         id: song.id,
         is_favorite: !song.is_favorite,
       });
-      toast.success(song.is_favorite ? "Removido de favoritas" : "Agregado a favoritas");
+      toast.success(!song.is_favorite ? "Agregado a favoritas" : "Removido de favoritas");
     } catch (error) {
       toast.error("Error al actualizar favorita");
     }
@@ -101,22 +114,21 @@ export default function Repertorio() {
               Repertorio <Music className="w-8 h-8 text-primary" />
             </h1>
             <p className="text-muted-foreground mt-2 font-medium">
-              {isLoading ? "Cargando biblioteca..." : `${songs?.length || 0} himnos y cantos en tu ministerio`}
+              {isLoading ? "Cargando biblioteca..." : `${songs?.length || 0} canciones listas para ministrar`}
             </p>
           </div>
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              className="border-primary/50 text-primary hover:bg-primary/5 shadow-sm"
-              onClick={() => setIsCreateDialogOpen(true)}
-            >
-              <Sparkles className="w-4 h-4 mr-2" />
-              Buscador IA
-            </Button>
+            <UnifiedSongSearch
+              onSongFound={(data) => {
+                setCapturedData(data);
+                setIsCreateDialogOpen(true);
+                toast.success("¡Canción capturada! Revisa los datos y guarda.");
+              }}
+            />
 
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="btn-gold">
+                <Button className="btn-gold" onClick={() => setCapturedData(null)}>
                   <Plus className="w-4 h-4 mr-2" />
                   Agregar Canción
                 </Button>
@@ -127,8 +139,15 @@ export default function Repertorio() {
                   <DialogDescription>Complete los detalles para agregar una nueva canción al repertorio.</DialogDescription>
                 </DialogHeader>
                 <SongForm
-                  onSuccess={() => setIsCreateDialogOpen(false)}
-                  onCancel={() => setIsCreateDialogOpen(false)}
+                  prefilledData={capturedData}
+                  onSuccess={() => {
+                    setIsCreateDialogOpen(false);
+                    setCapturedData(null);
+                  }}
+                  onCancel={() => {
+                    setIsCreateDialogOpen(false);
+                    setCapturedData(null);
+                  }}
                 />
               </DialogContent>
             </Dialog>
@@ -138,18 +157,16 @@ export default function Repertorio() {
         {/* Filters */}
         <div className="card-elevated p-4 mb-6 fade-in">
           <div className="flex flex-col lg:flex-row gap-4">
-            {/* Search */}
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="Buscar canción..."
+                placeholder="Busca por nombre, letra o tonalidad..."
                 className="pl-10 input-warm"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
 
-            {/* Type Filter */}
             <div className="flex flex-wrap gap-2">
               {types.map(type => (
                 <Button
@@ -157,19 +174,18 @@ export default function Repertorio() {
                   variant={selectedType === type ? "default" : "outline"}
                   size="sm"
                   onClick={() => setSelectedType(selectedType === type ? null : type)}
-                  className={selectedType === type ? "btn-gold" : ""}
+                  className={selectedType === type ? "btn-gold" : "hover:border-primary/40"}
                 >
                   {type}
                 </Button>
               ))}
             </div>
 
-            {/* Favorites Toggle */}
             <Button
               variant={showFavorites ? "default" : "outline"}
               size="sm"
               onClick={() => setShowFavorites(!showFavorites)}
-              className={showFavorites ? "btn-gold" : ""}
+              className={showFavorites ? "btn-gold" : "hover:border-primary/40"}
             >
               <Star className={`w-4 h-4 mr-1 ${showFavorites ? 'fill-current' : ''}`} />
               Favoritas
@@ -186,144 +202,201 @@ export default function Repertorio() {
 
         {/* Songs Grid */}
         {!isLoading && songs && (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {songs.map((song, index) => (
               <div
                 key={song.id}
-                className="card-elevated p-5 slide-up group"
+                className="group relative flex flex-col bg-background/40 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden hover:border-primary/50 transition-all duration-300 shadow-xl slide-up"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                        {song.name}
-                      </h3>
-                      <button
-                        onClick={() => handleToggleFavorite(song)}
-                        disabled={toggleFavorite.isPending}
-                      >
-                        <Star className={`w-4 h-4 transition-colors ${song.is_favorite
-                          ? 'text-amber-500 fill-amber-500'
-                          : 'text-muted-foreground hover:text-amber-500'
-                          }`} />
-                      </button>
+                {/* Video Thumbnail Header */}
+                <div className="relative h-40 overflow-hidden bg-muted">
+                  {getYoutubeThumbnail(song.youtube_url) ? (
+                    <img
+                      src={getYoutubeThumbnail(song.youtube_url)!}
+                      alt={song.name}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-secondary to-background">
+                      <Music className="w-12 h-12 text-muted-foreground/30" />
                     </div>
-                    <Badge className={`mt-2 ${typeColors[song.type as keyof typeof typeColors] || 'bg-gray-500/10 text-gray-600 border-gray-500/20'}`}>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+                  <div className="absolute top-3 right-3 flex gap-2">
+                    <Badge className={`shadow-lg border-none ${typeColors[song.type as keyof typeof typeColors] || 'bg-gray-500 text-white'}`}>
                       {song.type}
                     </Badge>
                   </div>
-                  <div className="flex gap-1">
+
+                  <div className="absolute bottom-3 left-3">
+                    <Badge variant="outline" className="bg-black/50 backdrop-blur-md border-primary/30 text-primary font-bold">
+                      {song.key}
+                    </Badge>
+                  </div>
+                </div>
+
+                <div className="p-5 flex-1 flex flex-col">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-bold text-lg text-white group-hover:text-primary transition-colors line-clamp-1">
+                      {song.name}
+                    </h3>
                     <button
                       onClick={() => handleToggleFavorite(song)}
-                      disabled={toggleFavorite.isPending}
-                      className="p-1.5 hover:bg-secondary rounded-full transition-colors"
+                      className={`p-1 transition-colors ${song.is_favorite ? 'text-amber-400' : 'text-muted-foreground hover:text-amber-400'}`}
                     >
-                      <Star className={`w-5 h-5 transition-colors ${song.is_favorite
-                        ? 'text-amber-500 fill-amber-500'
-                        : 'text-muted-foreground hover:text-amber-500'
-                        }`} />
+                      <Star className={`w-5 h-5 ${song.is_favorite ? 'fill-current' : ''}`} />
                     </button>
                   </div>
-                </div>
 
-                <div className="flex items-center gap-4 text-sm text-muted-foreground bg-white/5 p-3 rounded-xl border border-white/5">
-                  <div className="flex items-center gap-2">
-                    <Music className="w-4 h-4 text-primary" />
-                    <span>Tono: <strong className="text-white font-semibold">{song.key}</strong></span>
-                  </div>
-                </div>
-
-                {song.notes && (
-                  <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground italic bg-secondary/30 p-2 rounded border-l-2 border-primary/20">
-                    <Info className="w-3 h-3 inline mr-1 mb-0.5" />
-                    {song.notes}
-                  </p>
-                )}
-
-                <div className="flex gap-2 mt-4 pt-2 border-t border-border/50">
-                  {song.youtube_url && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
-                      onClick={() => setSelectedVideoUrl(song.youtube_url || null)}
-                    >
-                      <Youtube className="w-3.5 h-3.5 mr-1.5" />
-                      Video
-                    </Button>
+                  {song.notes && (
+                    <p className="text-xs text-muted-foreground line-clamp-2 italic mb-4">
+                      {song.notes}
+                    </p>
                   )}
 
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="flex-1"
-                        onClick={() => setEditingSong(song)}
-                      >
-                        <Edit className="w-3.5 h-3.5 mr-1.5" />
-                        Editar
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                      <DialogHeader>
-                        <DialogTitle>Editar Canción</DialogTitle>
-                        <DialogDescription>Modifique los detalles de la canción existente.</DialogDescription>
-                      </DialogHeader>
-                      <SongForm
-                        song={editingSong}
-                        onSuccess={() => setEditingSong(null)}
-                        onCancel={() => setEditingSong(null)}
-                      />
-                    </DialogContent>
-                  </Dialog>
+                  <div className="mt-auto pt-4 flex items-center gap-2">
+                    <Button
+                      className="flex-1 btn-gold shadow-lg shadow-primary/10"
+                      size="sm"
+                      onClick={() => setViewingSong(song)}
+                    >
+                      <Play className="w-3.5 h-3.5 mr-2 fill-current" />
+                      Modo Ensayo
+                    </Button>
 
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDeleteSong(song)}
-                    disabled={deleteSong.isPending}
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </Button>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="icon" className="h-9 w-9 rounded-xl border-white/10 hover:border-primary/50">
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle>Editar Canción</DialogTitle>
+                        </DialogHeader>
+                        <SongForm song={song} onSuccess={() => setIsCreateDialogOpen(false)} />
+                      </DialogContent>
+                    </Dialog>
+
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-9 w-9 rounded-xl border-white/10 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
+                      onClick={() => handleDeleteSong(song)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         )}
 
-        {!isLoading && songs && songs.length === 0 && (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 rounded-full bg-secondary mx-auto flex items-center justify-center mb-4">
-              <Music className="w-8 h-8 text-muted-foreground" />
-            </div>
-            <p className="text-muted-foreground">No se encontraron canciones</p>
-            <Button
-              className="mt-4 btn-gold"
-              onClick={() => setIsCreateDialogOpen(true)}
-            >
+        {/* Empty State */}
+        {!isLoading && songs?.length === 0 && (
+          <div className="text-center py-20 card-elevated">
+            <Music className="w-16 h-16 text-muted-foreground mx-auto mb-4 opacity-20" />
+            <h3 className="text-xl font-bold text-white mb-2">Tu repertorio está vacío</h3>
+            <p className="text-muted-foreground mb-8">Empieza a agregar canciones manualmente o usa nuestro buscador IA.</p>
+            <Button className="btn-gold px-8" onClick={() => setIsCreateDialogOpen(true)}>
               <Plus className="w-4 h-4 mr-2" />
-              Agregar Primera Canción
+              Agregar Mi Primera Canción
             </Button>
           </div>
         )}
       </div>
 
-      {/* Video Player Dialog */}
-      <Dialog open={!!selectedVideoUrl} onOpenChange={(open) => !open && setSelectedVideoUrl(null)}>
-        <DialogContent className="max-w-4xl p-0 overflow-hidden bg-black border-none">
-          {selectedVideoUrl && (
-            <div className="aspect-video w-full">
-              <iframe
-                width="100%"
-                height="100%"
-                src={`https://www.youtube.com/embed/${getYoutubeVideoId(selectedVideoUrl)}?autoplay=1`}
-                title="YouTube video player"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              />
+      {/* Split View Ensemble Mode Modal */}
+      <Dialog open={!!viewingSong} onOpenChange={(open) => !open && setViewingSong(null)}>
+        <DialogContent className="max-w-[95vw] w-[1200px] h-[90vh] p-0 overflow-hidden bg-background border-primary/20 shadow-2xl">
+          {viewingSong && (
+            <div className="flex flex-col h-full">
+              {/* Modal Header */}
+              <div className="p-4 border-b border-white/10 bg-secondary/30 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl gold-gradient flex items-center justify-center shadow-lg">
+                    <Music className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-white">{viewingSong.name}</h2>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge className={typeColors[viewingSong.type as keyof typeof typeColors] || ''}>
+                        {viewingSong.type}
+                      </Badge>
+                      <Badge variant="outline" className="border-primary/50 text-primary">
+                        Tono: {viewingSong.key}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  {viewingSong.youtube_url && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.open(viewingSong.youtube_url!, '_blank')}
+                      className="border-red-500/30 text-red-500 hover:bg-red-500/10"
+                    >
+                      <Youtube className="w-4 h-4 mr-2" />
+                      Abrir en YouTube
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {/* Split Content */}
+              <div className="flex-1 flex overflow-hidden">
+                {/* Lado Izquierdo: Letra y Acordes */}
+                <div className="w-full lg:w-1/2 p-6 overflow-y-auto border-r border-white/10 custom-scrollbar bg-black/20">
+                  <div className="grid grid-cols-1 gap-8">
+                    {viewingSong.lyrics && (
+                      <section>
+                        <h3 className="text-primary font-bold uppercase tracking-widest text-xs mb-4 flex items-center gap-2">
+                          <FileText className="w-4 h-4" /> Letra de la Canción
+                        </h3>
+                        <div className="bg-white/5 p-6 rounded-2xl border border-white/5 white-space-pre text-lg font-medium leading-relaxed text-gray-200">
+                          {viewingSong.lyrics}
+                        </div>
+                      </section>
+                    )}
+
+                    {viewingSong.chords && (
+                      <section>
+                        <h3 className="text-gold font-bold uppercase tracking-widest text-xs mb-4 flex items-center gap-2">
+                          <Music className="w-4 h-4" /> Guía de Acordes
+                        </h3>
+                        <div className="bg-primary/5 p-6 rounded-2xl border border-primary/10 white-space-pre font-mono text-xl text-primary-foreground tracking-wider">
+                          {viewingSong.chords}
+                        </div>
+                      </section>
+                    )}
+                  </div>
+                </div>
+
+                {/* Lado Derecho: Video Player */}
+                <div className="hidden lg:flex w-1/2 bg-black items-center justify-center relative">
+                  {viewingSong.youtube_url ? (
+                    <iframe
+                      width="100%"
+                      height="100%"
+                      src={`https://www.youtube.com/embed/${getYoutubeVideoId(viewingSong.youtube_url)}?autoplay=1&modestbranding=1&rel=0`}
+                      title="YouTube video player"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                      className="w-full h-full"
+                    />
+                  ) : (
+                    <div className="text-center p-8">
+                      <Youtube className="w-20 h-20 text-muted-foreground opacity-20 mx-auto mb-4" />
+                      <p className="text-muted-foreground">Esta canción no tiene un video vinculado.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           )}
         </DialogContent>

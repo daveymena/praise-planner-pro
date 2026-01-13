@@ -80,16 +80,17 @@ export class YoutubeService {
      */
     async searchVideo(query) {
         try {
-            const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query + ' official audio')}`;
+            // Append 'letra oficial' to prioritize lyric videos or official audio which are better for church use
+            const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
             const { data } = await axios.get(searchUrl, {
                 headers: {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36'
                 }
             });
 
-            // Extract the first video ID from the page source
-            // YouTube results often come in a JSON blob called ytInitialData
-            const match = data.match(/"videoId":"([^"]*)"/);
+            // Extract the first valid video ID from the search results
+            // matches "videoRenderer":{"videoId":"..."
+            const match = data.match(/"videoRenderer":{"videoId":"([^"]+)"/);
             const videoId = match ? match[1] : null;
 
             if (videoId) {
@@ -98,6 +99,18 @@ export class YoutubeService {
                     url: `https://www.youtube.com/watch?v=${videoId}`
                 };
             }
+
+            // Fallback for some YouTube UI variations
+            const fallbackMatch = data.match(/"videoId":"([^"]+)"/);
+            const fallbackId = fallbackMatch ? fallbackMatch[1] : null;
+
+            if (fallbackId) {
+                return {
+                    videoId: fallbackId,
+                    url: `https://www.youtube.com/watch?v=${fallbackId}`
+                };
+            }
+
             return null;
         } catch (error) {
             console.error('Error searching YouTube:', error.message);

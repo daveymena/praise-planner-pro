@@ -14,6 +14,7 @@ import rehearsalsRoutes from './routes/rehearsals.js';
 import servicesRoutes from './routes/services.js';
 import rulesRoutes from './routes/rules.js';
 import aiRoutes from './routes/ai.js';
+import proxyRoutes from './routes/proxy.js';
 
 import { runMigrations } from './migrations/migrate.js';
 
@@ -24,7 +25,13 @@ const app = express();
 // Auth Middleware (Isolated for SaaS)
 const authMiddleware = (req, res, next) => {
   // Public routes: Allow non-API routes (frontend), health check, and auth endpoints
-  if (!req.path.startsWith('/api') || req.path.startsWith('/api/auth') || req.path === '/health') return next();
+  // Public routes: Allow non-API routes, health check, auth, and proxy
+  if (
+    !req.path.startsWith('/api') ||
+    req.path.startsWith('/api/auth') ||
+    req.path.startsWith('/api/proxy') ||
+    req.path === '/health'
+  ) return next();
 
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ error: 'Acceso denegado' });
@@ -101,6 +108,7 @@ app.use('/api/rehearsals', rehearsalsRoutes);
 app.use('/api/services', servicesRoutes);
 app.use('/api/rules', rulesRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/proxy', proxyRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

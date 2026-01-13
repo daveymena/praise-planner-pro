@@ -175,29 +175,59 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST /api/rehearsals - Create new rehearsal
+// POST /api/rehearsals - Create new rehearsal with songs and members
 router.post('/', async (req, res) => {
+  const client = await pool.connect();
   try {
-    const { date, time, location, type, notes } = req.body;
+    const { date, time, location, type, notes, songs, members } = req.body;
+
+    await client.query('BEGIN');
 
     // Get the member ID for the authenticated user
-    const memberResult = await pool.query(
+    const memberResult = await client.query(
       'SELECT id FROM members WHERE user_id = $1 AND ministry_id = $2',
       [req.user.id, req.user.ministryId]
     );
 
-    const memberId = memberResult.rows.length > 0 ? memberResult.rows[0].id : null;
+    const createdByMemberId = memberResult.rows.length > 0 ? memberResult.rows[0].id : null;
 
-    const result = await pool.query(`
+    // 1. Insert rehearsal
+    const rehearsalResult = await client.query(`
       INSERT INTO rehearsals (ministry_id, date, time, location, type, notes, created_by)
       VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING *
-    `, [req.user.ministryId, date, time, location, type, notes, memberId]);
+    `, [req.user.ministryId, date, time, location, type, notes, createdByMemberId]);
 
-    res.status(201).json(result.rows[0]);
+    const rehearsal = rehearsalResult.rows[0];
+
+    // 2. Insert songs if provided
+    if (songs && Array.isArray(songs)) {
+      for (const song of songs) {
+        await client.query(`
+          INSERT INTO rehearsal_songs (rehearsal_id, song_id, leader_id, notes, order_position)
+          VALUES ($1, $2, $3, $4, $5)
+        `, [rehearsal.id, song.song_id, song.leader_id || null, song.notes || null, song.order_position || 0]);
+      }
+    }
+
+    // 3. Insert attendance/members if provided
+    if (members && Array.isArray(members)) {
+      for (const memberId of members) {
+        await client.query(`
+          INSERT INTO rehearsal_attendance (rehearsal_id, member_id, status)
+          VALUES ($1, $2, 'pending')
+        `, [rehearsal.id, memberId]);
+      }
+    }
+
+    await client.query('COMMIT');
+    res.status(201).json(rehearsal);
   } catch (error) {
+    await client.query('ROLLBACK');
     console.error('Error creating rehearsal:', error);
     res.status(500).json({ error: 'Failed to create rehearsal' });
+  } finally {
+    client.release();
   }
 });
 
