@@ -62,28 +62,28 @@ class AiService {
         const selectedModel = await this.getBestAvailableModel();
 
         const prompt = `
-      Analiza el siguiente texto y extrae los detalles técnicos para completar un formulario de música.
+      Eres un experto en música cristiana contemporánea (Worship). Analiza el texto y extrae la información técnica.
 
       TEXTO DE ENTRADA:
       "${textContext.substring(0, 8000).replace(/"/g, "'")}"
 
-      REGLAS ESTRICTAS DE EXTRACCIÓN:
-      1. Devuelve ESTRICTAMENTE JSON válido.
-      2. TÍTULO (name): Debe ser el TÍTULO OFICIAL ORIGINAL de la canción (ej: "Way Maker" en lugar de "Aqui Estas").
-      3. LETRA (lyrics): Debe ser un STRING (texto) con la letra limpia y completa. ELIMINA cualquier acorde (ej: G, Am7, D...) que esté mezclado con el texto.
-      4. ACORDES (chords): Debe ser un STRING (texto) con el cifrado musical. NO incluyas la letra en este campo, solo la estructura de los acordes.
-      5. TIPO (type): Elige EXACTAMENTE UNO: "Alabanza", "Adoración", "Ministración", "Congregacional".
-      6. TONALIDAD (key): Una sola nota musical principal (ej: "G").
-      7. Siempre prioriza la información del [TEXTO DE ENTRADA] sobre tu conocimiento interno.
+      REGLAS DE ORO (SÍGUELAS ESTRICTAMENTE):
+      1. Devuelve SOLO JSON puro.
+      2. NOMBRE (name): Título oficial (ej: "Reckless Love"). No agregues prefijos como "The overwhelmed...".
+      3. TIPO (type): Clasificación obligatoria (Alabanza, Adoración, Ministración o Congregacional).
+      4. TONALIDAD (key): Detecta la tonalidad exacta (ej: "G", "A#m", "Eb"). USA FORMATO AMERICANO. Esta es la parte más importante.
+      5. LETRA (lyrics): Sin acordes, bien formateada por versos y coros.
+      6. ACORDES (chords): Estructura pura de acordes por secciones.
+      7. Si no encuentras una URL de YouTube en el texto, usa tu conocimiento para poner la del video oficial más popular.
 
-      FORMATO JSON:
+      FORMATO DE RESPUESTA:
       {
-        "name": "Título Oficial Original",
-        "type": "Selección única",
-        "key": "Nota única",
-        "youtube_url": "URL",
-        "lyrics": "LA LETRA COMPLETA COMO TEXTO",
-        "chords": "EL CIFRADO COMPLETO COMO TEXTO"
+        "name": "Título Corto Oficial",
+        "type": "Clasificación",
+        "key": "Nota (ej: D#m)",
+        "youtube_url": "https://youtube.com/watch?v=...",
+        "lyrics": "Letra limpia...",
+        "chords": "Acordes puros..."
       }
     `;
 
@@ -96,10 +96,13 @@ class AiService {
                 stream: false,
                 format: "json",
                 options: {
-                    temperature: 0.1,       // Lower temperature for more consistency
-                    repeat_penalty: 1.1,
-                    num_ctx: 4096,          // Stable context window
-                    num_predict: 2048       // Avoid truncated lyrics
+                    temperature: 0.2,       // Low temperature for consistency
+                    top_p: 0.9,            // Nucleus sampling for quality
+                    top_k: 40,             // Limit token selection
+                    repeat_penalty: 1.2,   // Avoid repetition
+                    num_ctx: 8192,         // Large context for full lyrics
+                    num_predict: 3072,     // Allow longer responses for complete lyrics
+                    stop: ["</s>", "USER:", "ASSISTANT:"] // Stop tokens
                 },
                 timeout: 300000 // 5 minutes timeout
             });

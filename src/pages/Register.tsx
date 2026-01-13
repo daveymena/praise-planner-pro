@@ -65,11 +65,12 @@ const Register = () => {
                                         <div className="relative">
                                             <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                             <Input
-                                                className="pl-10 bg-white/5 border-white/10 text-white h-11 focus:ring-primary/30"
+                                                className="pl-10 bg-background/80 border-white/20 text-foreground placeholder:text-muted-foreground h-11 focus:ring-primary/30 focus:border-primary/50"
                                                 placeholder="Ej: Juan Pérez"
                                                 value={formData.adminName}
                                                 onChange={(e) => setFormData({ ...formData, adminName: e.target.value })}
                                                 required
+                                                autoComplete="name"
                                             />
                                         </div>
                                     </div>
@@ -78,12 +79,13 @@ const Register = () => {
                                         <div className="relative">
                                             <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                             <Input
-                                                className="pl-10 bg-white/5 border-white/10 text-white h-11 focus:ring-primary/30"
+                                                className="pl-10 bg-background/80 border-white/20 text-foreground placeholder:text-muted-foreground h-11 focus:ring-primary/30 focus:border-primary/50"
                                                 placeholder="admin@ministerio.com"
                                                 type="email"
                                                 value={formData.email}
                                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                                 required
+                                                autoComplete="email"
                                             />
                                         </div>
                                     </div>
@@ -94,12 +96,13 @@ const Register = () => {
                                     <div className="relative">
                                         <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                         <Input
-                                            className="pl-10 bg-white/5 border-white/10 text-white h-11 focus:ring-primary/30"
+                                            className="pl-10 bg-background/80 border-white/20 text-foreground placeholder:text-muted-foreground h-11 focus:ring-primary/30 focus:border-primary/50"
                                             placeholder="Mínimo 8 caracteres"
                                             type="password"
                                             value={formData.password}
                                             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                             required
+                                            autoComplete="new-password"
                                         />
                                     </div>
                                 </div>
@@ -111,11 +114,12 @@ const Register = () => {
                                     <div className="relative">
                                         <Church className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                         <Input
-                                            className="pl-10 bg-white/5 border-white/10 text-white h-11 focus:ring-primary/30"
+                                            className="pl-10 bg-background/80 border-white/20 text-foreground placeholder:text-muted-foreground h-11 focus:ring-primary/30 focus:border-primary/50"
                                             placeholder="Ej: Ministerio Alabanza Sión"
                                             value={formData.ministryName}
                                             onChange={(e) => setFormData({ ...formData, ministryName: e.target.value })}
                                             required
+                                            autoComplete="organization"
                                         />
                                     </div>
                                 </div>

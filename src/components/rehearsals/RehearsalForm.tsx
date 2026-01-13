@@ -58,7 +58,7 @@ export function RehearsalForm({ onSuccess }: RehearsalFormProps) {
         try {
             await createRehearsal.mutateAsync({
                 ...values,
-                created_by: 1, // TODO: Replace with actual auth user ID when available
+                created_by: null, // Will be set by backend based on authenticated user
             });
             toast.success("Ensayo programado exitosamente");
             form.reset();

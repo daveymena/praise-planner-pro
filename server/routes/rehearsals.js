@@ -178,13 +178,21 @@ router.get('/:id', async (req, res) => {
 // POST /api/rehearsals - Create new rehearsal
 router.post('/', async (req, res) => {
   try {
-    const { date, time, location, type, notes, created_by } = req.body;
+    const { date, time, location, type, notes } = req.body;
+
+    // Get the member ID for the authenticated user
+    const memberResult = await pool.query(
+      'SELECT id FROM members WHERE user_id = $1 AND ministry_id = $2',
+      [req.user.id, req.user.ministryId]
+    );
+
+    const memberId = memberResult.rows.length > 0 ? memberResult.rows[0].id : null;
 
     const result = await pool.query(`
       INSERT INTO rehearsals (ministry_id, date, time, location, type, notes, created_by)
-      VALUES ($1, $2, $3, $4, $5, $6, NULLIF($7, '')::uuid)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING *
-    `, [req.user.ministryId, date, time, location, type, notes, created_by]);
+    `, [req.user.ministryId, date, time, location, type, notes, memberId]);
 
     res.status(201).json(result.rows[0]);
   } catch (error) {

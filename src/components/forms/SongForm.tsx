@@ -107,9 +107,15 @@ export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
 
     setIsExtracting(true);
     try {
-      const response = await fetch('/api/ai/extract-song', {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+      const token = localStorage.getItem('auth_token');
+
+      const response = await fetch(`${API_BASE_URL}/ai/extract-song`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
         body: JSON.stringify({
           type: mode,
           searchQuery: mode === 'search' ? name : undefined,
@@ -140,7 +146,10 @@ export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
     }
   };
 
-  const keys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "Bb", "Eb", "Ab", "Db"];
+  const keys = [
+    "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "Bb", "Eb", "Ab", "Db",
+    "Cm", "C#m", "Dm", "D#m", "Em", "Fm", "F#m", "Gm", "G#m", "Am", "A#m", "Bm", "Bbm", "Ebm", "Abm", "Dbm"
+  ];
 
   return (
     <Form {...form}>
@@ -210,7 +219,7 @@ export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Tipo</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecciona el tipo" />
@@ -234,7 +243,7 @@ export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Tonalidad</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecciona la tonalidad" />

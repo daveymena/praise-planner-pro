@@ -56,12 +56,13 @@ const Login = () => {
                                 <div className="relative">
                                     <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                     <Input
-                                        className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-muted-foreground/50 h-11 focus:ring-primary/30"
+                                        className="pl-10 bg-background/80 border-white/20 text-foreground placeholder:text-muted-foreground h-11 focus:ring-primary/30 focus:border-primary/50"
                                         placeholder="correo@ejemplo.com"
                                         type="email"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         required
+                                        autoComplete="email"
                                     />
                                 </div>
                             </div>
@@ -69,12 +70,13 @@ const Login = () => {
                                 <div className="relative">
                                     <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                     <Input
-                                        className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-muted-foreground/50 h-11 focus:ring-primary/30"
+                                        className="pl-10 bg-background/80 border-white/20 text-foreground placeholder:text-muted-foreground h-11 focus:ring-primary/30 focus:border-primary/50"
                                         placeholder="Contraseña"
                                         type="password"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         required
+                                        autoComplete="current-password"
                                     />
                                 </div>
                             </div>

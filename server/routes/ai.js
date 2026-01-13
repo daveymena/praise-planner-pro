@@ -24,20 +24,45 @@ const normalizeType = (t) => {
 };
 
 const normalizeKey = (k) => {
-    if (!k) return '';
-    // Extract first musical note pattern (e.g. C, G#, Am, Eb) from strings like "G major (G-D-Em)"
-    const match = k.toString().match(/([A-G][#b]?(m|maj|min|7|sus[24]|dim|aug)?)/i);
+    if (!k) return 'C'; // Default fallback
+
+    const keyStr = k.toString().trim();
+
+    // List of valid keys
+    const validKeys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "Bb", "Eb", "Ab", "Db"];
+    const validMinorKeys = ["Cm", "Dm", "Em", "Fm", "Gm", "Am", "Bm", "C#m", "D#m", "F#m", "G#m", "A#m"];
+
+    // Direct match (case insensitive)
+    const upperKey = keyStr.toUpperCase();
+    for (const valid of [...validKeys, ...validMinorKeys]) {
+        if (upperKey === valid.toUpperCase()) {
+            return valid;
+        }
+    }
+
+    // Extract first musical note pattern (e.g. C, G#, Am, Eb)
+    const match = keyStr.match(/([A-G][#b]?(m|maj|min)?)/i);
     if (match) {
         let note = match[1];
-        // Basic clean up: capitalize root, lowercase 'm'
-        note = note.charAt(0).toUpperCase() + note.slice(1).toLowerCase();
-        // Limit recognized keys to avoid weirdness
-        const validKeys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "Bb", "Eb", "Ab", "Db", "Cm", "Dm", "Em", "Fm", "Gm", "Am", "Bm"];
-        if (validKeys.includes(note)) return note;
-        // If not in list, just return the root note
-        return note.charAt(0).toUpperCase() + (note[1] === '#' || note[1] === 'b' ? note[1] : '');
+        // Capitalize root, handle minor
+        const root = note.charAt(0).toUpperCase();
+        const accidental = note[1] === '#' || note[1] === 'b' ? note[1] : '';
+        const quality = note.toLowerCase().includes('m') && !note.toLowerCase().includes('maj') ? 'm' : '';
+
+        const normalized = root + accidental + quality;
+
+        // Verify it's valid
+        if ([...validKeys, ...validMinorKeys].includes(normalized)) {
+            return normalized;
+        }
+
+        // Return just root + accidental if quality makes it invalid
+        if (validKeys.includes(root + accidental)) {
+            return root + accidental;
+        }
     }
-    return k.toString().substring(0, 5).trim();
+
+    return 'C'; // Safe fallback
 };
 
 // POST /api/ai/extract-song
@@ -114,7 +139,7 @@ router.post('/extract-song', async (req, res) => {
         };
 
         const finalData = {
-            name: extractedData.name || searchQuery || '',
+            name: extractedData.name || searchQuery || 'Canción Sin Título',
             type: normalizeType(extractedData.type),
             key: normalizeKey(extractedData.key),
             tempo: normalizeTempo(extractedData.tempo),
@@ -123,6 +148,15 @@ router.post('/extract-song', async (req, res) => {
             lyrics: ensureString(extractedData.lyrics),
             chords: ensureString(extractedData.chords)
         };
+
+        // Log extraction results for debugging
+        console.log('✅ AI Extraction successful:');
+        console.log(`   📝 Name: ${finalData.name}`);
+        console.log(`   🎵 Type: ${finalData.type}`);
+        console.log(`   🎹 Key: ${finalData.key}`);
+        console.log(`   📺 YouTube: ${finalData.youtube_url ? 'Yes' : 'No'}`);
+        console.log(`   📄 Lyrics: ${finalData.lyrics.length} chars`);
+        console.log(`   🎸 Chords: ${finalData.chords.length} chars`);
 
         res.json({
             source: sourceInfo,
