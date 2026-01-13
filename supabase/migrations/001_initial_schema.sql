@@ -197,11 +197,11 @@ CREATE TABLE IF NOT EXISTS ministry_rules (
 );
 
 -- Create indexes
-CREATE INDEX idx_songs_ministry ON songs(ministry_id);
-CREATE INDEX idx_members_ministry ON members(ministry_id);
-CREATE INDEX idx_rehearsals_ministry ON rehearsals(ministry_id);
-CREATE INDEX idx_services_ministry ON services(ministry_id);
-CREATE INDEX idx_rules_ministry ON ministry_rules(ministry_id);
+CREATE INDEX IF NOT EXISTS idx_songs_ministry ON songs(ministry_id);
+CREATE INDEX IF NOT EXISTS idx_members_ministry ON members(ministry_id);
+CREATE INDEX IF NOT EXISTS idx_rehearsals_ministry ON rehearsals(ministry_id);
+CREATE INDEX IF NOT EXISTS idx_services_ministry ON services(ministry_id);
+CREATE INDEX IF NOT EXISTS idx_rules_ministry ON ministry_rules(ministry_id);
 
 -- Updated_at triggers
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -212,11 +212,30 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
-CREATE TRIGGER update_ministries_updated_at BEFORE UPDATE ON ministries FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_members_updated_at BEFORE UPDATE ON members FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_songs_updated_at BEFORE UPDATE ON songs FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_rehearsals_updated_at BEFORE UPDATE ON rehearsals FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_services_updated_at BEFORE UPDATE ON services FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_rehearsal_attendance_updated_at BEFORE UPDATE ON rehearsal_attendance FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_ministry_rules_updated_at BEFORE UPDATE ON ministry_rules FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_ministries_updated_at') THEN
+        CREATE TRIGGER update_ministries_updated_at BEFORE UPDATE ON ministries FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_users_updated_at') THEN
+        CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_members_updated_at') THEN
+        CREATE TRIGGER update_members_updated_at BEFORE UPDATE ON members FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_songs_updated_at') THEN
+        CREATE TRIGGER update_songs_updated_at BEFORE UPDATE ON songs FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_rehearsals_updated_at') THEN
+        CREATE TRIGGER update_rehearsals_updated_at BEFORE UPDATE ON rehearsals FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_services_updated_at') THEN
+        CREATE TRIGGER update_services_updated_at BEFORE UPDATE ON services FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_rehearsal_attendance_updated_at') THEN
+        CREATE TRIGGER update_rehearsal_attendance_updated_at BEFORE UPDATE ON rehearsal_attendance FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_ministry_rules_updated_at') THEN
+        CREATE TRIGGER update_ministry_rules_updated_at BEFORE UPDATE ON ministry_rules FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+END $$;
