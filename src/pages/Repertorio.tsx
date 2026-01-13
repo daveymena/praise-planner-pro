@@ -110,8 +110,8 @@ export default function Repertorio() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 fade-in">
           <div>
-            <h1 className="text-4xl font-bold text-white tracking-tight flex items-center gap-2">
-              Repertorio <Music className="w-8 h-8 text-primary" />
+            <h1 className="text-2xl md:text-4xl font-bold text-foreground tracking-tight flex items-center gap-2">
+              Repertorio <Music className="w-6 h-6 md:w-8 md:h-8 text-primary" />
             </h1>
             <p className="text-muted-foreground mt-2 font-medium">
               {isLoading ? "Cargando biblioteca..." : `${songs?.length || 0} canciones listas para ministrar`}
@@ -237,9 +237,9 @@ export default function Repertorio() {
                   </div>
                 </div>
 
-                <div className="p-5 flex-1 flex flex-col">
+                <div className="p-4 md:p-5 flex-1 flex flex-col">
                   <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-bold text-lg text-white group-hover:text-primary transition-colors line-clamp-1">
+                    <h3 className="font-bold text-base md:text-lg text-foreground group-hover:text-primary transition-colors line-clamp-1">
                       {song.name}
                     </h3>
                     <button
@@ -297,10 +297,10 @@ export default function Repertorio() {
 
         {/* Empty State */}
         {!isLoading && songs?.length === 0 && (
-          <div className="text-center py-20 card-elevated">
-            <Music className="w-16 h-16 text-muted-foreground mx-auto mb-4 opacity-20" />
-            <h3 className="text-xl font-bold text-white mb-2">Tu repertorio está vacío</h3>
-            <p className="text-muted-foreground mb-8">Empieza a agregar canciones manualmente o usa nuestro buscador IA.</p>
+          <div className="text-center py-16 md:py-20 card-elevated px-4">
+            <Music className="w-12 h-12 md:w-16 md:h-16 text-muted-foreground mx-auto mb-4 opacity-20" />
+            <h3 className="text-lg md:text-xl font-bold text-foreground mb-2">Tu repertorio está vacío</h3>
+            <p className="text-sm md:text-muted-foreground mb-8">Empieza a agregar canciones manualmente o usa nuestro buscador IA.</p>
             <Button className="btn-gold px-8" onClick={() => setIsCreateDialogOpen(true)}>
               <Plus className="w-4 h-4 mr-2" />
               Agregar Mi Primera Canción
@@ -311,17 +311,17 @@ export default function Repertorio() {
 
       {/* Split View Ensemble Mode Modal */}
       <Dialog open={!!viewingSong} onOpenChange={(open) => !open && setViewingSong(null)}>
-        <DialogContent className="max-w-[95vw] w-[1200px] h-[90vh] p-0 overflow-hidden bg-background border-primary/20 shadow-2xl">
+        <DialogContent className="max-w-[98vw] w-full lg:w-[1200px] max-h-[95vh] p-0 overflow-hidden bg-background border-primary/20 shadow-2xl flex flex-col">
           {viewingSong && (
             <div className="flex flex-col h-full">
               {/* Modal Header */}
               <div className="p-4 border-b border-white/10 bg-secondary/30 flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl gold-gradient flex items-center justify-center shadow-lg">
-                    <Music className="w-5 h-5 text-white" />
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl gold-gradient flex items-center justify-center shadow-lg shrink-0">
+                    <Music className="w-4 h-4 md:w-5 md:h-5 text-white" />
                   </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-white">{viewingSong.name}</h2>
+                  <div className="min-w-0">
+                    <h2 className="text-lg md:text-xl font-bold text-foreground truncate">{viewingSong.name}</h2>
                     <div className="flex items-center gap-2 mt-1">
                       <Badge className={typeColors[viewingSong.type as keyof typeof typeColors] || ''}>
                         {viewingSong.type}

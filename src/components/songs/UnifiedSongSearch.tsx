@@ -151,13 +151,13 @@ export function UnifiedSongSearch({ onSongFound }: UnifiedSongSearchProps) {
                 </Button>
             </DialogTrigger>
 
-            <DialogContent className="max-w-[98vw] w-[1600px] h-[98vh] flex flex-col p-0 gap-0">
-                <DialogHeader className="px-4 pt-3 pb-2 border-b border-white/10 flex-shrink-0">
-                    <DialogTitle className="text-lg font-bold flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+            <DialogContent className="max-w-[98vw] w-full lg:w-[1200px] max-h-[98vh] flex flex-col p-0 gap-0 overflow-hidden bg-background">
+                <DialogHeader className="px-4 py-3 border-b border-border/50 flex-shrink-0">
+                    <DialogTitle className="text-lg md:text-xl font-bold flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                             <Search className="w-4 h-4 text-primary" />
                         </div>
-                        Buscar y Agregar Canción
+                        <span className="text-foreground">Buscar y Agregar Canción</span>
                     </DialogTitle>
                 </DialogHeader>
 
@@ -174,21 +174,21 @@ export function UnifiedSongSearch({ onSongFound }: UnifiedSongSearchProps) {
                     </TabsList>
 
                     {/* Tab 1: Auto Search */}
-                    <TabsContent value="auto" className="flex-1 flex flex-col gap-6 mt-6 w-full data-[state=inactive]:hidden data-[state=active]:flex">
-                        <div className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border border-blue-500/20 rounded-xl p-5 flex-shrink-0">
-                            <p className="text-base text-blue-300 flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                                    <Sparkles className="w-4 h-4 text-blue-400" />
+                    <TabsContent value="auto" className="flex-1 flex flex-col gap-4 md:gap-6 mt-4 md:mt-6 w-full overflow-y-auto px-4 data-[state=inactive]:hidden data-[state=active]:flex">
+                        <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-4 md:p-5 flex-shrink-0">
+                            <div className="flex items-start md:items-center gap-3">
+                                <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+                                    <Sparkles className="w-4 h-4 text-blue-600" />
                                 </div>
-                                <span>
-                                    <strong className="text-blue-200">Búsqueda Automática:</strong> El sistema buscará en internet y extraerá la letra completa automáticamente usando IA.
-                                </span>
-                            </p>
+                                <p className="text-sm md:text-base text-blue-700 leading-tight">
+                                    <strong className="text-blue-900 font-bold">Búsqueda Automática:</strong> El sistema buscará en internet y extraerá la letra completa automáticamente usando IA.
+                                </p>
+                            </div>
                         </div>
 
                         <div className="flex-1 flex flex-col gap-6 max-w-4xl mx-auto w-full">
                             <div className="space-y-3">
-                                <label className="text-base font-semibold text-foreground flex items-center gap-2">
+                                <label className="text-sm md:text-base font-semibold text-foreground flex items-center gap-2">
                                     <Search className="w-4 h-4 text-primary" />
                                     Nombre de la Canción
                                 </label>
@@ -197,14 +197,14 @@ export function UnifiedSongSearch({ onSongFound }: UnifiedSongSearchProps) {
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     onKeyPress={(e) => e.key === "Enter" && handleAutoSearch()}
-                                    className="text-xl h-14 px-5 bg-secondary/50 border-white/10 focus:border-primary/50 transition-all"
+                                    className="text-lg md:text-xl h-12 md:h-14 px-4 md:px-5 bg-secondary/30 border-border focus:border-primary/50 transition-all rounded-xl"
                                 />
                             </div>
 
                             <Button
                                 onClick={handleAutoSearch}
                                 disabled={isSearching}
-                                className="w-full btn-gold gap-3 h-14 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
+                                className="w-full btn-gold gap-3 h-12 md:h-14 text-base md:text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
                                 size="lg"
                             >
                                 {isSearching ? (
@@ -248,37 +248,35 @@ export function UnifiedSongSearch({ onSongFound }: UnifiedSongSearchProps) {
                     </TabsContent>
 
                     {/* Tab 2: Web Browser */}
-                    <TabsContent value="manual" className="flex-1 flex flex-col gap-1.5 mt-2 min-h-0 data-[state=inactive]:hidden data-[state=active]:flex">
-
-
-                        {/* Full navigation bar */}
-                        <div className="flex flex-col gap-2 flex-shrink-0 bg-secondary/30 p-2 rounded-lg border border-white/10 shadow-inner">
+                    <TabsContent value="manual" className="flex-1 flex flex-col gap-2 md:gap-3 mt-2 md:mt-4 min-h-0 px-2 md:px-4 data-[state=inactive]:hidden data-[state=active]:flex">
+                        {/* Navigation bar */}
+                        <div className="flex flex-col gap-2 flex-shrink-0 bg-secondary/50 p-2 md:p-3 rounded-xl border border-border/50 shadow-sm">
                             <div className="flex gap-2 items-center">
                                 <div className="flex gap-1">
-                                    <Button onClick={() => handleIframeAction('back')} variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/10">
-                                        <ArrowLeft className="w-4 h-4" />
+                                    <Button onClick={() => handleIframeAction('back')} variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/5">
+                                        <ArrowLeft className="w-4 h-4 text-foreground" />
                                     </Button>
-                                    <Button onClick={() => handleIframeAction('forward')} variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/10">
-                                        <ArrowRight className="w-4 h-4" />
+                                    <Button onClick={() => handleIframeAction('forward')} variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/5">
+                                        <ArrowRight className="w-4 h-4 text-foreground" />
                                     </Button>
-                                    <Button onClick={() => handleIframeAction('reload')} variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/10">
-                                        <RotateCw className="w-3.5 h-3.5" />
+                                    <Button onClick={() => handleIframeAction('reload')} variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/5">
+                                        <RotateCw className="w-3.5 h-3.5 text-foreground" />
                                     </Button>
                                 </div>
                                 <div className="flex-1 relative flex items-center">
-                                    <Globe className="absolute left-2.5 w-3.5 h-3.5 text-muted-foreground" />
+                                    <Globe className="absolute left-3 w-4 h-4 text-muted-foreground" />
                                     <Input
                                         value={browserUrl}
                                         onChange={(e) => setBrowserUrl(e.target.value)}
                                         onKeyPress={(e) => e.key === "Enter" && handleBrowserNavigate()}
                                         placeholder="Busca en Google o pega un enlace..."
-                                        className="w-full h-8 pl-8 pr-10 bg-background/80 border-white/10 text-xs rounded-full focus:ring-primary/30"
+                                        className="w-full h-9 pl-9 pr-12 bg-background border-border text-sm rounded-full focus:ring-primary/20"
                                     />
                                     <Button
                                         onClick={handleBrowserNavigate}
                                         variant="ghost"
                                         size="sm"
-                                        className="absolute right-1 h-6 px-2 text-[10px] hover:text-primary transition-colors"
+                                        className="absolute right-1.5 h-7 px-3 text-xs font-bold text-primary hover:bg-primary/5 rounded-full transition-colors"
                                     >
                                         IR
                                     </Button>
@@ -286,7 +284,7 @@ export function UnifiedSongSearch({ onSongFound }: UnifiedSongSearchProps) {
                             </div>
 
                             {/* Quick Links */}
-                            <div className="flex gap-2 items-center flex-wrap">
+                            <div className="flex gap-1.5 md:gap-2 items-center overflow-x-auto no-scrollbar pb-1">
                                 <Button
                                     variant="outline"
                                     size="sm"
@@ -296,13 +294,13 @@ export function UnifiedSongSearch({ onSongFound }: UnifiedSongSearchProps) {
                                         setCurrentUrl(`/api/proxy?url=${encodeURIComponent(url)}`);
                                         setActiveTab("manual");
                                     }}
-                                    className="h-8 px-3 bg-primary/10 hover:bg-primary/20 border border-primary/30 text-xs font-medium"
+                                    className="h-7 md:h-8 px-2 md:px-3 bg-background hover:bg-primary/5 border-border text-[10px] md:text-xs font-medium shrink-0"
                                 >
                                     <ExternalLink className="w-3 h-3 mr-1" />
                                     LaCuerda
                                 </Button>
 
-                                <span className="text-[10px] text-muted-foreground">|</span>
+                                <div className="w-px h-4 bg-border shrink-0" />
 
                                 <Button
                                     variant="outline"
@@ -313,7 +311,7 @@ export function UnifiedSongSearch({ onSongFound }: UnifiedSongSearchProps) {
                                         setCurrentUrl(`/api/proxy?url=${encodeURIComponent(url)}`);
                                         setActiveTab("manual");
                                     }}
-                                    className="h-8 px-3 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-xs font-medium"
+                                    className="h-7 md:h-8 px-2 md:px-3 bg-background hover:bg-blue-50 border-border text-[10px] md:text-xs font-medium shrink-0"
                                 >
                                     📝 Letras.com
                                 </Button>
@@ -327,7 +325,7 @@ export function UnifiedSongSearch({ onSongFound }: UnifiedSongSearchProps) {
                                         setCurrentUrl(`/api/proxy?url=${encodeURIComponent(url)}`);
                                         setActiveTab("manual");
                                     }}
-                                    className="h-8 px-3 bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/30 text-xs font-medium"
+                                    className="h-7 md:h-8 px-2 md:px-3 bg-background hover:bg-orange-50 border-border text-[10px] md:text-xs font-medium shrink-0"
                                 >
                                     🎸 CifraClub
                                 </Button>
@@ -341,15 +339,15 @@ export function UnifiedSongSearch({ onSongFound }: UnifiedSongSearchProps) {
                                         setCurrentUrl(`/api/proxy?url=${encodeURIComponent(url)}`);
                                         setActiveTab("manual");
                                     }}
-                                    className="h-8 px-2.5 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-xs font-medium"
+                                    className="h-7 md:h-8 px-2 md:px-3 bg-background hover:bg-purple-50 border-border text-[10px] md:text-xs font-medium shrink-0"
                                 >
                                     🎵 Genius
                                 </Button>
                             </div>
                         </div>
 
-                        {/* MAXIMUM Browser Frame */}
-                        <div className="flex-1 border-2 border-primary/30 rounded-lg overflow-hidden bg-white min-h-0">
+                        {/* Browser Iframe container */}
+                        <div className="flex-1 border border-border/50 rounded-xl overflow-hidden bg-white min-h-0 shadow-inner">
                             <iframe
                                 ref={iframeRef}
                                 src={currentUrl}

@@ -32,11 +32,11 @@ export function Sidebar() {
       {/* Logo */}
       <div className="mb-8">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl gold-gradient flex items-center justify-center shadow-lg shadow-primary/20">
+          <div className="w-10 h-10 rounded-xl gold-gradient flex items-center justify-center shadow-lg shadow-primary/20 shrink-0">
             <Music className="w-5 h-5 text-white" />
           </div>
-          <div>
-            <h1 className="text-lg font-bold text-white tracking-tight">{user?.ministry_name || "Harmony"}</h1>
+          <div className="min-w-0">
+            <h1 className="text-lg font-bold text-foreground tracking-tight truncate">{user?.ministry_name || "Harmony"}</h1>
             <p className="text-[10px] text-primary font-bold uppercase tracking-widest flex items-center gap-1">
               <Sparkles className="w-2 h-2" />
               Pro Ministry
