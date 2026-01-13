@@ -11,27 +11,37 @@ import Servicios from "./pages/Servicios";
 import Calendario from "./pages/Calendario";
 import Normas from "./pages/Normas";
 import NotFound from "./pages/NotFound";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import { AuthProvider } from "./contexts/AuthContext";
+import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/ensayos" element={<Ensayos />} />
-          <Route path="/repertorio" element={<Repertorio />} />
-          <Route path="/integrantes" element={<Integrantes />} />
-          <Route path="/servicios" element={<Servicios />} />
-          <Route path="/calendario" element={<Calendario />} />
-          <Route path="/normas" element={<Normas />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+
+            <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+            <Route path="/ensayos" element={<ProtectedRoute><Ensayos /></ProtectedRoute>} />
+            <Route path="/repertorio" element={<ProtectedRoute><Repertorio /></ProtectedRoute>} />
+            <Route path="/integrantes" element={<ProtectedRoute><Integrantes /></ProtectedRoute>} />
+            <Route path="/servicios" element={<ProtectedRoute><Servicios /></ProtectedRoute>} />
+            <Route path="/calendario" element={<ProtectedRoute><Calendario /></ProtectedRoute>} />
+            <Route path="/normas" element={<ProtectedRoute><Normas /></ProtectedRoute>} />
+
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

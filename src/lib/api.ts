@@ -9,17 +9,24 @@ class ApiClient {
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
+    const token = localStorage.getItem('auth_token');
 
     const config: RequestInit = {
+      ...options,
       headers: {
         'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
         ...options.headers,
       },
-      ...options,
     };
 
     try {
       const response = await fetch(url, config);
+
+      if (response.status === 401 && !endpoint.startsWith('/auth')) {
+        localStorage.removeItem('auth_token');
+        window.location.href = '/login';
+      }
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -31,6 +38,34 @@ class ApiClient {
       console.error(`API request failed: ${endpoint}`, error);
       throw error;
     }
+  }
+
+  // Auth API
+  async login(data: any) {
+    const res = await this.request<any>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    if (res.token) localStorage.setItem('auth_token', res.token);
+    return res;
+  }
+
+  async register(data: any) {
+    const res = await this.request<any>('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    if (res.token) localStorage.setItem('auth_token', res.token);
+    return res;
+  }
+
+  async getMe() {
+    return this.request('/auth/me');
+  }
+
+  logout() {
+    localStorage.removeItem('auth_token');
+    window.location.href = '/login';
   }
 
   // Members API

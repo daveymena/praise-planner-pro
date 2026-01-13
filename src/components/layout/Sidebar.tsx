@@ -1,13 +1,16 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { 
-  Music, 
-  Users, 
-  Calendar, 
-  Church, 
-  FileText, 
+import {
+  Music,
+  Users,
+  Calendar,
+  Church,
+  FileText,
   Home,
-  Mic2
+  Mic2,
+  LogOut,
+  Sparkles
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const navItems = [
   { path: "/", label: "Inicio", icon: Home },
@@ -22,17 +25,22 @@ const navItems = [
 export function Sidebar() {
   const location = useLocation();
 
+  const { user, logout } = useAuth();
+
   return (
-    <aside className="fixed left-0 top-0 h-full w-64 bg-card border-r border-border/50 p-6 flex flex-col z-50">
+    <aside className="fixed left-0 top-0 h-full w-64 glass-card border-r border-white/10 p-6 flex flex-col z-50">
       {/* Logo */}
       <div className="mb-8">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl gold-gradient flex items-center justify-center">
-            <Music className="w-5 h-5 text-primary-foreground" />
+          <div className="w-10 h-10 rounded-xl gold-gradient flex items-center justify-center shadow-lg shadow-primary/20">
+            <Music className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="font-serif text-lg font-semibold text-foreground">Alabanza</h1>
-            <p className="text-xs text-muted-foreground">Ministerio de Música</p>
+            <h1 className="text-lg font-bold text-white tracking-tight">{user?.ministry_name || "Harmony"}</h1>
+            <p className="text-[10px] text-primary font-bold uppercase tracking-widest flex items-center gap-1">
+              <Sparkles className="w-2 h-2" />
+              Pro Ministry
+            </p>
           </div>
         </div>
       </div>
@@ -42,7 +50,7 @@ export function Sidebar() {
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
-          
+
           return (
             <NavLink
               key={item.path}
@@ -57,10 +65,20 @@ export function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="pt-4 border-t border-border/50">
-        <p className="text-xs text-muted-foreground text-center">
-          🕊️ Para la gloria de Dios
-        </p>
+      <div className="mt-auto space-y-4">
+        <button
+          onClick={logout}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all duration-200 group"
+        >
+          <LogOut className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          <span className="font-medium">Cerrar Sesión</span>
+        </button>
+
+        <div className="pt-4 border-t border-white/5">
+          <p className="text-[10px] text-muted-foreground/60 text-center uppercase tracking-widest">
+            🕊️ Soli Deo Gloria
+          </p>
+        </div>
       </div>
     </aside>
   );

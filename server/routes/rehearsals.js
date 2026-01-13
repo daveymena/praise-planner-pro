@@ -44,10 +44,11 @@ router.get('/', async (req, res) => {
       LEFT JOIN members leader ON rs.leader_id = leader.id
       LEFT JOIN rehearsal_attendance ra ON r.id = ra.rehearsal_id
       LEFT JOIN members member ON ra.member_id = member.id
+      WHERE r.ministry_id = $1
       GROUP BY r.id, m.name
       ORDER BY r.date DESC
-    `);
-    
+    `, [req.user.ministryId]);
+
     res.json(result.rows);
   } catch (error) {
     console.error('Error fetching rehearsals:', error);
@@ -96,12 +97,12 @@ router.get('/upcoming', async (req, res) => {
       LEFT JOIN members leader ON rs.leader_id = leader.id
       LEFT JOIN rehearsal_attendance ra ON r.id = ra.rehearsal_id
       LEFT JOIN members member ON ra.member_id = member.id
-      WHERE r.date >= CURRENT_DATE
+      WHERE r.date >= CURRENT_DATE AND r.ministry_id = $1
       GROUP BY r.id, m.name
       ORDER BY r.date ASC
       LIMIT 5
-    `);
-    
+    `, [req.user.ministryId]);
+
     res.json(result.rows);
   } catch (error) {
     console.error('Error fetching upcoming rehearsals:', error);
@@ -159,14 +160,14 @@ router.get('/:id', async (req, res) => {
       LEFT JOIN members leader ON rs.leader_id = leader.id
       LEFT JOIN rehearsal_attendance ra ON r.id = ra.rehearsal_id
       LEFT JOIN members member ON ra.member_id = member.id
-      WHERE r.id = $1
+      WHERE r.id = $1 AND r.ministry_id = $2
       GROUP BY r.id, m.name
-    `, [id]);
-    
+    `, [id, req.user.ministryId]);
+
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Rehearsal not found' });
     }
-    
+
     res.json(result.rows[0]);
   } catch (error) {
     console.error('Error fetching rehearsal:', error);
@@ -178,13 +179,13 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const { date, time, location, type, notes, created_by } = req.body;
-    
+
     const result = await pool.query(`
-      INSERT INTO rehearsals (date, time, location, type, notes, created_by)
-      VALUES ($1, $2, $3, $4, $5, $6)
+      INSERT INTO rehearsals (ministry_id, date, time, location, type, notes, created_by)
+      VALUES ($1, $2, $3, $4, $5, $6, NULLIF($7, '')::uuid)
       RETURNING *
-    `, [date, time, location, type, notes, created_by]);
-    
+    `, [req.user.ministryId, date, time, location, type, notes, created_by]);
+
     res.status(201).json(result.rows[0]);
   } catch (error) {
     console.error('Error creating rehearsal:', error);
@@ -197,18 +198,18 @@ router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { date, time, location, type, notes } = req.body;
-    
+
     const result = await pool.query(`
       UPDATE rehearsals 
       SET date = $1, time = $2, location = $3, type = $4, notes = $5, updated_at = NOW()
-      WHERE id = $6
+      WHERE id = $6 AND ministry_id = $7
       RETURNING *
-    `, [date, time, location, type, notes, id]);
-    
+    `, [date, time, location, type, notes, id, req.user.ministryId]);
+
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Rehearsal not found' });
     }
-    
+
     res.json(result.rows[0]);
   } catch (error) {
     console.error('Error updating rehearsal:', error);
@@ -220,13 +221,13 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    
-    const result = await pool.query('DELETE FROM rehearsals WHERE id = $1 RETURNING *', [id]);
-    
+
+    const result = await pool.query('DELETE FROM rehearsals WHERE id = $1 AND ministry_id = $2 RETURNING *', [id, req.user.ministryId]);
+
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Rehearsal not found' });
     }
-    
+
     res.json({ message: 'Rehearsal deleted successfully' });
   } catch (error) {
     console.error('Error deleting rehearsal:', error);
@@ -239,13 +240,16 @@ router.patch('/:id/attendance', async (req, res) => {
   try {
     const { id: rehearsalId } = req.params;
     const { memberId, status } = req.body;
-    
+
+    const rehearsalCheck = await pool.query('SELECT id FROM rehearsals WHERE id = $1 AND ministry_id = $2', [rehearsalId, req.user.ministryId]);
+    if (rehearsalCheck.rows.length === 0) return res.status(404).json({ error: 'Rehearsal not found' });
+
     // First, check if attendance record exists
     const existingResult = await pool.query(`
       SELECT id FROM rehearsal_attendance 
       WHERE rehearsal_id = $1 AND member_id = $2
     `, [rehearsalId, memberId]);
-    
+
     let result;
     if (existingResult.rows.length > 0) {
       // Update existing record
@@ -263,7 +267,7 @@ router.patch('/:id/attendance', async (req, res) => {
         RETURNING *
       `, [rehearsalId, memberId, status]);
     }
-    
+
     res.json(result.rows[0]);
   } catch (error) {
     console.error('Error updating rehearsal attendance:', error);

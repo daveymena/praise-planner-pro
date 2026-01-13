@@ -19,13 +19,11 @@ const songSchema = z.object({
   name: z.string().min(1, "El nombre es requerido"),
   type: z.enum(["Alabanza", "Adoración", "Ministración", "Congregacional"]),
   key: z.string().min(1, "La tonalidad es requerida"),
-  tempo: z.enum(["Rápido", "Moderado", "Lento"]),
   is_favorite: z.boolean().default(false),
   lyrics: z.string().optional(),
   chords: z.string().optional(),
   notes: z.string().optional(),
   youtube_url: z.string().url().optional().or(z.literal("")),
-  duration_minutes: z.number().min(1).max(30).optional(),
   created_by: z.string().optional(),
 });
 
@@ -49,13 +47,11 @@ export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
       name: song?.name || "",
       type: song?.type || "Alabanza",
       key: song?.key || "",
-      tempo: song?.tempo || "Moderado",
       is_favorite: song?.is_favorite || false,
       lyrics: song?.lyrics || "",
       chords: song?.chords || "",
       notes: song?.notes || "",
       youtube_url: song?.youtube_url || "",
-      duration_minutes: song?.duration_minutes || undefined,
       created_by: song?.created_by || "",
     },
   });
@@ -129,11 +125,9 @@ export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
       if (data.name) form.setValue('name', data.name);
       if (data.type) form.setValue('type', data.type);
       if (data.key) form.setValue('key', data.key);
-      if (data.tempo) form.setValue('tempo', data.tempo);
       if (data.lyrics) form.setValue('lyrics', data.lyrics);
       if (data.chords) form.setValue('chords', data.chords);
       if (data.youtube_url) form.setValue('youtube_url', data.youtube_url);
-      if (data.duration_minutes) form.setValue('duration_minutes', data.duration_minutes);
 
       toast.success(`✓ Autocompletado vía ${source}`);
       setShowPasteArea(false);
@@ -254,47 +248,6 @@ export function SongForm({ song, onSuccess, onCancel }: SongFormProps) {
                     ))}
                   </SelectContent>
                 </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="tempo"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tempo</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecciona el tempo" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="Lento">Lento</SelectItem>
-                    <SelectItem value="Moderado">Moderado</SelectItem>
-                    <SelectItem value="Rápido">Rápido</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="duration_minutes"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Duración (minutos)</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="5"
-                    {...field}
-                    onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
-                  />
-                </FormControl>
                 <FormMessage />
               </FormItem>
             )}

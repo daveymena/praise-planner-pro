@@ -25,16 +25,10 @@ import type { Database } from "@/integrations/supabase/types";
 type Song = Database['public']['Tables']['songs']['Row'];
 
 const typeColors = {
-  "Alabanza": "bg-amber-500/10 text-amber-600 border-amber-500/20",
-  "Adoración": "bg-purple-500/10 text-purple-600 border-purple-500/20",
-  "Ministración": "bg-blue-500/10 text-blue-600 border-blue-500/20",
-  "Congregacional": "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
-};
-
-const tempoColors = {
-  "Rápido": "text-red-500",
-  "Moderado": "text-amber-500",
-  "Lento": "text-blue-500",
+  "Alabanza": "bg-primary/10 text-primary border-primary/20",
+  "Adoración": "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
+  "Ministración": "bg-teal-500/10 text-teal-400 border-teal-500/20",
+  "Congregacional": "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
 };
 
 export default function Repertorio() {
@@ -103,11 +97,11 @@ export default function Repertorio() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 fade-in">
           <div>
-            <h1 className="text-3xl font-serif font-bold text-foreground">
-              Repertorio 🎶
+            <h1 className="text-4xl font-bold text-white tracking-tight flex items-center gap-2">
+              Repertorio <Music className="w-8 h-8 text-primary" />
             </h1>
-            <p className="text-muted-foreground mt-1">
-              {isLoading ? "Cargando..." : `${songs?.length || 0} canciones en el repertorio`}
+            <p className="text-muted-foreground mt-2 font-medium">
+              {isLoading ? "Cargando biblioteca..." : `${songs?.length || 0} himnos y cantos en tu ministerio`}
             </p>
           </div>
           <div className="flex gap-2">
@@ -233,14 +227,10 @@ export default function Repertorio() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4 text-sm text-muted-foreground bg-muted/20 p-2 rounded-md border border-border/30">
-                  <div className="flex items-center gap-1.5">
-                    <Music className="w-3.5 h-3.5 text-primary" />
-                    <span>Tono: <strong className="text-foreground">{song.key}</strong></span>
-                  </div>
-                  <div className="flex items-center gap-1.5 border-l border-border/50 pl-4">
-                    <span className={`w-2.5 h-2.5 rounded-full ${tempoColors[song.tempo as keyof typeof tempoColors] || 'text-gray-500'}`} style={{ backgroundColor: 'currentColor' }} />
-                    <span className="text-foreground font-medium">{song.tempo}</span>
+                <div className="flex items-center gap-4 text-sm text-muted-foreground bg-white/5 p-3 rounded-xl border border-white/5">
+                  <div className="flex items-center gap-2">
+                    <Music className="w-4 h-4 text-primary" />
+                    <span>Tono: <strong className="text-white font-semibold">{song.key}</strong></span>
                   </div>
                 </div>
 

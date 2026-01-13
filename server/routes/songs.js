@@ -12,10 +12,10 @@ router.get('/', async (req, res) => {
       SELECT s.*, m.name as created_by_name 
       FROM songs s
       LEFT JOIN members m ON s.created_by = m.id
-      WHERE 1=1
+      WHERE s.ministry_id = $1
     `;
-    const params = [];
-    let paramCount = 0;
+    const params = [req.user.ministryId];
+    let paramCount = 1;
 
     if (type) {
       paramCount++;
@@ -51,8 +51,8 @@ router.get('/:id', async (req, res) => {
       SELECT s.*, m.name as created_by_name 
       FROM songs s
       LEFT JOIN members m ON s.created_by = m.id
-      WHERE s.id = $1
-    `, [id]);
+      WHERE s.id = $1 AND s.ministry_id = $2
+    `, [id, req.user.ministryId]);
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Song not found' });
@@ -69,18 +69,18 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const {
-      name, type, key, tempo, is_favorite, lyrics, chords,
-      notes, youtube_url, duration_minutes, created_by
+      name, type, key, is_favorite, lyrics, chords,
+      notes, youtube_url, created_by
     } = req.body;
 
     const result = await pool.query(`
       INSERT INTO songs (
-        name, type, key, tempo, is_favorite, lyrics, chords, 
-        notes, youtube_url, duration_minutes, created_by
+        ministry_id, name, type, key, is_favorite, lyrics, chords, 
+        notes, youtube_url, created_by
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NULLIF($11, '')::uuid)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NULLIF($10, '')::uuid)
       RETURNING *
-    `, [name, type, key, tempo, is_favorite, lyrics, chords, notes, youtube_url, duration_minutes, created_by]);
+    `, [req.user.ministryId, name, type, key, is_favorite, lyrics, chords, notes, youtube_url, created_by]);
 
     res.status(201).json(result.rows[0]);
   } catch (error) {
@@ -94,18 +94,18 @@ router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const {
-      name, type, key, tempo, is_favorite, lyrics, chords,
-      notes, youtube_url, duration_minutes
+      name, type, key, is_favorite, lyrics, chords,
+      notes, youtube_url
     } = req.body;
 
     const result = await pool.query(`
       UPDATE songs 
-      SET name = $1, type = $2, key = $3, tempo = $4, is_favorite = $5,
-          lyrics = $6, chords = $7, notes = $8, youtube_url = $9, 
-          duration_minutes = $10, updated_at = NOW()
-      WHERE id = $11
+      SET name = $1, type = $2, key = $3, is_favorite = $4,
+          lyrics = $5, chords = $6, notes = $7, youtube_url = $8, 
+          updated_at = NOW()
+      WHERE id = $9 AND ministry_id = $10
       RETURNING *
-    `, [name, type, key, tempo, is_favorite, lyrics, chords, notes, youtube_url, duration_minutes, id]);
+    `, [name, type, key, is_favorite, lyrics, chords, notes, youtube_url, id, req.user.ministryId]);
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Song not found' });
@@ -127,9 +127,9 @@ router.patch('/:id/favorite', async (req, res) => {
     const result = await pool.query(`
       UPDATE songs 
       SET is_favorite = $1, updated_at = NOW()
-      WHERE id = $2
+      WHERE id = $2 AND ministry_id = $3
       RETURNING *
-    `, [is_favorite, id]);
+    `, [is_favorite, id, req.user.ministryId]);
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Song not found' });
@@ -147,7 +147,7 @@ router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    const result = await pool.query('DELETE FROM songs WHERE id = $1 RETURNING *', [id]);
+    const result = await pool.query('DELETE FROM songs WHERE id = $1 AND ministry_id = $2 RETURNING *', [id, req.user.ministryId]);
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Song not found' });

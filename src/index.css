@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,114 +6,81 @@
 
 @layer base {
   :root {
-    --background: 40 33% 98%;
-    --foreground: 20 20% 15%;
+    --background: 220 33% 98%;
+    --foreground: 224 71% 4%;
 
-    --card: 40 30% 99%;
-    --card-foreground: 20 20% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 224 71% 4%;
 
-    --popover: 40 30% 99%;
-    --popover-foreground: 20 20% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71% 4%;
 
-    --primary: 32 80% 45%;
-    --primary-foreground: 40 33% 98%;
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 40 25% 92%;
-    --secondary-foreground: 20 20% 20%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
 
-    --muted: 40 20% 94%;
-    --muted-foreground: 20 10% 45%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 32 70% 50%;
-    --accent-foreground: 40 33% 98%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
 
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 40 20% 88%;
-    --input: 40 20% 88%;
-    --ring: 32 80% 45%;
-
-    --radius: 0.75rem;
-
-    /* Custom tokens */
-    --gold: 40 85% 55%;
-    --gold-light: 40 75% 75%;
-    --gold-dark: 32 90% 35%;
-    --cream: 40 33% 96%;
-    --cream-dark: 40 25% 90%;
-    --charcoal: 20 20% 18%;
-    --charcoal-light: 20 15% 30%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
     
-    /* Gradients */
-    --gradient-gold: linear-gradient(135deg, hsl(32, 80%, 45%) 0%, hsl(40, 85%, 55%) 100%);
-    --gradient-warm: linear-gradient(180deg, hsl(40, 33%, 98%) 0%, hsl(40, 25%, 92%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(40, 30%, 99%) 0%, hsl(40, 25%, 96%) 100%);
-    
-    /* Shadows */
-    --shadow-soft: 0 4px 20px -4px hsl(32, 80%, 45%, 0.15);
-    --shadow-card: 0 8px 30px -8px hsl(20, 20%, 15%, 0.08);
-    --shadow-elevated: 0 20px 50px -15px hsl(20, 20%, 15%, 0.12);
+    --radius: 1rem;
 
-    --sidebar-background: 40 25% 96%;
-    --sidebar-foreground: 20 20% 20%;
-    --sidebar-primary: 32 80% 45%;
-    --sidebar-primary-foreground: 40 33% 98%;
-    --sidebar-accent: 40 30% 92%;
-    --sidebar-accent-foreground: 20 20% 15%;
-    --sidebar-border: 40 20% 88%;
-    --sidebar-ring: 32 80% 45%;
+    /* Premium SaaS Tokens */
+    --gold: 45 100% 50%;
+    --teal: 173 80% 40%;
+    --indigo: 226 70% 55%;
+    
+    --gradient-premium: linear-gradient(135deg, hsl(226, 70%, 55%) 0%, hsl(173, 80%, 40%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(45, 100% , 50%) 0%, hsl(35, 100%, 45%) 100%);
+    
+    --glass-bg: hsla(0, 0%, 100%, 0.7);
+    --glass-border: hsla(0, 0%, 100%, 0.5);
+    
+    --shadow-premium: 0 20px 40px -15px rgba(0, 0, 0, 0.1);
   }
 
   .dark {
-    --background: 20 25% 8%;
-    --foreground: 40 30% 95%;
+    --background: 224 71% 4%;
+    --foreground: 210 40% 98%;
 
-    --card: 20 20% 12%;
-    --card-foreground: 40 30% 95%;
+    --card: 224 71% 4%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 20 20% 12%;
-    --popover-foreground: 40 30% 95%;
+    --popover: 224 71% 4%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 40 85% 55%;
-    --primary-foreground: 20 25% 8%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
 
-    --secondary: 20 15% 18%;
-    --secondary-foreground: 40 30% 90%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 20 15% 18%;
-    --muted-foreground: 40 15% 60%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 40 75% 50%;
-    --accent-foreground: 20 25% 8%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 62% 45%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 20 15% 20%;
-    --input: 20 15% 20%;
-    --ring: 40 85% 55%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
 
-    --gold: 40 85% 55%;
-    --gold-light: 40 70% 65%;
-    --gold-dark: 32 80% 40%;
-    --cream: 20 20% 15%;
-    --cream-dark: 20 15% 12%;
-    --charcoal: 40 30% 90%;
-    --charcoal-light: 40 20% 75%;
-
-    --gradient-gold: linear-gradient(135deg, hsl(40, 85%, 55%) 0%, hsl(32, 75%, 45%) 100%);
-    --gradient-warm: linear-gradient(180deg, hsl(20, 25%, 8%) 0%, hsl(20, 20%, 12%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(20, 20%, 12%) 0%, hsl(20, 15%, 10%) 100%);
-
-    --sidebar-background: 20 20% 10%;
-    --sidebar-foreground: 40 30% 90%;
-    --sidebar-primary: 40 85% 55%;
-    --sidebar-primary-foreground: 20 25% 8%;
-    --sidebar-accent: 20 15% 15%;
-    --sidebar-accent-foreground: 40 30% 90%;
-    --sidebar-border: 20 15% 18%;
-    --sidebar-ring: 40 85% 55%;
+    --glass-bg: hsla(224, 71%, 4%, 0.7);
+    --glass-border: hsla(217, 32%, 17%, 0.5);
   }
 }
 
@@ -124,18 +91,25 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Outfit', sans-serif;
+    background-image: radial-gradient(at 0% 0%, hsla(226, 70%, 55%, 0.05) 0, transparent 50%),
+                      radial-gradient(at 100% 100%, hsla(173, 80%, 40%, 0.05) 0, transparent 50%);
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Outfit', sans-serif;
+    @apply font-bold tracking-tight;
   }
 }
 
 @layer components {
   .glass-card {
-    @apply backdrop-blur-md bg-card/80 border border-border/50;
-    box-shadow: var(--shadow-card);
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    @apply rounded-2xl;
+    box-shadow: var(--shadow-premium);
   }
 
   .gold-gradient {

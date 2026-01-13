@@ -69,21 +69,18 @@ class AiService {
 
       REGLAS ESTRICTAS DE EXTRACCIÓN:
       1. Devuelve ESTRICTAMENTE JSON válido.
-      2. LETRA (lyrics): Debe ser un STRING (texto) con la letra limpia y completa. ELIMINA cualquier acorde (ej: G, Am7, D...) que esté mezclado con el texto.
-      3. ACORDES (chords): Debe ser un STRING (texto) con el cifrado musical. NO incluyas la letra en este campo, solo la estructura de los acordes.
-      4. TIPO (type): Elige EXACTAMENTE UNO: "Alabanza", "Adoración", "Ministración", "Congregacional".
-      5. TEMPO (tempo): Elige EXACTAMENTE UNO: "Rápido", "Moderado", "Lento".
+      2. TÍTULO (name): Debe ser el TÍTULO OFICIAL ORIGINAL de la canción (ej: "Way Maker" en lugar de "Aqui Estas").
+      3. LETRA (lyrics): Debe ser un STRING (texto) con la letra limpia y completa. ELIMINA cualquier acorde (ej: G, Am7, D...) que esté mezclado con el texto.
+      4. ACORDES (chords): Debe ser un STRING (texto) con el cifrado musical. NO incluyas la letra en este campo, solo la estructura de los acordes.
+      5. TIPO (type): Elige EXACTAMENTE UNO: "Alabanza", "Adoración", "Ministración", "Congregacional".
       6. TONALIDAD (key): Una sola nota musical principal (ej: "G").
-      7. DURACIÓN (duration_minutes): Solo número entero.
-      8. Siempre prioriza la información del [TEXTO DE ENTRADA] sobre tu conocimiento interno.
+      7. Siempre prioriza la información del [TEXTO DE ENTRADA] sobre tu conocimiento interno.
 
       FORMATO JSON:
       {
-        "name": "Título exacto",
+        "name": "Título Oficial Original",
         "type": "Selección única",
         "key": "Nota única",
-        "tempo": "Selección única",
-        "duration_minutes": 5,
         "youtube_url": "URL",
         "lyrics": "LA LETRA COMPLETA COMO TEXTO",
         "chords": "EL CIFRADO COMPLETO COMO TEXTO"

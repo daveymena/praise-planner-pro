@@ -45,9 +45,10 @@ router.get('/', async (req, res) => {
       LEFT JOIN members leader ON ss.leader_id = leader.id
       LEFT JOIN service_assignments sa ON s.id = sa.service_id
       LEFT JOIN members member ON sa.member_id = member.id
+      WHERE s.ministry_id = $1
       GROUP BY s.id, m.name
       ORDER BY s.date DESC
-    `);
+    `, [req.user.ministryId]);
 
     res.json(result.rows);
   } catch (error) {
@@ -98,11 +99,11 @@ router.get('/upcoming', async (req, res) => {
       LEFT JOIN members leader ON ss.leader_id = leader.id
       LEFT JOIN service_assignments sa ON s.id = sa.service_id
       LEFT JOIN members member ON sa.member_id = member.id
-      WHERE s.date >= CURRENT_DATE
+      WHERE s.date >= CURRENT_DATE AND s.ministry_id = $1
       GROUP BY s.id, m.name
       ORDER BY s.date ASC
       LIMIT 5
-    `);
+    `, [req.user.ministryId]);
 
     res.json(result.rows);
   } catch (error) {
@@ -147,9 +148,9 @@ router.get('/:id', async (req, res) => {
       LEFT JOIN songs song ON ss.song_id = song.id
       LEFT JOIN service_assignments sa ON s.id = sa.service_id
       LEFT JOIN members member ON sa.member_id = member.id
-      WHERE s.id = $1
+      WHERE s.id = $1 AND s.ministry_id = $2
       GROUP BY s.id, m.name
-    `, [id]);
+    `, [id, req.user.ministryId]);
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Service not found' });
@@ -171,10 +172,10 @@ router.post('/', async (req, res) => {
 
     // 1. Insert service
     const serviceResult = await client.query(`
-      INSERT INTO services (name, date, time, type, location, theme, notes, created_by)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      INSERT INTO services (ministry_id, name, date, time, type, location, theme, notes, created_by)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NULLIF($9, '')::uuid)
       RETURNING *
-    `, [name, date, time, type, location, theme, notes, created_by]);
+    `, [req.user.ministryId, name, date, time, type, location, theme, notes, created_by]);
 
     const service = serviceResult.rows[0];
 
@@ -222,9 +223,9 @@ router.put('/:id', async (req, res) => {
       UPDATE services 
       SET name = $1, date = $2, time = $3, type = $4, 
           location = $5, theme = $6, notes = $7, updated_at = NOW()
-      WHERE id = $8
+      WHERE id = $8 AND ministry_id = $9
       RETURNING *
-    `, [name, date, time, type, location, theme, notes, id]);
+    `, [name, date, time, type, location, theme, notes, id, req.user.ministryId]);
 
     if (result.rows.length === 0) {
       await client.query('ROLLBACK');
@@ -269,7 +270,7 @@ router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     // service_songs and service_assignments should have ON DELETE CASCADE
-    const result = await pool.query('DELETE FROM services WHERE id = $1 RETURNING *', [id]);
+    const result = await pool.query('DELETE FROM services WHERE id = $1 AND ministry_id = $2 RETURNING *', [id, req.user.ministryId]);
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Service not found' });

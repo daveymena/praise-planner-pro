@@ -5,7 +5,9 @@ import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import pool from './config/database.js';
 
+import jwt from 'jsonwebtoken';
 // Import routes
+import authRoutes from './routes/auth.js';
 import membersRoutes from './routes/members.js';
 import songsRoutes from './routes/songs.js';
 import rehearsalsRoutes from './routes/rehearsals.js';
@@ -18,6 +20,24 @@ import { runMigrations } from './migrations/migrate.js';
 dotenv.config();
 
 const app = express();
+
+// Auth Middleware (Isolated for SaaS)
+const authMiddleware = (req, res, next) => {
+  // Public routes
+  if (req.path.startsWith('/api/auth') || req.path === '/health') return next();
+
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ error: 'Acceso denegado' });
+
+  try {
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret-worship-key');
+    req.user = decoded; // { id, ministryId, role }
+    next();
+  } catch (error) {
+    res.status(401).json({ error: 'Token inválido' });
+  }
+};
 // Enable trust proxy for EasyPanel/Traefik
 app.set('trust proxy', 1);
 
@@ -51,6 +71,9 @@ app.use(limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Apply Auth Middleware
+app.use(authMiddleware);
+
 // Health check
 app.get('/health', async (req, res) => {
   try {
@@ -71,6 +94,7 @@ app.get('/health', async (req, res) => {
 });
 
 // API Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/members', membersRoutes);
 app.use('/api/songs', songsRoutes);
 app.use('/api/rehearsals', rehearsalsRoutes);
