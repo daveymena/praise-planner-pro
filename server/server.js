@@ -23,8 +23,8 @@ const app = express();
 
 // Auth Middleware (Isolated for SaaS)
 const authMiddleware = (req, res, next) => {
-  // Public routes
-  if (req.path.startsWith('/api/auth') || req.path === '/health') return next();
+  // Public routes: Allow non-API routes (frontend), health check, and auth endpoints
+  if (!req.path.startsWith('/api') || req.path.startsWith('/api/auth') || req.path === '/health') return next();
 
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ error: 'Acceso denegado' });
