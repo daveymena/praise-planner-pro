@@ -12,7 +12,13 @@ router.get('/', async (req, res) => {
     const { url } = req.query;
     try {
         if (!url) {
-            return res.status(400).json({ error: 'URL parameter is required' });
+            return res.status(400).send(`
+                <div style="font-family: sans-serif; padding: 40px; text-align: center; color: #666;">
+                    <h2 style="color: #2563eb;">Navegador Harmony</h2>
+                    <p>Esperando una dirección URL válida para comenzar...</p>
+                    <div style="margin-top: 20px; font-size: 12px; opacity: 0.5;">Harmony Pro Proxy System</div>
+                </div>
+            `);
         }
 
         // Validate URL
@@ -20,7 +26,12 @@ router.get('/', async (req, res) => {
         try {
             targetUrl = new URL(url);
         } catch (err) {
-            return res.status(400).json({ error: 'Invalid URL format' });
+            return res.status(400).send(`
+                <div style="font-family: sans-serif; padding: 40px; text-align: center; color: #dc2626;">
+                    <h2>Dirección Inválida</h2>
+                    <p>La URL "${url}" no tiene un formato correcto.</p>
+                </div>
+            `);
         }
 
         // Whitelist allowed domains for security

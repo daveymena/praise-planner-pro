@@ -76,7 +76,13 @@ export function UnifiedSongSearch({ onSongFound }: UnifiedSongSearchProps) {
 
     // Manual browser capture
     const handleBrowserNavigate = () => {
-        let url = browserUrl.trim();
+        const trimmedUrl = browserUrl.trim();
+        if (!trimmedUrl) {
+            toast.error("Ingresa una URL o término de búsqueda");
+            return;
+        }
+
+        let url = trimmedUrl;
         if (!url.startsWith('http')) {
             url = `https://www.google.com/search?q=${encodeURIComponent(url)}`;
         }

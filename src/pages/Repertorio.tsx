@@ -136,12 +136,12 @@ export default function Repertorio() {
                   <span className="hidden sm:inline">Agregar Canción</span>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl w-[95vw] max-h-[90vh] overflow-hidden flex flex-col p-0 glass-card">
-                <DialogHeader className="p-6 border-b border-border/50">
-                  <DialogTitle className="text-2xl font-bold">Nueva Canción</DialogTitle>
-                  <DialogDescription>Complete los detalles para agregar una nueva canción.</DialogDescription>
+              <DialogContent className="max-w-[100vw] w-full lg:max-w-[1200px] h-[100dvh] lg:h-[90vh] overflow-hidden flex flex-col p-0 glass-card border-primary/20 shadow-3xl lg:rounded-[2.5rem]">
+                <DialogHeader className="p-8 border-b border-border/50 bg-secondary/20">
+                  <DialogTitle className="text-3xl font-black uppercase tracking-tighter">Nueva Canción</DialogTitle>
+                  <DialogDescription className="text-sm font-medium uppercase tracking-widest text-primary/60">Agregando a la biblioteca ministerial</DialogDescription>
                 </DialogHeader>
-                <div className="flex-1 overflow-y-auto p-6 scrollbar-hide">
+                <div className="flex-1 overflow-y-auto p-8 md:p-12 scrollbar-hide">
                   <SongForm
                     prefilledData={capturedData}
                     onSuccess={() => {
@@ -338,34 +338,33 @@ export default function Repertorio() {
 
       {/* Split View Ensemble Mode Modal */}
       <Dialog open={!!viewingSong} onOpenChange={(open) => !open && setViewingSong(null)}>
-        <DialogContent className="max-w-[98vw] w-full lg:w-[1200px] max-h-[98vh] p-0 overflow-hidden bg-background border-primary/20 shadow-2xl flex flex-col">
+        <DialogContent className="max-w-[100vw] w-full lg:max-w-[1600px] h-[100dvh] lg:h-[95vh] p-0 overflow-hidden bg-background lg:rounded-[3rem] border-primary/20 shadow-4xl flex flex-col lg:my-2">
           {viewingSong && (
-            <div className="flex flex-col h-[98vh]">
+            <div className="flex flex-col h-full">
               {/* Modal Header */}
-              <div className="p-4 border-b border-white/10 bg-secondary/30 flex items-center justify-between flex-shrink-0">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl gold-gradient flex items-center justify-center shadow-lg shrink-0">
-                    <Music className="w-5 h-5 text-white" />
+              <div className="p-6 border-b border-white/5 bg-secondary/30 flex items-center justify-between flex-shrink-0">
+                <div className="flex items-center gap-5">
+                  <div className="w-14 h-14 rounded-2xl gold-gradient flex items-center justify-center shadow-xl shrink-0 group hover:rotate-6 transition-all duration-500">
+                    <Music className="w-7 h-7 text-white" />
                   </div>
                   <div className="min-w-0">
-                    <h2 className="text-base md:text-xl font-bold text-foreground truncate">{viewingSong.name}</h2>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px] h-5 px-1.5 uppercase font-bold">
+                    <h2 className="text-xl md:text-3xl font-black text-foreground truncate uppercase tracking-tighter">{viewingSong.name}</h2>
+                    <div className="flex items-center gap-3 mt-1.5">
+                      <Badge className="bg-primary text-white border-none text-[11px] h-6 px-2.5 uppercase font-black">
                         {viewingSong.key}
                       </Badge>
-                      <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">{viewingSong.type}</span>
+                      <span className="text-xs text-muted-foreground uppercase font-black tracking-[0.2em]">{viewingSong.type}</span>
                     </div>
                   </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   {viewingSong.youtube_url && (
                     <Button
                       variant="outline"
-                      size="sm"
                       onClick={() => window.open(viewingSong.youtube_url!, '_blank')}
-                      className="h-9 border-red-500/30 text-red-500 hover:bg-red-500/10 rounded-xl"
+                      className="h-12 border-red-500/20 text-red-500 hover:bg-red-500/10 rounded-2xl px-6 font-bold text-xs uppercase tracking-widest transition-all"
                     >
-                      <Youtube className="w-4 h-4 md:mr-2" />
+                      <Youtube className="w-5 h-5 mr-3" />
                       <span className="hidden md:inline">Ver en YouTube</span>
                     </Button>
                   )}
@@ -375,25 +374,27 @@ export default function Repertorio() {
               {/* Content area: Scrollable */}
               <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
                 {/* Lado Izquierdo: Letra y Acordes */}
-                <div className="flex-1 lg:w-1/2 p-4 md:p-8 overflow-y-auto custom-scrollbar bg-card/30">
-                  <div className="max-w-2xl mx-auto space-y-10">
+                <div className="flex-1 lg:w-1/2 p-6 md:p-12 overflow-y-auto custom-scrollbar bg-card/30">
+                  <div className="max-w-3xl mx-auto space-y-16">
                     {viewingSong.lyrics && (
-                      <section>
-                        <h3 className="text-primary font-bold uppercase tracking-[0.2em] text-[10px] mb-6 flex items-center gap-2">
-                          <FileText className="w-3.5 h-3.5" /> Letra de la Canción
+                      <section className="fade-in">
+                        <h3 className="text-primary font-black uppercase tracking-[0.4em] text-[11px] mb-8 flex items-center gap-3">
+                          <div className="w-8 h-px bg-primary/30" />
+                          <FileText className="w-4 h-4" /> Letra Completa
                         </h3>
-                        <div className="bg-card p-6 md:p-8 rounded-[2rem] border border-border/50 whitespace-pre-wrap text-base md:text-lg font-medium leading-relaxed text-foreground shadow-sm">
+                        <div className="bg-background/50 p-8 md:p-12 rounded-[3rem] border border-border/50 whitespace-pre-wrap text-lg md:text-2xl font-serif italic leading-relaxed text-foreground shadow-inner">
                           {viewingSong.lyrics}
                         </div>
                       </section>
                     )}
 
                     {viewingSong.chords && (
-                      <section>
-                        <h3 className="text-amber-500 font-bold uppercase tracking-[0.2em] text-[10px] mb-6 flex items-center gap-2">
-                          <Music className="w-3.5 h-3.5" /> Guía de Acordes
+                      <section className="fade-in" style={{ animationDelay: '200ms' }}>
+                        <h3 className="text-amber-500 font-black uppercase tracking-[0.4em] text-[11px] mb-8 flex items-center gap-3">
+                          <div className="w-8 h-px bg-amber-500/30" />
+                          <Music className="w-4 h-4" /> Guía de Armonía
                         </h3>
-                        <div className="bg-amber-500/5 p-6 md:p-8 rounded-[2rem] border border-amber-500/20 whitespace-pre-wrap font-mono text-xl text-amber-600 dark:text-amber-400 tracking-wider shadow-sm">
+                        <div className="bg-amber-500/5 p-8 md:p-12 rounded-[3rem] border border-amber-500/20 whitespace-pre-wrap font-mono text-2xl md:text-4xl text-amber-600 dark:text-amber-400 tracking-widest shadow-inner">
                           {viewingSong.chords}
                         </div>
                       </section>
@@ -401,8 +402,8 @@ export default function Repertorio() {
                   </div>
                 </div>
 
-                {/* Lado Derecho: Video Player (Hidden small mobile, shown on tablet/desktop or special toggle) */}
-                <div className="hidden lg:flex w-1/2 bg-black items-center justify-center relative border-l border-border/50">
+                {/* Lado Derecho: Video Player */}
+                <div className="hidden lg:flex w-1/2 bg-slate-950 items-center justify-center relative border-l border-white/5">
                   {viewingSong.youtube_url ? (
                     <iframe
                       width="100%"
@@ -412,14 +413,15 @@ export default function Repertorio() {
                       frameBorder="0"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                       allowFullScreen
-                      className="w-full h-full"
+                      className="w-full h-full opacity-90 hover:opacity-100 transition-opacity duration-700"
                     />
                   ) : (
-                    <div className="text-center p-12">
-                      <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-6">
-                        <Youtube className="w-10 h-10 text-muted-foreground/30" />
+                    <div className="text-center p-12 max-w-sm">
+                      <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-8 animate-pulse">
+                        <Youtube className="w-12 h-12 text-muted-foreground/20" />
                       </div>
-                      <p className="text-muted-foreground font-medium">Esta canción no tiene un video vinculado.</p>
+                      <h4 className="text-xl font-bold text-white/40 uppercase tracking-widest">Sin Video</h4>
+                      <p className="text-muted-foreground/40 mt-4 text-sm font-medium">Esta canción no tiene un ensayo visual vinculado en el repertorio.</p>
                     </div>
                   )}
                 </div>

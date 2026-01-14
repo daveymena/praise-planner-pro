@@ -56,8 +56,8 @@ export function Navigation() {
                                     key={item.path}
                                     to={item.path}
                                     className={`px-5 py-2.5 rounded-2xl text-sm font-bold uppercase tracking-widest transition-all ${isActive
-                                            ? "bg-primary text-white shadow-lg shadow-primary/20"
-                                            : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                                        ? "bg-primary text-white shadow-lg shadow-primary/20"
+                                        : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                                         }`}
                                 >
                                     <div className="flex items-center gap-2">
@@ -83,7 +83,7 @@ export function Navigation() {
             </header>
 
             {/* Mobile Bottom Navigation (A native-app feel) */}
-            <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] h-16 bg-slate-900/95 backdrop-blur-2xl border border-white/10 rounded-[2rem] flex items-center justify-around px-2 z-50 lg:hidden shadow-[0_20px_50px_-15px_rgba(0,0,0,0.5)]">
+            <nav className="fixed bottom-0 left-0 right-0 h-20 bg-slate-900/95 backdrop-blur-3xl border-t border-white/10 flex items-center justify-around px-6 z-50 lg:hidden shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.5)]">
                 {navItems.slice(0, 5).map((item) => {
                     const Icon = item.icon;
                     const isActive = location.pathname === item.path;
@@ -96,10 +96,10 @@ export function Navigation() {
                                 }`}
                         >
                             {isActive && (
-                                <div className="absolute top-2 w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_10px_#2563eb]" />
+                                <div className="absolute -top-1 w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_10px_#2563eb]" />
                             )}
                             <Icon className={`w-6 h-6 transition-all ${isActive ? "drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]" : "opacity-60"}`} />
-                            <span className={`text-[9px] font-black uppercase tracking-widest mt-1 transition-all ${isActive ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 h-0"}`}>
+                            <span className={`text-[9px] font-black uppercase tracking-widest mt-1.5 transition-all ${isActive ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 h-0"}`}>
                                 {item.label}
                             </span>
                         </NavLink>
@@ -107,19 +107,22 @@ export function Navigation() {
                 })}
             </nav>
 
-            {/* Mobile Logo/Top Bar (Very minimal) */}
-            <div className="lg:hidden fixed top-0 left-0 right-0 h-16 flex items-center justify-between px-6 z-40 bg-background/50 backdrop-blur-sm pointer-events-none">
-                <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg gold-gradient flex items-center justify-center shadow-lg">
-                        <Music className="w-4 h-4 text-white" />
+            {/* Mobile Logo/Top Bar */}
+            <div className="lg:hidden fixed top-0 left-0 right-0 h-16 flex items-center justify-between px-6 z-40 bg-background/80 backdrop-blur-xl border-b border-border/10">
+                <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl gold-gradient flex items-center justify-center shadow-lg">
+                        <Music className="w-5 h-5 text-white" />
                     </div>
-                    <span className="text-sm font-black uppercase tracking-tighter text-foreground">{user?.ministry_name || "Harmony"}</span>
+                    <div className="flex flex-col">
+                        <span className="text-sm font-black uppercase tracking-tighter text-foreground leading-none">{user?.ministry_name || "Harmony"}</span>
+                        <span className="text-[9px] font-bold text-primary uppercase tracking-[0.2em] mt-0.5">Ministerio Pro</span>
+                    </div>
                 </div>
                 <Button
                     variant="ghost"
                     size="icon"
                     onClick={logout}
-                    className="w-10 h-10 rounded-xl bg-secondary/50 pointer-events-auto"
+                    className="w-10 h-10 rounded-xl bg-secondary/50"
                 >
                     <LogOut className="w-4 h-4 text-muted-foreground" />
                 </Button>
