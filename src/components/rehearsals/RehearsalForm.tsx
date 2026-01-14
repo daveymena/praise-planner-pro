@@ -97,105 +97,117 @@ export function RehearsalForm({ onSuccess }: RehearsalFormProps) {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                {/* Basic Info */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-secondary/20 p-4 rounded-2xl border border-white/5">
-                    <FormField
-                        control={form.control}
-                        name="date"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="flex items-center gap-2">
-                                    <Calendar className="w-4 h-4 text-primary" /> Fecha
-                                </FormLabel>
-                                <FormControl>
-                                    <Input type="date" {...field} className="input-warm" />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
+                {/* Basic Info Section */}
+                <div className="space-y-6">
+                    <div className="flex items-center gap-2 mb-2">
+                        <Calendar className="w-5 h-5 text-primary" />
+                        <h3 className="text-sm font-black uppercase tracking-[0.2em] text-foreground">Detalles Básicos</h3>
+                    </div>
 
-                    <FormField
-                        control={form.control}
-                        name="time"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="flex items-center gap-2">
-                                    <Clock className="w-4 h-4 text-primary" /> Hora
-                                </FormLabel>
-                                <FormControl>
-                                    <Input type="time" {...field} className="input-warm" />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    <FormField
-                        control={form.control}
-                        name="location"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="flex items-center gap-2">
-                                    <MapPin className="w-4 h-4 text-primary" /> Lugar
-                                </FormLabel>
-                                <FormControl>
-                                    <Input placeholder="Ej. Salón Principal" {...field} className="input-warm" />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    <FormField
-                        control={form.control}
-                        name="type"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Tipo de Ensayo</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-secondary/20 p-6 rounded-[2rem] border border-border/50">
+                        <FormField
+                            control={form.control}
+                            name="date"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-[10px] font-black uppercase tracking-widest ml-1">Fecha del Ensayo</FormLabel>
                                     <FormControl>
-                                        <SelectTrigger className="input-warm">
-                                            <SelectValue placeholder="Selecciona un tipo" />
-                                        </SelectTrigger>
+                                        <div className="relative">
+                                            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                            <Input type="date" {...field} className="h-12 pl-11 bg-background border-border/50 rounded-xl focus:ring-primary/20 transition-all font-medium" />
+                                        </div>
                                     </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="General">General</SelectItem>
-                                        <SelectItem value="Vocal">Vocal</SelectItem>
-                                        <SelectItem value="Instrumental">Instrumental</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="time"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-[10px] font-black uppercase tracking-widest ml-1">Hora de Inicio</FormLabel>
+                                    <FormControl>
+                                        <div className="relative">
+                                            <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                            <Input type="time" {...field} className="h-12 pl-11 bg-background border-border/50 rounded-xl focus:ring-primary/20 transition-all font-medium" />
+                                        </div>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="location"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-[10px] font-black uppercase tracking-widest ml-1">Ubicación / Lugar</FormLabel>
+                                    <FormControl>
+                                        <div className="relative">
+                                            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                            <Input placeholder="Ej. Salón Principal" {...field} className="h-12 pl-11 bg-background border-border/50 rounded-xl focus:ring-primary/20 transition-all font-medium" />
+                                        </div>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="type"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-[10px] font-black uppercase tracking-widest ml-1">Tipo de Sesión</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger className="h-12 bg-background border-border/50 rounded-xl focus:ring-primary/20 font-medium">
+                                                <SelectValue placeholder="Selecciona tipo" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent className="rounded-xl border-border/50">
+                                            <SelectItem value="General">General (Todo el equipo)</SelectItem>
+                                            <SelectItem value="Vocal">Vocal (Solo voces)</SelectItem>
+                                            <SelectItem value="Instrumental">Instrumental (Solo músicos)</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
                 </div>
 
-                {/* Song Selection */}
-                <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-serif font-semibold text-white flex items-center gap-2">
-                            <Music className="w-5 h-5 text-primary" /> Plan de Alabanza
-                        </h3>
+                {/* Song Selection Section */}
+                <div className="space-y-6">
+                    <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                            <Music className="w-5 h-5 text-primary" />
+                            <h3 className="text-sm font-black uppercase tracking-[0.2em] text-foreground">Plan de Alabanza</h3>
+                        </div>
                         <Button
                             type="button"
                             size="sm"
                             variant="outline"
                             onClick={() => append({ song_id: "", leader_id: "", notes: "", order_position: fields.length })}
-                            className="border-primary/30 text-primary hover:bg-primary/5"
+                            className="rounded-full border-primary/30 text-primary font-bold hover:bg-primary/5 uppercase text-[10px] tracking-widest px-4"
                         >
                             <Plus className="w-4 h-4 mr-2" /> Añadir Canción
                         </Button>
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                         {fields.map((field, index) => (
-                            <div key={field.id} className="flex flex-col gap-3 p-4 bg-white/5 rounded-xl border border-white/10 animate-in fade-in slide-in-from-top-2">
-                                <div className="flex items-center gap-3">
-                                    <span className="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold">
-                                        {index + 1}
-                                    </span>
+                            <div key={field.id} className="group relative flex flex-col gap-4 p-6 bg-secondary/10 rounded-[2rem] border border-border/40 hover:border-primary/30 transition-all duration-300 animate-in fade-in slide-in-from-top-4">
+                                <div className="absolute -left-3 top-6 w-8 h-8 rounded-xl bg-primary text-white flex items-center justify-center text-xs font-black shadow-lg shadow-primary/20 z-10">
+                                    {index + 1}
+                                </div>
+
+                                <div className="flex items-center gap-4 ml-4">
                                     <FormField
                                         control={form.control}
                                         name={`songs.${index}.song_id`}
@@ -203,14 +215,17 @@ export function RehearsalForm({ onSuccess }: RehearsalFormProps) {
                                             <FormItem className="flex-1">
                                                 <Select onValueChange={field.onChange} value={field.value}>
                                                     <FormControl>
-                                                        <SelectTrigger className="bg-background/50">
-                                                            <SelectValue placeholder="Selecciona una canción" />
+                                                        <SelectTrigger className="h-12 bg-background border-border/50 rounded-xl shadow-sm font-bold uppercase tracking-tight text-sm">
+                                                            <SelectValue placeholder="Buscar canción en el repertorio..." />
                                                         </SelectTrigger>
                                                     </FormControl>
-                                                    <SelectContent>
+                                                    <SelectContent className="rounded-xl">
                                                         {songsData?.map((song) => (
-                                                            <SelectItem key={song.id} value={song.id}>
-                                                                {song.name} ({song.key})
+                                                            <SelectItem key={song.id} value={song.id} className="py-3">
+                                                                <div className="flex flex-col">
+                                                                    <span className="font-bold">{song.name}</span>
+                                                                    <span className="text-[10px] font-black uppercase text-primary/60 tracking-widest">{song.type} • Tono: {song.key}</span>
+                                                                </div>
                                                             </SelectItem>
                                                         ))}
                                                     </SelectContent>
@@ -223,12 +238,12 @@ export function RehearsalForm({ onSuccess }: RehearsalFormProps) {
                                         variant="ghost"
                                         size="icon"
                                         onClick={() => remove(index)}
-                                        className="text-muted-foreground hover:text-destructive"
+                                        className="h-12 w-12 rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors"
                                     >
-                                        <Trash2 className="w-4 h-4" />
+                                        <Trash2 className="w-5 h-5" />
                                     </Button>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-9">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-4">
                                     <FormField
                                         control={form.control}
                                         name={`songs.${index}.leader_id`}
@@ -236,14 +251,14 @@ export function RehearsalForm({ onSuccess }: RehearsalFormProps) {
                                             <FormItem>
                                                 <Select onValueChange={field.onChange} value={field.value}>
                                                     <FormControl>
-                                                        <SelectTrigger className="bg-background/50 h-8 text-xs">
-                                                            <SelectValue placeholder="Líder de esta canción" />
+                                                        <SelectTrigger className="h-10 bg-background/50 border-border/30 rounded-lg text-[10px] font-black uppercase tracking-widest">
+                                                            <SelectValue placeholder="Asignar Líder" />
                                                         </SelectTrigger>
                                                     </FormControl>
-                                                    <SelectContent>
+                                                    <SelectContent className="rounded-lg">
                                                         {membersData?.map((member) => (
                                                             <SelectItem key={member.id} value={member.id}>
-                                                                {member.name}
+                                                                {member.name} ({member.role})
                                                             </SelectItem>
                                                         ))}
                                                     </SelectContent>
@@ -257,9 +272,9 @@ export function RehearsalForm({ onSuccess }: RehearsalFormProps) {
                                         render={({ field }) => (
                                             <FormItem>
                                                 <Input
-                                                    placeholder="Notas (ej: solo acústico al inicio)"
+                                                    placeholder="Observaciones específicas..."
                                                     {...field}
-                                                    className="bg-background/50 h-8 text-xs"
+                                                    className="h-10 bg-background/50 border-border/30 rounded-lg text-xs"
                                                 />
                                             </FormItem>
                                         )}
@@ -268,38 +283,45 @@ export function RehearsalForm({ onSuccess }: RehearsalFormProps) {
                             </div>
                         ))}
                         {fields.length === 0 && (
-                            <p className="text-center py-6 text-sm text-muted-foreground italic border-2 border-dashed border-white/5 rounded-xl">
-                                No has añadido canciones todavía. Click en "Añadir Canción" para comenzar.
-                            </p>
+                            <div className="text-center py-12 rounded-[2.5rem] border-2 border-dashed border-border/40 bg-secondary/5">
+                                <Music className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+                                <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest">El plan está vacío</p>
+                                <p className="text-xs text-muted-foreground mt-1 px-8">Añade canciones para estructurar la sesión de hoy.</p>
+                            </div>
                         )}
                     </div>
                 </div>
 
-                {/* Team Selection */}
-                <div className="space-y-4">
-                    <h3 className="text-lg font-serif font-semibold text-white flex items-center gap-2">
-                        <Users className="w-5 h-5 text-primary" /> Equipo Convocado
-                    </h3>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 bg-white/5 p-4 rounded-xl border border-white/10">
-                        {membersData?.map((member) => (
-                            <div
-                                key={member.id}
-                                className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors ${form.watch("members").includes(member.id)
-                                        ? 'bg-primary/20 border border-primary/30'
-                                        : 'hover:bg-white/5 border border-transparent'
-                                    }`}
-                                onClick={() => toggleMember(member.id)}
-                            >
-                                <Checkbox
-                                    checked={form.watch("members").includes(member.id)}
-                                // React hook form handle toggleMember manually to make UI feel snappier
-                                />
-                                <div className="min-w-0">
-                                    <p className="text-xs font-medium text-white truncate">{member.name}</p>
-                                    <p className="text-[10px] text-muted-foreground truncate">{member.role}</p>
+                {/* Team Selection Section */}
+                <div className="space-y-6">
+                    <div className="flex items-center gap-2 mb-2">
+                        <Users className="w-5 h-5 text-primary" />
+                        <h3 className="text-sm font-black uppercase tracking-[0.2em] text-foreground">Convocatoria de Equipo</h3>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-secondary/10 p-6 rounded-[2rem] border border-border/40">
+                        {membersData?.map((member) => {
+                            const isSelected = form.watch("members").includes(member.id);
+                            return (
+                                <div
+                                    key={member.id}
+                                    className={`relative flex flex-col p-4 rounded-2xl cursor-pointer transition-all duration-300 border-2 overflow-hidden ${isSelected
+                                        ? 'bg-primary/10 border-primary/50 shadow-lg shadow-primary/5'
+                                        : 'bg-background/50 border-transparent hover:border-border/60'
+                                        }`}
+                                    onClick={() => toggleMember(member.id)}
+                                >
+                                    {isSelected && <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary animate-pulse" />}
+                                    <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center mb-3">
+                                        <span className="text-xs font-black uppercase text-muted-foreground">{member.name.slice(0, 2)}</span>
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="text-xs font-black text-foreground truncate uppercase tracking-tight">{member.name}</p>
+                                        <p className="text-[10px] font-bold text-muted-foreground truncate uppercase opacity-60 mt-0.5">{member.role}</p>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
 
@@ -308,11 +330,11 @@ export function RehearsalForm({ onSuccess }: RehearsalFormProps) {
                     name="notes"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Instrucciones Generales (Opcional)</FormLabel>
+                            <FormLabel className="text-[10px] font-black uppercase tracking-widest ml-1">Mensaje para el Equipo</FormLabel>
                             <FormControl>
                                 <Textarea
-                                    placeholder="Mensaje para todo el equipo ministerial..."
-                                    className="resize-none input-warm h-24"
+                                    placeholder="Instrucciones adicionales, enfoque espiritual o notas técnicas..."
+                                    className="resize-none h-32 bg-secondary/10 border-border/40 rounded-2xl focus:ring-primary/20 p-4 font-medium"
                                     {...field}
                                 />
                             </FormControl>
@@ -323,19 +345,20 @@ export function RehearsalForm({ onSuccess }: RehearsalFormProps) {
 
                 <Button
                     type="submit"
-                    className="w-full btn-gold py-6 h-auto text-lg shadow-xl shadow-primary/10"
+                    className="w-full btn-premium py-8 h-auto text-xl font-black shadow-2xl shadow-primary/20 uppercase tracking-[0.1em]"
                     disabled={createRehearsal.isPending}
                 >
                     {createRehearsal.isPending ? (
                         <>
-                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                            Programando Ensayo...
+                            <Loader2 className="mr-3 h-6 w-6 animate-spin" />
+                            PROCESANDO...
                         </>
                     ) : (
-                        "Programar y Notificar al Equipo"
+                        "PROGRAMAR Y NOTIFICAR"
                     )}
                 </Button>
             </form>
         </Form>
     );
 }
+

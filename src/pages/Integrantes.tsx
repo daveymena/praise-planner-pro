@@ -70,15 +70,17 @@ export default function Integrantes() {
   const roles = ["Director", "Vocalista", "Instrumentista", "Técnico", "Coordinador"];
 
   const getInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    return name.split(' ').filter(Boolean).map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
   if (error) {
     return (
       <Layout>
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center py-12">
-            <p className="text-red-500">Error al cargar los integrantes</p>
+        <div className="max-w-7xl mx-auto px-4 py-12">
+          <div className="text-center p-12 bg-destructive/5 rounded-[2rem] border border-destructive/20 max-w-lg mx-auto">
+            <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
+            <h2 className="text-xl font-bold text-destructive">Error de Conexión</h2>
+            <p className="text-muted-foreground mt-2">No pudimos cargar la lista de integrantes. Por favor, revisa tu conexión.</p>
           </div>
         </div>
       </Layout>
@@ -87,181 +89,209 @@ export default function Integrantes() {
 
   return (
     <Layout>
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 fade-in">
-          <div>
-            <h1 className="text-3xl font-serif font-bold text-foreground">
-              Integrantes 👥
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              {isLoading ? "Cargando..." : `${members?.length || 0} integrantes activos`}
-            </p>
+      <div className="max-w-7xl mx-auto px-0 sm:px-4 space-y-8 pb-32 lg:pb-12">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-4 sm:px-0 fade-in">
+          <div className="flex items-center gap-4">
+            <div className="w-2 h-10 rounded-full bg-primary" />
+            <div className="space-y-1">
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">
+                Integrantes
+              </h1>
+              <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest">
+                {isLoading ? "Sincronizando..." : `${members?.length || 0} Miembros Conectados`}
+              </p>
+            </div>
           </div>
+
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="btn-gold">
-                <Plus className="w-4 h-4 mr-2" />
-                Agregar Integrante
+              <Button className="btn-gold h-12 px-6 rounded-2xl shadow-xl shadow-primary/10 group">
+                <Plus className="w-5 h-5 mr-2 group-hover:rotate-90 transition-transform duration-300" />
+                Registrar Integrante
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>Nuevo Integrante</DialogTitle>
-                <DialogDescription>Registre un nuevo miembro en el ministerio.</DialogDescription>
+            <DialogContent className="max-w-[95vw] sm:max-w-2xl rounded-[2rem] p-0 border-primary/20 bg-background shadow-2xl">
+              <DialogHeader className="p-8 border-b border-border/50 bg-secondary/20">
+                <DialogTitle className="text-2xl font-bold text-foreground flex items-center gap-2">
+                  <Users className="w-6 h-6 text-primary" /> Nuevo Miembro
+                </DialogTitle>
+                <DialogDescription>Completa el perfil ministerial del nuevo integrante.</DialogDescription>
               </DialogHeader>
-              <MemberForm
-                onSuccess={() => setIsCreateDialogOpen(false)}
-                onCancel={() => setIsCreateDialogOpen(false)}
-              />
+              <div className="p-8">
+                <MemberForm
+                  onSuccess={() => setIsCreateDialogOpen(false)}
+                  onCancel={() => setIsCreateDialogOpen(false)}
+                />
+              </div>
             </DialogContent>
           </Dialog>
         </div>
 
-        {/* Filters */}
-        <div className="card-elevated p-4 mb-6 fade-in">
-          <div className="flex flex-col lg:flex-row gap-4">
-            {/* Search */}
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        {/* Search & Global Filters */}
+        <div className="px-4 sm:px-0">
+          <div className="card-elevated p-2 sm:p-3 flex flex-col lg:flex-row gap-4 items-center slide-up">
+            <div className="relative w-full flex-1">
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/50" />
               <Input
-                placeholder="Buscar por nombre o email..."
-                className="pl-10 input-warm"
+                placeholder="Buscar por nombre, correo, instrumento..."
+                className="h-14 pl-14 pr-6 bg-secondary/30 border-transparent focus:bg-background focus:ring-4 focus:ring-primary/5 rounded-2xl text-lg font-medium transition-all"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
 
-            {/* Role Filter */}
-            <div className="flex flex-wrap gap-2">
-              {roles.map(role => (
+            <div className="hidden lg:flex items-center gap-2 pr-2">
+              {roles.slice(0, 3).map(role => (
                 <Button
                   key={role}
-                  variant={selectedRole === role ? "default" : "outline"}
-                  size="sm"
+                  variant="ghost"
                   onClick={() => setSelectedRole(selectedRole === role ? null : role)}
-                  className={selectedRole === role ? "btn-gold" : ""}
+                  className={`h-11 px-4 rounded-xl font-bold text-xs uppercase tracking-widest transition-all ${selectedRole === role ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-muted-foreground hover:bg-secondary'
+                    }`}
                 >
                   {role}
                 </Button>
               ))}
+              <Select onValueChange={(val) => setSelectedRole(val)} value={selectedRole || ""}>
+                <SelectTrigger className="h-11 w-40 rounded-xl font-bold text-xs uppercase tracking-widest bg-secondary/50 border-transparent">
+                  <SelectValue placeholder="MÁS ROLES" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  {roles.map(r => (
+                    <SelectItem key={r} value={r} className="font-bold text-xs uppercase tracking-widest">{r}</SelectItem>
+                  ))}
+                  <SelectItem value="" className="font-bold text-xs uppercase tracking-widest">Todos</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>
 
-        {/* Loading State */}
-        {isLoading && (
-          <div className="flex justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        {/* Loading Grid */}
+        {isLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4 sm:px-0">
+            {[1, 2, 3, 4, 5, 6].map(i => (
+              <div key={i} className="h-48 rounded-[2rem] bg-secondary/30 animate-pulse border border-border/50" />
+            ))}
           </div>
-        )}
-
-        {/* Members Grid */}
-        {!isLoading && members && (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4 sm:px-0 pb-12">
             {filteredMembers.map((member, index) => {
-              const RoleIcon = roleIcons[member.role];
+              const RoleIcon = roleIcons[member.role as keyof typeof roleIcons] || Users;
               return (
                 <div
                   key={member.id}
-                  className="card-elevated p-6 slide-up group"
+                  className="group card-premium p-6 slide-up overflow-hidden"
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  <div className="flex items-start gap-4 mb-4">
-                    <Avatar className="w-12 h-12">
-                      <AvatarImage src={member.avatar_url || undefined} />
-                      <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                        {getInitials(member.name)}
-                      </AvatarFallback>
-                    </Avatar>
+                  {/* Role Badge - Floating */}
+                  <div className="absolute top-4 right-4 z-10">
+                    <Badge className={`rounded-lg text-[9px] font-black uppercase tracking-[0.1em] px-2 py-1 flex items-center gap-1.5 shadow-sm border-none ${roleColors[member.role as keyof typeof roleColors] || ''}`}>
+                      <RoleIcon className="w-3 h-3" />
+                      {member.role}
+                    </Badge>
+                  </div>
 
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-foreground truncate">
+                  <div className="flex flex-col items-center text-center space-y-4 pt-4">
+                    <div className="relative p-1 rounded-full border-2 border-primary/20 group-hover:border-primary/50 transition-all duration-500">
+                      <Avatar className="w-20 h-20 ring-4 ring-background border border-border/50 shadow-xl">
+                        <AvatarImage src={member.avatar_url || undefined} className="object-cover" />
+                        <AvatarFallback className="bg-secondary text-primary font-black text-2xl uppercase tracking-tighter">
+                          {getInitials(member.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg gold-gradient border-2 border-background flex items-center justify-center shadow-lg group-hover:scale-125 transition-transform">
+                        <Music className="w-3 h-3 text-white" />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <h3 className="text-xl font-black text-foreground uppercase tracking-tight leading-tight">
                         {member.name}
                       </h3>
-                      <Badge className={`mt-1 ${roleColors[member.role as keyof typeof roleColors] || ''}`}>
-                        <RoleIcon className="w-3 h-3 mr-1" />
-                        {member.role}
-                      </Badge>
+                      <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">
+                        {member.voice_type || "Instrumentista"}
+                      </p>
+                    </div>
+
+                    {/* Contact Pills */}
+                    <div className="flex items-center gap-2 pt-2">
+                      {member.phone && (
+                        <a href={`tel:${member.phone}`} className="h-9 w-9 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all shadow-sm">
+                          <Phone className="w-4 h-4" />
+                        </a>
+                      )}
+                      {member.email && (
+                        <a href={`mailto:${member.email}`} className="h-9 w-9 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all shadow-sm">
+                          <Mail className="w-4 h-4" />
+                        </a>
+                      )}
                     </div>
                   </div>
 
-                  {/* Contact Info */}
-                  <div className="space-y-2 mb-4">
-                    {member.email && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Mail className="w-3.5 h-3.5" />
-                        <span className="truncate">{member.email}</span>
-                      </div>
-                    )}
-                    {member.phone && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Phone className="w-3.5 h-3.5" />
-                        <span>{member.phone}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Skills */}
-                  {(member.instruments && member.instruments.length > 0) || member.voice_type ? (
-                    <div className="mb-4">
-                      <div className="flex flex-wrap gap-1">
-                        {member.instruments?.map((instrument, idx) => (
-                          <Badge key={idx} variant="outline" className="text-xs">
-                            {instrument}
+                  {/* Skills Section */}
+                  <div className="mt-8 pt-6 border-t border-border/50 space-y-4">
+                    <div className="flex flex-wrap justify-center gap-2">
+                      {member.instruments?.length ? (
+                        member.instruments.map((inst, idx) => (
+                          <Badge key={idx} variant="outline" className="rounded-full text-[10px] font-bold uppercase tracking-widest bg-secondary/30 border-transparent px-3">
+                            {inst}
                           </Badge>
-                        ))}
-                        {member.voice_type && (
-                          <Badge variant="outline" className="text-xs">
-                            {member.voice_type}
-                          </Badge>
-                        )}
-                      </div>
+                        ))
+                      ) : (
+                        <Badge variant="outline" className="rounded-full text-[10px] font-bold uppercase tracking-widest bg-secondary/30 border-transparent px-3 opacity-50">
+                          TALENTO VOCAL
+                        </Badge>
+                      )}
                     </div>
-                  ) : null}
 
-                  {/* Notes */}
-                  {member.notes && (
-                    <p className="text-xs text-muted-foreground italic bg-secondary/50 p-2 rounded-lg mb-4">
-                      "{member.notes}"
-                    </p>
-                  )}
+                    {member.notes && (
+                      <div className="p-3 bg-primary/5 rounded-2xl border border-primary/10 group-hover:bg-primary/10 transition-colors">
+                        <p className="text-[10px] font-medium text-foreground/80 italic text-center leading-tight line-clamp-2">
+                          "{member.notes}"
+                        </p>
+                      </div>
+                    )}
 
-                  {/* Actions */}
-                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="flex-1"
-                          onClick={() => setEditingMember(member)}
-                        >
-                          <Edit className="w-3.5 h-3.5 mr-1" />
-                          Editar
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-2xl">
-                        <DialogHeader>
-                          <DialogTitle>Editar Integrante</DialogTitle>
-                          <DialogDescription>Actualice la información del integrante.</DialogDescription>
-                        </DialogHeader>
-                        <MemberForm
-                          member={editingMember}
-                          onSuccess={() => setEditingMember(null)}
-                          onCancel={() => setEditingMember(null)}
-                        />
-                      </DialogContent>
-                    </Dialog>
+                    {/* Member Actions - Appears on Hover */}
+                    <div className="flex gap-2 pt-2 group-hover:translate-y-0 translate-y-4 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="flex-1 h-11 rounded-xl bg-background border-border/50 font-bold text-xs uppercase tracking-widest hover:bg-secondary"
+                            onClick={() => setEditingMember(member)}
+                          >
+                            <Edit className="w-4 h-4 mr-2 text-primary" />
+                            Editar Perfil
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-[95vw] sm:max-w-2xl rounded-[2rem] p-0 border-primary/20">
+                          <DialogHeader className="p-8 border-b bg-secondary/20">
+                            <DialogTitle className="text-2xl font-black text-foreground uppercase tracking-tight">Personalizar Perfil</DialogTitle>
+                            <DialogDescription>Modifica la información de {member.name}</DialogDescription>
+                          </DialogHeader>
+                          <div className="p-8">
+                            <MemberForm
+                              member={editingMember || undefined}
+                              onSuccess={() => setEditingMember(null)}
+                              onCancel={() => setEditingMember(null)}
+                            />
+                          </div>
+                        </DialogContent>
+                      </Dialog>
 
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDeleteMember(member)}
-                      disabled={deleteMember.isPending}
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        className="h-11 w-11 rounded-xl shadow-lg shadow-destructive/10"
+                        onClick={() => handleDeleteMember(member)}
+                        disabled={deleteMember.isPending}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               );
@@ -269,23 +299,23 @@ export default function Integrantes() {
           </div>
         )}
 
+        {/* Empty State */}
         {!isLoading && filteredMembers.length === 0 && (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 rounded-full bg-secondary mx-auto flex items-center justify-center mb-4">
-              <Users className="w-8 h-8 text-muted-foreground" />
+          <div className="text-center py-24 px-4 bg-secondary/10 rounded-[3rem] border border-dashed border-border/60 max-w-2xl mx-auto">
+            <div className="w-24 h-24 rounded-[2rem] bg-secondary/50 flex items-center justify-center mx-auto mb-8 shadow-inner">
+              <Users className="w-12 h-12 text-muted-foreground/30" />
             </div>
-            <p className="text-muted-foreground">
-              {members?.length === 0 ? "No hay integrantes registrados" : "No se encontraron integrantes"}
+            <h3 className="text-2xl font-black text-foreground tracking-tight uppercase">Base de Datos Vacía</h3>
+            <p className="text-muted-foreground mt-2 font-medium">
+              {members?.length === 0 ? "Comienza a construir tu equipo ministerial hoy mismo." : "No se encontró ningún integrante que coincida con tu búsqueda."}
             </p>
-            {members?.length === 0 && (
-              <Button
-                className="mt-4 btn-gold"
-                onClick={() => setIsCreateDialogOpen(true)}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Agregar Primer Integrante
-              </Button>
-            )}
+            <Button
+              className="mt-10 btn-gold h-14 px-10 rounded-2xl text-base shadow-2xl shadow-primary/20"
+              onClick={() => setIsCreateDialogOpen(true)}
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              Registrar Primer Miembro
+            </Button>
           </div>
         )}
       </div>

@@ -1,16 +1,17 @@
 import { Layout } from "@/components/layout/Layout";
 import { StatCard } from "@/components/ui/stat-card";
 import { Button } from "@/components/ui/button";
-import { 
-  Mic2, 
-  Music, 
-  Users, 
-  Church, 
+import {
+  Mic2,
+  Music,
+  Users,
+  Church,
   Calendar,
   ArrowRight,
   Clock,
   MapPin,
-  Loader2
+  Loader2,
+  Sparkles
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useUpcomingRehearsals } from "@/hooks/useRehearsals";
@@ -44,30 +45,33 @@ export default function Index() {
   })?.length || 0;
 
   const stats = [
-    { 
-      title: "Próximo Ensayo", 
-      value: nextRehearsal ? format(new Date(nextRehearsal.date), "EEEE", { locale: es }) : "N/A", 
-      subtitle: nextRehearsal ? nextRehearsal.time : "Sin programar", 
-      icon: Mic2 
+    {
+      title: "Próximo Ensayo",
+      value: nextRehearsal ? format(new Date(nextRehearsal.date), "EEEE", { locale: es }) : "N/A",
+      subtitle: nextRehearsal ? nextRehearsal.time : "Sin programar",
+      icon: Mic2,
+      trend: "neutral" as const
     },
-    { 
-      title: "Canciones", 
-      value: loadingSongs ? "..." : totalSongs.toString(), 
-      subtitle: "en repertorio", 
-      icon: Music 
+    {
+      title: "Repertorio",
+      value: loadingSongs ? "..." : totalSongs.toString(),
+      subtitle: "Canciones activas",
+      icon: Music,
+      trend: "up" as const
     },
-    { 
-      title: "Integrantes", 
-      value: loadingMembers ? "..." : activeMembers.toString(), 
-      subtitle: "activos", 
-      icon: Users, 
-      trend: "up" as const 
+    {
+      title: "Equipo",
+      value: loadingMembers ? "..." : activeMembers.toString(),
+      subtitle: "Integrantes",
+      icon: Users,
+      trend: "up" as const
     },
-    { 
-      title: "Servicios", 
-      value: loadingServices ? "..." : thisMonthServices.toString(), 
-      subtitle: "este mes", 
-      icon: Church 
+    {
+      title: "Servicios",
+      value: loadingServices ? "..." : thisMonthServices.toString(),
+      subtitle: "Este mes",
+      icon: Church,
+      trend: "neutral" as const
     },
   ];
 
@@ -75,137 +79,181 @@ export default function Index() {
     const date = new Date(dateStr);
     const dayName = format(date, "EEEE", { locale: es });
     const dayNumber = format(date, "d");
-    return { dayName, dayNumber };
+    const monthName = format(date, "MMM", { locale: es });
+    return { dayName, dayNumber, monthName };
   };
+
   return (
     <Layout>
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="fade-in">
-          <h1 className="text-3xl lg:text-4xl font-serif font-bold text-foreground">
-            ¡Bienvenido al Ministerio! 🎵
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            Organiza ensayos, gestiona el repertorio y prepara los servicios con excelencia.
-          </p>
+      <div className="max-w-7xl mx-auto space-y-10 pb-12">
+        {/* Hero Section */}
+        <div className="relative overflow-hidden rounded-[2.5rem] bg-slate-900 p-8 md:p-12 text-white fade-in shadow-2xl">
+          <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-primary/20 to-transparent z-0" />
+          <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-primary/20 rounded-full blur-3xl z-0" />
+
+          <div className="relative z-10 max-w-2xl space-y-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-xs font-bold uppercase tracking-widest text-primary-foreground">
+              <Sparkles className="w-4 h-4 text-amber-400" />
+              Ministerio en Excelencia
+            </div>
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight">
+              Eleva tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-indigo-400">Adoración</span> a otro nivel.
+            </h1>
+            <p className="text-lg text-slate-300 font-medium">
+              Gestiona tu ministerio con herramientas profesionales. Organiza ensayos, repertorio y servicios en un solo lugar.
+            </p>
+            <div className="flex flex-wrap gap-4 pt-2">
+              <Link to="/repertorio">
+                <Button className="btn-premium h-14 px-8 text-base shadow-xl shadow-primary/20">
+                  Explorar Repertorio
+                </Button>
+              </Link>
+              <Link to="/ensayos">
+                <Button variant="outline" className="h-14 px-8 text-base border-white/20 text-white hover:bg-white/10 rounded-2xl">
+                  Programar Ensayo
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {stats.map((stat, index) => (
             <StatCard key={index} {...stat} />
           ))}
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid lg:grid-cols-3 gap-6">
+        <div className="grid lg:grid-cols-3 gap-8">
           {/* Upcoming Rehearsals */}
-          <div className="lg:col-span-2 card-elevated p-6 slide-up">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-serif font-semibold text-foreground">
-                Próximos Ensayos
-              </h2>
+          <div className="lg:col-span-2 glass-card p-8 slide-up">
+            <div className="flex items-center justify-between mb-8">
+              <div className="space-y-1">
+                <h2 className="text-2xl font-bold text-foreground">
+                  Próximos Ensayos
+                </h2>
+                <p className="text-sm text-muted-foreground">Mantente al día con la preparación del equipo.</p>
+              </div>
               <Link to="/ensayos">
-                <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80">
-                  Ver todos <ArrowRight className="w-4 h-4 ml-1" />
+                <Button variant="ghost" size="sm" className="text-primary font-bold hover:bg-primary/5 rounded-xl">
+                  Ver Calendario <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
             </div>
-            
+
             {loadingRehearsals ? (
-              <div className="flex justify-center py-8">
-                <Loader2 className="w-6 h-6 animate-spin text-primary" />
+              <div className="flex flex-col items-center justify-center py-12 gap-4">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                <p className="text-sm text-muted-foreground font-medium">Cargando agenda...</p>
               </div>
             ) : upcomingRehearsals && upcomingRehearsals.length > 0 ? (
               <div className="space-y-4">
                 {upcomingRehearsals.slice(0, 3).map((rehearsal, index) => {
-                  const { dayName, dayNumber } = formatRehearsalDate(rehearsal.date);
+                  const { dayName, dayNumber, monthName } = formatRehearsalDate(rehearsal.date);
                   return (
-                    <div 
+                    <div
                       key={rehearsal.id}
-                      className="flex items-center gap-4 p-4 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors"
+                      className="group flex flex-items-center gap-6 p-5 rounded-3xl bg-secondary/30 hover:bg-secondary/50 border border-transparent hover:border-primary/10 transition-all duration-300"
                       style={{ animationDelay: `${index * 100}ms` }}
                     >
-                      <div className="w-14 h-14 rounded-xl gold-gradient flex flex-col items-center justify-center text-primary-foreground">
-                        <span className="text-xs font-medium capitalize">
-                          {dayName.slice(0, 3)}
+                      <div className="w-16 h-16 rounded-2xl bg-background border border-border/50 flex flex-col items-center justify-center text-foreground group-hover:scale-105 transition-transform shadow-sm">
+                        <span className="text-[10px] uppercase font-black text-primary tracking-tighter">
+                          {monthName}
                         </span>
-                        <span className="text-lg font-bold">
+                        <span className="text-2xl font-black">
                           {dayNumber}
                         </span>
                       </div>
-                      
-                      <div className="flex-1">
-                        <h3 className="font-medium text-foreground">
-                          Ensayo {rehearsal.type}
-                        </h3>
-                        <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3.5 h-3.5" />
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-bold text-lg text-foreground truncate uppercase tracking-tight">
+                            Ensayo {rehearsal.type}
+                          </h3>
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                        </div>
+                        <div className="flex flex-wrap items-center gap-y-1 gap-x-4 mt-1 text-sm text-muted-foreground font-medium">
+                          <span className="flex items-center gap-1.5">
+                            <Clock className="w-4 h-4 text-primary/60" />
                             {rehearsal.time}
                           </span>
-                          <span className="flex items-center gap-1">
-                            <MapPin className="w-3.5 h-3.5" />
+                          <span className="flex items-center gap-1.5">
+                            <MapPin className="w-4 h-4 text-primary/60" />
                             {rehearsal.location}
+                          </span>
+                          <span className="flex items-center gap-1.5 capitalize text-primary/80">
+                            {dayName}
                           </span>
                         </div>
                       </div>
-                      
-                      <Link to={`/ensayos`}>
-                        <Button variant="outline" size="sm">
-                          Ver detalles
-                        </Button>
-                      </Link>
+
+                      <div className="hidden sm:block">
+                        <Link to={`/ensayos`}>
+                          <Button variant="outline" className="h-10 px-4 rounded-xl border-border/50 bg-background hover:bg-secondary transition-all">
+                            Detalles
+                          </Button>
+                        </Link>
+                      </div>
                     </div>
                   );
                 })}
               </div>
             ) : (
-              <div className="text-center py-8">
-                <Mic2 className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-                <p className="text-muted-foreground">No hay ensayos programados</p>
+              <div className="text-center py-12 bg-secondary/20 rounded-[2rem] border border-dashed border-border/60">
+                <Mic2 className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+                <h3 className="font-bold text-foreground">No hay ensayos programados</h3>
+                <p className="text-sm text-muted-foreground mt-1 max-w-[200px] mx-auto">Es un buen momento para planificar la semana.</p>
                 <Link to="/ensayos">
-                  <Button className="mt-3 btn-gold" size="sm">
-                    Programar Ensayo
+                  <Button className="mt-6 btn-gold" size="sm">
+                    Programar Ahora
                   </Button>
                 </Link>
               </div>
             )}
           </div>
 
-          {/* Quick Actions */}
-          <div className="card-elevated p-6 slide-up">
-            <h2 className="text-xl font-serif font-semibold text-foreground mb-6">
-              Acciones Rápidas
-            </h2>
-            
-            <div className="space-y-3">
-              {quickActions.map((action, index) => {
-                const Icon = action.icon;
-                return (
-                  <Link key={index} to={action.path}>
-                    <Button 
-                      variant="outline" 
-                      className="w-full justify-start gap-3 h-12 hover:bg-primary/5 hover:border-primary/30 transition-all"
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <Icon className="w-4 h-4 text-primary" />
-                      </div>
-                      {action.label}
-                    </Button>
-                  </Link>
-                );
-              })}
+          {/* Quick Actions & Spiritual */}
+          <div className="space-y-8 slide-up">
+            <div className="glass-card p-8 bg-gradient-to-br from-indigo-600 to-indigo-800 text-white shadow-xl shadow-indigo-500/20">
+              <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-amber-300" />
+                Acceso Rápido
+              </h2>
+
+              <div className="grid grid-cols-2 gap-3">
+                {quickActions.map((action, index) => {
+                  const Icon = action.icon;
+                  return (
+                    <Link key={index} to={action.path} className="block">
+                      <button
+                        className="w-full h-24 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/10 flex flex-col items-center justify-center gap-2 transition-all group"
+                      >
+                        <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <Icon className="w-5 h-5 text-white" />
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-widest">{action.label}</span>
+                      </button>
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
 
-            {/* Spiritual Note */}
-            <div className="mt-6 p-4 rounded-xl bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/10">
-              <p className="text-sm text-muted-foreground italic">
+            {/* Spiritual Card */}
+            <div className="card-premium p-8 border-primary/20 bg-primary/5">
+              <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center mb-6">
+                <Music className="w-6 h-6 text-primary" />
+              </div>
+              <p className="text-lg font-medium text-foreground italic leading-relaxed">
                 "Cantad a Jehová cántico nuevo; su alabanza sea en la congregación de los santos."
               </p>
-              <p className="text-xs text-primary mt-2 font-medium">
-                — Salmos 149:1
-              </p>
+              <div className="mt-6 flex items-center justify-between">
+                <p className="text-sm font-black text-primary uppercase tracking-widest">
+                  Salmos 149:1
+                </p>
+                <div className="w-10 h-1 bg-primary/30 rounded-full" />
+              </div>
             </div>
           </div>
         </div>
@@ -213,3 +261,4 @@ export default function Index() {
     </Layout>
   );
 }
+

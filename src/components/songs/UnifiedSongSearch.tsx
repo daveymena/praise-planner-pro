@@ -35,7 +35,6 @@ export function UnifiedSongSearch({ onSongFound }: UnifiedSongSearchProps) {
 
     const suggestedSites = [
         { name: "LaCuerda.net", url: "https://www.lacuerda.net/" },
-        // Nota: Letras.com y CifraClub bloquean iframes por seguridad
     ];
 
     // Auto search with backend + AI
@@ -101,18 +100,16 @@ export function UnifiedSongSearch({ onSongFound }: UnifiedSongSearchProps) {
     const handleCapture = async () => {
         setIsCapturing(true);
         try {
-            // Try to get the real current URL from iframe if possible (same-origin)
             let captureUrl = currentUrl;
             try {
                 if (iframeRef.current?.contentWindow) {
                     const iframeUrl = iframeRef.current.contentWindow.location.href;
                     if (iframeUrl.includes('/api/proxy')) {
                         captureUrl = iframeUrl;
-                        console.log("📍 Capturing from current iframe URL:", captureUrl);
                     }
                 }
             } catch (e) {
-                console.warn("Could not access iframe URL (cross-origin or blocked):", e);
+                console.warn("Could not access iframe URL:", e);
             }
 
             const response = await fetch("/api/ai/extract-song", {
@@ -145,138 +142,136 @@ export function UnifiedSongSearch({ onSongFound }: UnifiedSongSearchProps) {
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline" className="gap-2">
-                    <Search className="w-4 h-4" />
-                    Buscar Canción
+                <Button variant="outline" className="h-12 gap-2 border-border/50 hover:border-primary/50 transition-all rounded-2xl px-5 group">
+                    <div className="w-6 h-6 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:rotate-12 transition-all duration-300">
+                        <Search className="w-3.5 h-3.5 text-primary group-hover:text-white" />
+                    </div>
+                    <span className="font-semibold text-foreground">Buscar Canción</span>
                 </Button>
             </DialogTrigger>
 
-            <DialogContent className="max-w-[98vw] w-full lg:w-[1200px] max-h-[98vh] flex flex-col p-0 gap-0 overflow-hidden bg-background">
-                <DialogHeader className="px-4 py-3 border-b border-border/50 flex-shrink-0">
-                    <DialogTitle className="text-lg md:text-xl font-bold flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                            <Search className="w-4 h-4 text-primary" />
+            <DialogContent className="max-w-[98vw] w-full lg:w-[1200px] max-h-[98vh] flex flex-col p-0 gap-0 overflow-hidden bg-background border-primary/20 shadow-2xl">
+                <DialogHeader className="px-6 py-5 border-b border-border/50 flex-shrink-0 bg-secondary/20">
+                    <DialogTitle className="text-xl md:text-2xl font-bold flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-2xl gold-gradient flex items-center justify-center shadow-lg">
+                            <Sparkles className="w-6 h-6 text-white" />
                         </div>
-                        <span className="text-foreground">Buscar y Agregar Canción</span>
+                        <div className="flex flex-col">
+                            <span className="text-foreground leading-tight">Buscador Inteligente</span>
+                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest mt-1">IA Powers Enabled</span>
+                        </div>
                     </DialogTitle>
                 </DialogHeader>
 
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0 px-3 pb-2">
-                    <TabsList className="grid w-full grid-cols-2 h-9 mt-2 flex-shrink-0">
-                        <TabsTrigger value="auto" className="gap-1.5 text-sm">
-                            <Sparkles className="w-4 h-4" />
-                            Búsqueda Automática
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
+                    <TabsList className="grid w-full grid-cols-2 h-14 bg-secondary/30 p-1.5 rounded-none flex-shrink-0">
+                        <TabsTrigger
+                            value="auto"
+                            className="gap-2 text-sm font-bold data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-xl transition-all"
+                        >
+                            <Sparkles className="w-4 h-4 text-primary" />
+                            MODO AUTOMÁTICO
                         </TabsTrigger>
-                        <TabsTrigger value="manual" className="gap-1.5 text-sm">
-                            <Globe className="w-4 h-4" />
-                            Navegador Web
+                        <TabsTrigger
+                            value="manual"
+                            className="gap-2 text-sm font-bold data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-xl transition-all"
+                        >
+                            <Globe className="w-4 h-4 text-primary" />
+                            NAVEGADOR WEB
                         </TabsTrigger>
                     </TabsList>
 
                     {/* Tab 1: Auto Search */}
-                    <TabsContent value="auto" className="flex-1 flex flex-col gap-4 md:gap-6 mt-4 md:mt-6 w-full overflow-y-auto px-4 data-[state=inactive]:hidden data-[state=active]:flex">
-                        <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-4 md:p-5 flex-shrink-0">
-                            <div className="flex items-start md:items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0">
-                                    <Sparkles className="w-4 h-4 text-blue-600" />
+                    <TabsContent value="auto" className="flex-1 flex flex-col gap-8 md:gap-10 mt-0 w-full overflow-y-auto p-6 md:p-10 data-[state=inactive]:hidden data-[state=active]:flex">
+                        <div className="max-w-2xl mx-auto w-full space-y-10">
+                            <div className="bg-primary/5 border border-primary/20 rounded-[2rem] p-6 flex items-start gap-4">
+                                <div className="w-12 h-12 rounded-[1.25rem] bg-primary flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary/20">
+                                    <Sparkles className="w-6 h-6 text-white" />
                                 </div>
-                                <p className="text-sm md:text-base text-blue-700 leading-tight">
-                                    <strong className="text-blue-900 font-bold">Búsqueda Automática:</strong> El sistema buscará en internet y extraerá la letra completa automáticamente usando IA.
-                                </p>
+                                <div>
+                                    <h4 className="font-bold text-foreground text-lg">Búsqueda Predictiva</h4>
+                                    <p className="text-sm text-muted-foreground leading-relaxed mt-1">
+                                        Nuestra IA buscará la letra, acordes y enlaces de video en múltiples fuentes y los organizará para ti.
+                                    </p>
+                                </div>
                             </div>
-                        </div>
 
-                        <div className="flex-1 flex flex-col gap-6 max-w-4xl mx-auto w-full">
-                            <div className="space-y-3">
-                                <label className="text-sm md:text-base font-semibold text-foreground flex items-center gap-2">
-                                    <Search className="w-4 h-4 text-primary" />
-                                    Nombre de la Canción
+                            <div className="space-y-4">
+                                <label className="text-sm font-black text-primary uppercase tracking-[0.2em] ml-2">
+                                    Título de la canción / Artista
                                 </label>
-                                <Input
-                                    placeholder="Ej: Way Maker Sinach"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    onKeyPress={(e) => e.key === "Enter" && handleAutoSearch()}
-                                    className="text-lg md:text-xl h-12 md:h-14 px-4 md:px-5 bg-secondary/30 border-border focus:border-primary/50 transition-all rounded-xl"
-                                />
+                                <div className="relative group">
+                                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                                    <Input
+                                        placeholder="Ej: Way Maker - Sinach"
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        onKeyPress={(e) => e.key === "Enter" && handleAutoSearch()}
+                                        className="text-xl h-16 md:h-20 pl-16 pr-6 bg-secondary/30 border-transparent focus:bg-background focus:border-primary/30 focus:ring-4 focus:ring-primary/5 transition-all rounded-[1.5rem] shadow-none font-medium"
+                                    />
+                                </div>
                             </div>
 
                             <Button
                                 onClick={handleAutoSearch}
                                 disabled={isSearching}
-                                className="w-full btn-gold gap-3 h-12 md:h-14 text-base md:text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
+                                className="w-full btn-premium gap-3 h-14 md:h-16 text-lg font-bold"
                                 size="lg"
                             >
                                 {isSearching ? (
                                     <>
-                                        <Loader2 className="w-5 h-5 animate-spin" />
-                                        Buscando en Internet...
+                                        <Loader2 className="w-6 h-6 animate-spin" />
+                                        PROCESANDO CON IA...
                                     </>
                                 ) : (
                                     <>
-                                        <Search className="w-5 h-5" />
-                                        Buscar Ahora
+                                        <Search className="w-6 h-6" />
+                                        ENCONTRAR CANCIÓN
                                     </>
                                 )}
                             </Button>
 
-                            <div className="bg-secondary/30 border border-white/5 rounded-xl p-6 space-y-3 flex-shrink-0">
-                                <h4 className="font-semibold text-base flex items-center gap-2">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
-                                    Ejemplos de búsqueda:
-                                </h4>
-                                <ul className="text-sm text-muted-foreground space-y-2 pl-4">
-                                    <li className="flex items-center gap-2">
-                                        <span className="w-1 h-1 rounded-full bg-muted-foreground/50"></span>
-                                        "Way Maker Sinach"
-                                    </li>
-                                    <li className="flex items-center gap-2">
-                                        <span className="w-1 h-1 rounded-full bg-muted-foreground/50"></span>
-                                        "Milagroso Jesus Adrian Romero"
-                                    </li>
-                                    <li className="flex items-center gap-2">
-                                        <span className="w-1 h-1 rounded-full bg-muted-foreground/50"></span>
-                                        "Reckless Love Cory Asbury"
-                                    </li>
-                                    <li className="flex items-center gap-2">
-                                        <span className="w-1 h-1 rounded-full bg-muted-foreground/50"></span>
-                                        "El Es Santo Miel San Marcos"
-                                    </li>
-                                </ul>
+                            <div className="pt-6 border-t border-border/50">
+                                <h4 className="text-[10px] uppercase tracking-[0.3em] font-black text-muted-foreground mb-4">Fuentes sugeridas</h4>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                    {["LaCuerda.net", "Letras.com", "CifraClub", "Genius"].map(site => (
+                                        <div key={site} className="px-4 py-2 bg-secondary/50 rounded-xl text-[10px] font-bold text-center text-muted-foreground uppercase">
+                                            {site}
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </TabsContent>
 
                     {/* Tab 2: Web Browser */}
-                    <TabsContent value="manual" className="flex-1 flex flex-col gap-2 md:gap-3 mt-2 md:mt-4 min-h-0 px-2 md:px-4 data-[state=inactive]:hidden data-[state=active]:flex">
+                    <TabsContent value="manual" className="flex-1 flex flex-col gap-0 mt-0 min-h-0 data-[state=inactive]:hidden data-[state=active]:flex">
                         {/* Navigation bar */}
-                        <div className="flex flex-col gap-2 flex-shrink-0 bg-secondary/50 p-2 md:p-3 rounded-xl border border-border/50 shadow-sm">
-                            <div className="flex gap-2 items-center">
-                                <div className="flex gap-1">
-                                    <Button onClick={() => handleIframeAction('back')} variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/5">
-                                        <ArrowLeft className="w-4 h-4 text-foreground" />
+                        <div className="flex flex-col gap-3 flex-shrink-0 bg-background p-4 border-b border-border/50">
+                            <div className="flex gap-3 items-center">
+                                <div className="flex bg-secondary/50 p-1 rounded-xl">
+                                    <Button onClick={() => handleIframeAction('back')} variant="ghost" size="icon" className="h-9 w-9 hover:bg-background rounded-lg">
+                                        <ArrowLeft className="w-5 h-5 text-foreground" />
                                     </Button>
-                                    <Button onClick={() => handleIframeAction('forward')} variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/5">
-                                        <ArrowRight className="w-4 h-4 text-foreground" />
+                                    <Button onClick={() => handleIframeAction('forward')} variant="ghost" size="icon" className="h-9 w-9 hover:bg-background rounded-lg">
+                                        <ArrowRight className="w-5 h-5 text-foreground" />
                                     </Button>
-                                    <Button onClick={() => handleIframeAction('reload')} variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/5">
-                                        <RotateCw className="w-3.5 h-3.5 text-foreground" />
+                                    <Button onClick={() => handleIframeAction('reload')} variant="ghost" size="icon" className="h-9 w-9 hover:bg-background rounded-lg">
+                                        <RotateCw className="w-4 h-4 text-foreground" />
                                     </Button>
                                 </div>
-                                <div className="flex-1 relative flex items-center">
-                                    <Globe className="absolute left-3 w-4 h-4 text-muted-foreground" />
+                                <div className="flex-1 relative flex items-center group">
+                                    <Globe className="absolute left-4 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                                     <Input
                                         value={browserUrl}
                                         onChange={(e) => setBrowserUrl(e.target.value)}
                                         onKeyPress={(e) => e.key === "Enter" && handleBrowserNavigate()}
                                         placeholder="Busca en Google o pega un enlace..."
-                                        className="w-full h-9 pl-9 pr-12 bg-background border-border text-sm rounded-full focus:ring-primary/20"
+                                        className="w-full h-11 pl-11 pr-14 bg-secondary/50 border-transparent focus:bg-background focus:ring-4 focus:ring-primary/5 rounded-xl text-sm font-medium transition-all"
                                     />
                                     <Button
                                         onClick={handleBrowserNavigate}
-                                        variant="ghost"
-                                        size="sm"
-                                        className="absolute right-1.5 h-7 px-3 text-xs font-bold text-primary hover:bg-primary/5 rounded-full transition-colors"
+                                        className="absolute right-1.5 h-8 px-4 bg-primary text-white text-[10px] font-black uppercase rounded-lg hover:shadow-lg transition-all"
                                     >
                                         IR
                                     </Button>
@@ -284,7 +279,7 @@ export function UnifiedSongSearch({ onSongFound }: UnifiedSongSearchProps) {
                             </div>
 
                             {/* Quick Links */}
-                            <div className="flex gap-1.5 md:gap-2 items-center overflow-x-auto no-scrollbar pb-1">
+                            <div className="flex gap-2 items-center overflow-x-auto no-scrollbar py-1">
                                 <Button
                                     variant="outline"
                                     size="sm"
@@ -292,16 +287,11 @@ export function UnifiedSongSearch({ onSongFound }: UnifiedSongSearchProps) {
                                         const url = "https://www.lacuerda.net/";
                                         setBrowserUrl(url);
                                         setCurrentUrl(`/api/proxy?url=${encodeURIComponent(url)}`);
-                                        setActiveTab("manual");
                                     }}
-                                    className="h-7 md:h-8 px-2 md:px-3 bg-background hover:bg-primary/5 border-border text-[10px] md:text-xs font-medium shrink-0"
+                                    className="h-8 px-4 rounded-full border-border/50 text-[10px] font-bold uppercase tracking-widest shrink-0"
                                 >
-                                    <ExternalLink className="w-3 h-3 mr-1" />
                                     LaCuerda
                                 </Button>
-
-                                <div className="w-px h-4 bg-border shrink-0" />
-
                                 <Button
                                     variant="outline"
                                     size="sm"
@@ -309,13 +299,11 @@ export function UnifiedSongSearch({ onSongFound }: UnifiedSongSearchProps) {
                                         const url = "https://www.letras.com/";
                                         setBrowserUrl(url);
                                         setCurrentUrl(`/api/proxy?url=${encodeURIComponent(url)}`);
-                                        setActiveTab("manual");
                                     }}
-                                    className="h-7 md:h-8 px-2 md:px-3 bg-background hover:bg-blue-50 border-border text-[10px] md:text-xs font-medium shrink-0"
+                                    className="h-8 px-4 rounded-full border-border/50 text-[10px] font-bold uppercase tracking-widest shrink-0"
                                 >
-                                    📝 Letras.com
+                                    Letras.com
                                 </Button>
-
                                 <Button
                                     variant="outline"
                                     size="sm"
@@ -323,31 +311,16 @@ export function UnifiedSongSearch({ onSongFound }: UnifiedSongSearchProps) {
                                         const url = "https://www.cifraclub.com/";
                                         setBrowserUrl(url);
                                         setCurrentUrl(`/api/proxy?url=${encodeURIComponent(url)}`);
-                                        setActiveTab("manual");
                                     }}
-                                    className="h-7 md:h-8 px-2 md:px-3 bg-background hover:bg-orange-50 border-border text-[10px] md:text-xs font-medium shrink-0"
+                                    className="h-8 px-4 rounded-full border-border/50 text-[10px] font-bold uppercase tracking-widest shrink-0"
                                 >
-                                    🎸 CifraClub
-                                </Button>
-
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => {
-                                        const url = "https://genius.com/";
-                                        setBrowserUrl(url);
-                                        setCurrentUrl(`/api/proxy?url=${encodeURIComponent(url)}`);
-                                        setActiveTab("manual");
-                                    }}
-                                    className="h-7 md:h-8 px-2 md:px-3 bg-background hover:bg-purple-50 border-border text-[10px] md:text-xs font-medium shrink-0"
-                                >
-                                    🎵 Genius
+                                    CifraClub
                                 </Button>
                             </div>
                         </div>
 
-                        {/* Browser Iframe container */}
-                        <div className="flex-1 border border-border/50 rounded-xl overflow-hidden bg-white min-h-0 shadow-inner">
+                        {/* Browser Container */}
+                        <div className="flex-1 bg-white relative min-h-0">
                             <iframe
                                 ref={iframeRef}
                                 src={currentUrl}
@@ -355,28 +328,28 @@ export function UnifiedSongSearch({ onSongFound }: UnifiedSongSearchProps) {
                                 title="Navegador de letras"
                                 scrolling="yes"
                             />
-                        </div>
 
-                        {/* Compact Capture Button */}
-                        <div className="flex-shrink-0">
-                            <Button
-                                onClick={handleCapture}
-                                disabled={isCapturing}
-                                className="w-full gap-2 btn-gold h-9 text-sm font-semibold"
-                                size="lg"
-                            >
-                                {isCapturing ? (
-                                    <>
-                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                        Capturando...
-                                    </>
-                                ) : (
-                                    <>
-                                        <Save className="w-4 h-4" />
-                                        Guardar Esta Letra
-                                    </>
-                                )}
-                            </Button>
+                            {/* Floating Action Bar inside browser */}
+                            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-full max-w-md px-4 pointer-events-none">
+                                <Button
+                                    onClick={handleCapture}
+                                    disabled={isCapturing}
+                                    className="w-full gap-3 btn-gold h-14 text-base font-bold pointer-events-auto shadow-2xl"
+                                    size="lg"
+                                >
+                                    {isCapturing ? (
+                                        <>
+                                            <Loader2 className="w-5 h-5 animate-spin" />
+                                            ANALIZANDO CONTENIDO...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Save className="w-6 h-6" />
+                                            CAPTURAR ESTA PÁGINA
+                                        </>
+                                    )}
+                                </Button>
+                            </div>
                         </div>
                     </TabsContent>
                 </Tabs>
@@ -384,3 +357,4 @@ export function UnifiedSongSearch({ onSongFound }: UnifiedSongSearchProps) {
         </Dialog>
     );
 }
+

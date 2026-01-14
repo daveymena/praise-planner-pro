@@ -106,18 +106,21 @@ export default function Repertorio() {
 
   return (
     <Layout>
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 fade-in">
-          <div>
-            <h1 className="text-2xl md:text-4xl font-bold text-foreground tracking-tight flex items-center gap-2">
-              Repertorio <Music className="w-6 h-6 md:w-8 md:h-8 text-primary" />
-            </h1>
-            <p className="text-muted-foreground mt-2 font-medium">
-              {isLoading ? "Cargando biblioteca..." : `${songs?.length || 0} canciones listas para ministrar`}
+      <div className="max-w-7xl mx-auto px-0 sm:px-4 space-y-6 md:space-y-8 pb-32 lg:pb-12">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-4 sm:px-0 fade-in">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-8 rounded-full bg-primary" />
+              <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground">
+                Repertorio
+              </h1>
+            </div>
+            <p className="text-muted-foreground text-base md:text-lg font-medium">
+              {isLoading ? "Cargando biblioteca..." : `${songs?.length || 0} canciones registradas`}
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-3">
             <UnifiedSongSearch
               onSongFound={(data) => {
                 setCapturedData(data);
@@ -128,181 +131,207 @@ export default function Repertorio() {
 
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="btn-gold" onClick={() => setCapturedData(null)}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Agregar Canción
+                <Button className="btn-premium h-12 px-6" onClick={() => setCapturedData(null)}>
+                  <Plus className="w-5 h-5 md:mr-2" />
+                  <span className="hidden sm:inline">Agregar Canción</span>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Nueva Canción</DialogTitle>
-                  <DialogDescription>Complete los detalles para agregar una nueva canción al repertorio.</DialogDescription>
+              <DialogContent className="max-w-2xl w-[95vw] max-h-[90vh] overflow-hidden flex flex-col p-0 glass-card">
+                <DialogHeader className="p-6 border-b border-border/50">
+                  <DialogTitle className="text-2xl font-bold">Nueva Canción</DialogTitle>
+                  <DialogDescription>Complete los detalles para agregar una nueva canción.</DialogDescription>
                 </DialogHeader>
-                <SongForm
-                  prefilledData={capturedData}
-                  onSuccess={() => {
-                    setIsCreateDialogOpen(false);
-                    setCapturedData(null);
-                  }}
-                  onCancel={() => {
-                    setIsCreateDialogOpen(false);
-                    setCapturedData(null);
-                  }}
-                />
+                <div className="flex-1 overflow-y-auto p-6 scrollbar-hide">
+                  <SongForm
+                    prefilledData={capturedData}
+                    onSuccess={() => {
+                      setIsCreateDialogOpen(false);
+                      setCapturedData(null);
+                    }}
+                    onCancel={() => {
+                      setIsCreateDialogOpen(false);
+                      setCapturedData(null);
+                    }}
+                  />
+                </div>
               </DialogContent>
             </Dialog>
           </div>
         </div>
 
-        {/* Filters */}
-        <div className="card-elevated p-4 mb-6 fade-in">
-          <div className="flex flex-col lg:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        {/* Filters & Search - Improved for Mobile */}
+        <div className="sticky top-16 lg:top-0 z-30 bg-background/80 backdrop-blur-md lg:bg-transparent pb-4 lg:pb-0 px-4 sm:px-0">
+          <div className="glass-card p-3 flex flex-col gap-4 slide-up">
+            <div className="relative flex-1 group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
               <Input
-                placeholder="Busca por nombre, letra o tonalidad..."
-                className="pl-10 input-warm"
+                placeholder="Busca por título o tono..."
+                className="pl-12 h-12 md:h-14 bg-secondary/30 border-none focus-visible:ring-2 focus-visible:ring-primary/20 text-base rounded-2xl"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
               {types.map(type => (
                 <Button
                   key={type}
-                  variant={selectedType === type ? "default" : "outline"}
+                  variant="ghost"
                   size="sm"
                   onClick={() => setSelectedType(selectedType === type ? null : type)}
-                  className={selectedType === type ? "btn-gold" : "hover:border-primary/40"}
+                  className={`h-10 px-4 rounded-full whitespace-nowrap transition-all border ${selectedType === type
+                    ? 'bg-primary text-primary-foreground border-primary shadow-md'
+                    : 'bg-background hover:bg-primary/5 text-muted-foreground border-border/50'
+                    }`}
                 >
                   {type}
                 </Button>
               ))}
+              <div className="w-px h-6 bg-border mx-1 shrink-0" />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowFavorites(!showFavorites)}
+                className={`h-10 px-4 rounded-full gap-2 transition-all border ${showFavorites
+                  ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 border-amber-200'
+                  : 'bg-background hover:bg-amber-50 text-muted-foreground border-border/50'
+                  }`}
+              >
+                <Star className={`w-4 h-4 ${showFavorites ? 'fill-current' : ''}`} />
+                <span>Favoritas</span>
+              </Button>
             </div>
-
-            <Button
-              variant={showFavorites ? "default" : "outline"}
-              size="sm"
-              onClick={() => setShowFavorites(!showFavorites)}
-              className={showFavorites ? "btn-gold" : "hover:border-primary/40"}
-            >
-              <Star className={`w-4 h-4 mr-1 ${showFavorites ? 'fill-current' : ''}`} />
-              Favoritas
-            </Button>
           </div>
         </div>
 
-        {/* Loading State */}
-        {isLoading && (
-          <div className="flex justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          </div>
-        )}
+        {/* Grid Section - Optimized for Mobile */}
+        <div className="px-4 sm:px-0">
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-20 gap-4">
+              <Loader2 className="w-10 h-10 animate-spin text-primary" />
+              <p className="text-muted-foreground animate-pulse font-medium">Sincronizando biblioteca...</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+              {songs?.map((song, index) => (
+                <div
+                  key={song.id}
+                  className="card-premium group"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  {/* Thumbnail Container */}
+                  <div className="relative h-44 md:h-56 overflow-hidden bg-secondary/20">
+                    {getYoutubeThumbnail(song.youtube_url) ? (
+                      <img
+                        src={getYoutubeThumbnail(song.youtube_url)!}
+                        alt={song.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
+                        <Music className="w-16 h-16 text-primary/10" />
+                      </div>
+                    )}
 
-        {/* Songs Grid */}
-        {!isLoading && songs && (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {songs.map((song, index) => (
-              <div
-                key={song.id}
-                className="group relative flex flex-col bg-background/40 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden hover:border-primary/50 transition-all duration-300 shadow-xl slide-up"
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
-                {/* Video Thumbnail Header */}
-                <div className="relative h-40 overflow-hidden bg-muted">
-                  {getYoutubeThumbnail(song.youtube_url) ? (
-                    <img
-                      src={getYoutubeThumbnail(song.youtube_url)!}
-                      alt={song.name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-secondary to-background">
-                      <Music className="w-12 h-12 text-muted-foreground/30" />
+                    {/* Floating Badge */}
+                    <div className="absolute top-4 left-4">
+                      <Badge className="bg-white/90 dark:bg-black/90 backdrop-blur-md border-transparent text-foreground font-bold shadow-sm">
+                        {song.type}
+                      </Badge>
                     </div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
-                  <div className="absolute top-3 right-3 flex gap-2">
-                    <Badge className={`shadow-lg border-none ${typeColors[song.type as keyof typeof typeColors] || 'bg-gray-500 text-white'}`}>
-                      {song.type}
-                    </Badge>
-                  </div>
-
-                  <div className="absolute bottom-3 left-3">
-                    <Badge variant="outline" className="bg-black/50 backdrop-blur-md border-primary/30 text-primary font-bold">
-                      {song.key}
-                    </Badge>
-                  </div>
-                </div>
-
-                <div className="p-4 md:p-5 flex-1 flex flex-col">
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-bold text-base md:text-lg text-foreground group-hover:text-primary transition-colors line-clamp-1">
-                      {song.name}
-                    </h3>
+                    {/* Favorite Button */}
                     <button
-                      onClick={() => handleToggleFavorite(song)}
-                      className={`p-1 transition-colors ${song.is_favorite ? 'text-amber-400' : 'text-muted-foreground hover:text-amber-400'}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggleFavorite(song);
+                      }}
+                      className={`absolute top-4 right-4 p-2.5 rounded-2xl backdrop-blur-md transition-all z-10 ${song.is_favorite ? 'bg-amber-500 text-white shadow-lg' : 'bg-white/20 text-white hover:bg-white/40'
+                        }`}
                     >
                       <Star className={`w-5 h-5 ${song.is_favorite ? 'fill-current' : ''}`} />
                     </button>
+
+                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 to-transparent" />
+
+                    <div className="absolute bottom-4 left-4 right-4">
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-primary text-white border-none h-6 px-2 text-[10px] font-black tracking-wider uppercase">
+                          {song.key}
+                        </Badge>
+                      </div>
+                      <h3 className="text-xl font-bold text-white mt-1 drop-shadow-lg">
+                        {song.name}
+                      </h3>
+                    </div>
                   </div>
 
-                  {song.notes && (
-                    <p className="text-xs text-muted-foreground line-clamp-2 italic mb-4">
-                      {song.notes}
-                    </p>
-                  )}
+                  <div className="p-5 space-y-4 bg-card/50">
+                    <div className="flex items-center justify-between min-h-[1.25rem]">
+                      {song.notes ? (
+                        <p className="text-xs text-muted-foreground line-clamp-1 italic">
+                          "{song.notes}"
+                        </p>
+                      ) : (
+                        <span />
+                      )}
+                    </div>
 
-                  <div className="mt-auto pt-4 flex items-center gap-2">
-                    <Button
-                      className="flex-1 btn-gold shadow-lg shadow-primary/10"
-                      size="sm"
-                      onClick={() => setViewingSong(song)}
-                    >
-                      <Play className="w-3.5 h-3.5 mr-2 fill-current" />
-                      Modo Ensayo
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        className="flex-1 btn-premium h-11 text-sm"
+                        onClick={() => setViewingSong(song)}
+                      >
+                        <Play className="w-4 h-4 fill-current mr-2" />
+                        Ver / Ensayar
+                      </Button>
 
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button variant="outline" size="icon" className="h-9 w-9 rounded-xl border-white/10 hover:border-primary/50">
-                          <Edit className="w-4 h-4" />
+                      <div className="flex items-center gap-2">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" size="icon" className="h-11 w-11 rounded-2xl border-border/60 hover:bg-primary/5 hover:text-primary hover:border-primary/30 transition-all">
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-2xl w-[95vw] max-h-[90vh] overflow-hidden flex flex-col p-0 glass-card">
+                            <DialogHeader className="p-6 border-b border-border/50">
+                              <DialogTitle className="text-2xl font-bold">Editar Canción</DialogTitle>
+                            </DialogHeader>
+                            <div className="flex-1 overflow-y-auto p-6 scrollbar-hide">
+                              <SongForm song={song} onSuccess={() => setIsCreateDialogOpen(false)} />
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-11 w-11 rounded-2xl border-border/60 hover:bg-destructive/5 hover:text-destructive hover:border-destructive/30 transition-all"
+                          onClick={() => handleDeleteSong(song)}
+                        >
+                          <Trash2 className="w-4 h-4" />
                         </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                        <DialogHeader>
-                          <DialogTitle>Editar Canción</DialogTitle>
-                        </DialogHeader>
-                        <SongForm song={song} onSuccess={() => setIsCreateDialogOpen(false)} />
-                      </DialogContent>
-                    </Dialog>
-
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-9 w-9 rounded-xl border-white/10 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
-                      onClick={() => handleDeleteSong(song)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* Empty State */}
         {!isLoading && songs?.length === 0 && (
-          <div className="text-center py-16 md:py-20 card-elevated px-4">
-            <Music className="w-12 h-12 md:w-16 md:h-16 text-muted-foreground mx-auto mb-4 opacity-20" />
-            <h3 className="text-lg md:text-xl font-bold text-foreground mb-2">Tu repertorio está vacío</h3>
-            <p className="text-sm md:text-muted-foreground mb-8">Empieza a agregar canciones manualmente o usa nuestro buscador IA.</p>
-            <Button className="btn-gold px-8" onClick={() => setIsCreateDialogOpen(true)}>
-              <Plus className="w-4 h-4 mr-2" />
+          <div className="text-center py-20 glass-card px-6 max-w-xl mx-auto flex flex-col items-center gap-6 slide-up mx-4">
+            <div className="w-24 h-24 rounded-[2.5rem] bg-primary/5 flex items-center justify-center">
+              <Music className="w-12 h-12 text-primary/30" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-2xl font-bold text-foreground">Tu repertorio está vacío</h3>
+              <p className="text-muted-foreground">Empieza a agregar canciones manualmente o usa nuestro buscador inteligente.</p>
+            </div>
+            <Button className="btn-premium px-10 h-14 text-lg" onClick={() => setIsCreateDialogOpen(true)}>
+              <Plus className="w-5 h-5 mr-1" />
               Agregar Mi Primera Canción
             </Button>
           </div>
@@ -311,24 +340,22 @@ export default function Repertorio() {
 
       {/* Split View Ensemble Mode Modal */}
       <Dialog open={!!viewingSong} onOpenChange={(open) => !open && setViewingSong(null)}>
-        <DialogContent className="max-w-[98vw] w-full lg:w-[1200px] max-h-[95vh] p-0 overflow-hidden bg-background border-primary/20 shadow-2xl flex flex-col">
+        <DialogContent className="max-w-[98vw] w-full lg:w-[1200px] max-h-[98vh] p-0 overflow-hidden bg-background border-primary/20 shadow-2xl flex flex-col">
           {viewingSong && (
-            <div className="flex flex-col h-full">
+            <div className="flex flex-col h-[98vh]">
               {/* Modal Header */}
-              <div className="p-4 border-b border-white/10 bg-secondary/30 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl gold-gradient flex items-center justify-center shadow-lg shrink-0">
-                    <Music className="w-4 h-4 md:w-5 md:h-5 text-white" />
+              <div className="p-4 border-b border-white/10 bg-secondary/30 flex items-center justify-between flex-shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl gold-gradient flex items-center justify-center shadow-lg shrink-0">
+                    <Music className="w-5 h-5 text-white" />
                   </div>
                   <div className="min-w-0">
-                    <h2 className="text-lg md:text-xl font-bold text-foreground truncate">{viewingSong.name}</h2>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Badge className={typeColors[viewingSong.type as keyof typeof typeColors] || ''}>
-                        {viewingSong.type}
+                    <h2 className="text-base md:text-xl font-bold text-foreground truncate">{viewingSong.name}</h2>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px] h-5 px-1.5 uppercase font-bold">
+                        {viewingSong.key}
                       </Badge>
-                      <Badge variant="outline" className="border-primary/50 text-primary">
-                        Tono: {viewingSong.key}
-                      </Badge>
+                      <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">{viewingSong.type}</span>
                     </div>
                   </div>
                 </div>
@@ -338,26 +365,26 @@ export default function Repertorio() {
                       variant="outline"
                       size="sm"
                       onClick={() => window.open(viewingSong.youtube_url!, '_blank')}
-                      className="border-red-500/30 text-red-500 hover:bg-red-500/10"
+                      className="h-9 border-red-500/30 text-red-500 hover:bg-red-500/10 rounded-xl"
                     >
-                      <Youtube className="w-4 h-4 mr-2" />
-                      Abrir en YouTube
+                      <Youtube className="w-4 h-4 md:mr-2" />
+                      <span className="hidden md:inline">Ver en YouTube</span>
                     </Button>
                   )}
                 </div>
               </div>
 
-              {/* Split Content */}
-              <div className="flex-1 flex overflow-hidden">
+              {/* Content area: Scrollable */}
+              <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
                 {/* Lado Izquierdo: Letra y Acordes */}
-                <div className="w-full lg:w-1/2 p-6 overflow-y-auto border-r border-white/10 custom-scrollbar bg-black/20">
-                  <div className="grid grid-cols-1 gap-8">
+                <div className="flex-1 lg:w-1/2 p-4 md:p-8 overflow-y-auto custom-scrollbar bg-card/30">
+                  <div className="max-w-2xl mx-auto space-y-10">
                     {viewingSong.lyrics && (
                       <section>
-                        <h3 className="text-primary font-bold uppercase tracking-widest text-xs mb-4 flex items-center gap-2">
-                          <FileText className="w-4 h-4" /> Letra de la Canción
+                        <h3 className="text-primary font-bold uppercase tracking-[0.2em] text-[10px] mb-6 flex items-center gap-2">
+                          <FileText className="w-3.5 h-3.5" /> Letra de la Canción
                         </h3>
-                        <div className="bg-white/5 p-6 rounded-2xl border border-white/5 white-space-pre text-lg font-medium leading-relaxed text-gray-200">
+                        <div className="bg-card p-6 md:p-8 rounded-[2rem] border border-border/50 whitespace-pre-wrap text-base md:text-lg font-medium leading-relaxed text-foreground shadow-sm">
                           {viewingSong.lyrics}
                         </div>
                       </section>
@@ -365,10 +392,10 @@ export default function Repertorio() {
 
                     {viewingSong.chords && (
                       <section>
-                        <h3 className="text-gold font-bold uppercase tracking-widest text-xs mb-4 flex items-center gap-2">
-                          <Music className="w-4 h-4" /> Guía de Acordes
+                        <h3 className="text-amber-500 font-bold uppercase tracking-[0.2em] text-[10px] mb-6 flex items-center gap-2">
+                          <Music className="w-3.5 h-3.5" /> Guía de Acordes
                         </h3>
-                        <div className="bg-primary/5 p-6 rounded-2xl border border-primary/10 white-space-pre font-mono text-xl text-primary-foreground tracking-wider">
+                        <div className="bg-amber-500/5 p-6 md:p-8 rounded-[2rem] border border-amber-500/20 whitespace-pre-wrap font-mono text-xl text-amber-600 dark:text-amber-400 tracking-wider shadow-sm">
                           {viewingSong.chords}
                         </div>
                       </section>
@@ -376,8 +403,8 @@ export default function Repertorio() {
                   </div>
                 </div>
 
-                {/* Lado Derecho: Video Player */}
-                <div className="hidden lg:flex w-1/2 bg-black items-center justify-center relative">
+                {/* Lado Derecho: Video Player (Hidden small mobile, shown on tablet/desktop or special toggle) */}
+                <div className="hidden lg:flex w-1/2 bg-black items-center justify-center relative border-l border-border/50">
                   {viewingSong.youtube_url ? (
                     <iframe
                       width="100%"
@@ -390,9 +417,11 @@ export default function Repertorio() {
                       className="w-full h-full"
                     />
                   ) : (
-                    <div className="text-center p-8">
-                      <Youtube className="w-20 h-20 text-muted-foreground opacity-20 mx-auto mb-4" />
-                      <p className="text-muted-foreground">Esta canción no tiene un video vinculado.</p>
+                    <div className="text-center p-12">
+                      <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-6">
+                        <Youtube className="w-10 h-10 text-muted-foreground/30" />
+                      </div>
+                      <p className="text-muted-foreground font-medium">Esta canción no tiene un video vinculado.</p>
                     </div>
                   )}
                 </div>
@@ -404,3 +433,4 @@ export default function Repertorio() {
     </Layout>
   );
 }
+
