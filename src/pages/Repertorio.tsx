@@ -163,48 +163,46 @@ export default function Repertorio() {
         <div className="sticky top-16 lg:top-0 z-30 bg-background/80 backdrop-blur-md lg:bg-transparent pb-4 lg:pb-0 px-4 sm:px-0">
           <div className="glass-card p-3 flex flex-col gap-4 slide-up">
             <div className="relative flex-1 group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+              <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground group-focus-within:text-primary transition-colors" />
               <Input
-                placeholder="Busca por título o tono..."
-                className="pl-12 h-12 md:h-14 bg-secondary/30 border-none focus-visible:ring-2 focus-visible:ring-primary/20 text-base rounded-2xl"
+                placeholder="Encuentra cánticos por título, artista o tono..."
+                className="pl-16 h-16 md:h-20 bg-secondary/30 border-none focus-visible:ring-4 focus-visible:ring-primary/10 text-xl rounded-[1.5rem] shadow-none font-medium"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
 
-            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-2">
               {types.map(type => (
                 <Button
                   key={type}
                   variant="ghost"
-                  size="sm"
                   onClick={() => setSelectedType(selectedType === type ? null : type)}
-                  className={`h-10 px-4 rounded-full whitespace-nowrap transition-all border ${selectedType === type
-                    ? 'bg-primary text-primary-foreground border-primary shadow-md'
+                  className={`h-12 px-6 rounded-2xl whitespace-nowrap transition-all border font-bold text-xs uppercase tracking-widest ${selectedType === type
+                    ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20'
                     : 'bg-background hover:bg-primary/5 text-muted-foreground border-border/50'
                     }`}
                 >
                   {type}
                 </Button>
               ))}
-              <div className="w-px h-6 bg-border mx-1 shrink-0" />
+              <div className="w-px h-8 bg-border mx-2 shrink-0" />
               <Button
                 variant="ghost"
-                size="sm"
                 onClick={() => setShowFavorites(!showFavorites)}
-                className={`h-10 px-4 rounded-full gap-2 transition-all border ${showFavorites
+                className={`h-12 px-6 rounded-2xl gap-2 transition-all border font-bold text-xs uppercase tracking-widest ${showFavorites
                   ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 border-amber-200'
                   : 'bg-background hover:bg-amber-50 text-muted-foreground border-border/50'
                   }`}
               >
                 <Star className={`w-4 h-4 ${showFavorites ? 'fill-current' : ''}`} />
-                <span>Favoritas</span>
+                <span>Mis Favoritas</span>
               </Button>
             </div>
           </div>
         </div>
 
-        {/* Grid Section - Optimized for Mobile */}
+        {/* Grid Section - Optimized with larger columns */}
         <div className="px-4 sm:px-0">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-20 gap-4">
@@ -212,7 +210,7 @@ export default function Repertorio() {
               <p className="text-muted-foreground animate-pulse font-medium">Sincronizando biblioteca...</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 md:gap-8">
               {songs?.map((song, index) => (
                 <div
                   key={song.id}

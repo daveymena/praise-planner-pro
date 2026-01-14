@@ -150,7 +150,7 @@ export function UnifiedSongSearch({ onSongFound }: UnifiedSongSearchProps) {
                 </Button>
             </DialogTrigger>
 
-            <DialogContent className="max-w-[98vw] w-full lg:w-[1200px] max-h-[98vh] flex flex-col p-0 gap-0 overflow-hidden bg-background border-primary/20 shadow-2xl">
+            <DialogContent className="max-w-[100vw] w-full lg:max-w-[1600px] h-[100dvh] lg:h-[95vh] flex flex-col p-0 gap-0 overflow-hidden bg-background lg:rounded-[3rem] border-primary/10 shadow-3xl lg:my-4">
                 <DialogHeader className="px-6 py-5 border-b border-border/50 flex-shrink-0 bg-secondary/20">
                     <DialogTitle className="text-xl md:text-2xl font-bold flex items-center gap-3">
                         <div className="w-12 h-12 rounded-2xl gold-gradient flex items-center justify-center shadow-lg">
@@ -182,8 +182,8 @@ export function UnifiedSongSearch({ onSongFound }: UnifiedSongSearchProps) {
                     </TabsList>
 
                     {/* Tab 1: Auto Search */}
-                    <TabsContent value="auto" className="flex-1 flex flex-col gap-8 md:gap-10 mt-0 w-full overflow-y-auto p-6 md:p-10 data-[state=inactive]:hidden data-[state=active]:flex">
-                        <div className="max-w-2xl mx-auto w-full space-y-10">
+                    <TabsContent value="auto" className="flex-1 flex flex-col gap-8 md:gap-10 mt-0 w-full overflow-y-auto p-6 md:p-12 data-[state=inactive]:hidden data-[state=active]:flex">
+                        <div className="w-full space-y-12">
                             <div className="bg-primary/5 border border-primary/20 rounded-[2rem] p-6 flex items-start gap-4">
                                 <div className="w-12 h-12 rounded-[1.25rem] bg-primary flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary/20">
                                     <Sparkles className="w-6 h-6 text-white" />

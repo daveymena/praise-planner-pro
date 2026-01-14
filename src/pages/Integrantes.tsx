@@ -15,11 +15,13 @@ import {
   Mic,
   Edit,
   Trash2,
-  Loader2
+  Loader2,
+  AlertCircle
 } from "lucide-react";
 import { useState } from "react";
 import { useMembers, useDeleteMember } from "@/hooks/useMembers";
 import { toast } from "sonner";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Database } from "@/integrations/supabase/types";
 
 type Member = Database['public']['Tables']['members']['Row'];
