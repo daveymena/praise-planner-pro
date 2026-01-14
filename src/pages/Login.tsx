@@ -29,35 +29,45 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen w-full flex items-center justify-center p-4 relative overflow-hidden bg-[#0a0c14]">
-            {/* Background Decorative Elements */}
-            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] animate-pulse"></div>
-            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-teal/10 rounded-full blur-[120px] animate-pulse"></div>
+        <div className="min-h-screen w-full flex items-center justify-center p-4 relative overflow-hidden bg-background">
+            {/* Cinematic Background Elements */}
+            <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-primary/5 rounded-full blur-[120px] animate-pulse"></div>
+            <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-primary/5 rounded-full blur-[120px] animate-pulse"></div>
+            <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] bg-primary/5 rounded-full blur-[100px]"></div>
 
-            <div className="w-full max-w-md relative z-10 fade-in">
-                <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-teal p-3 mb-4 shadow-lg shadow-primary/20">
+            <div className="w-full max-w-[440px] relative z-10 fade-in">
+                {/* Logo Section */}
+                <div className="text-center mb-12 space-y-4">
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-[2.5rem] gold-gradient p-5 mb-2 shadow-2xl shadow-primary/20 group hover:scale-105 transition-transform duration-500">
                         <Music className="w-full h-full text-white" />
                     </div>
-                    <h1 className="text-4xl font-bold tracking-tight text-white mb-2">Harmony</h1>
-                    <p className="text-muted-foreground font-medium">Ministry Management App</p>
+                    <div className="space-y-1">
+                        <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">
+                            Harmony<span className="text-primary">.</span>
+                        </h1>
+                        <p className="text-[10px] font-black uppercase tracking-[0.5em] text-muted-foreground/60">
+                            Professional Ministry Suite
+                        </p>
+                    </div>
                 </div>
 
-                <Card className="glass-card border-white/10 shadow-2xl overflow-hidden">
-                    <CardHeader className="space-y-1">
-                        <CardTitle className="text-2xl text-center text-white">Iniciar Sesión</CardTitle>
-                        <CardDescription className="text-center text-muted-foreground/80">
-                            Ingresa tus credenciales para acceder a tu ministerio
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="card-premium p-10 backdrop-blur-xl bg-card/80 border-primary/10 shadow-3xl">
+                    <div className="space-y-2 mb-10 text-center">
+                        <h2 className="text-2xl font-black text-foreground uppercase tracking-tight">Iniciar Sesión</h2>
+                        <p className="text-sm font-medium text-muted-foreground">
+                            Accede a la plataforma de gestión ministerial.
+                        </p>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="space-y-5">
                             <div className="space-y-2">
-                                <div className="relative">
-                                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                                    <Input
-                                        className="pl-10 bg-background/80 border-white/20 text-foreground placeholder:text-muted-foreground h-11 focus:ring-primary/30 focus:border-primary/50"
-                                        placeholder="correo@ejemplo.com"
+                                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Correo Institucional</label>
+                                <div className="relative group">
+                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                                    <input
+                                        className="input-premium pl-12"
+                                        placeholder="admin@ministerio.com"
                                         type="email"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
@@ -66,12 +76,17 @@ const Login = () => {
                                     />
                                 </div>
                             </div>
+
                             <div className="space-y-2">
-                                <div className="relative">
-                                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                                    <Input
-                                        className="pl-10 bg-background/80 border-white/20 text-foreground placeholder:text-muted-foreground h-11 focus:ring-primary/30 focus:border-primary/50"
-                                        placeholder="Contraseña"
+                                <div className="flex items-center justify-between px-1">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Contraseña</label>
+                                    <a href="#" className="text-[10px] font-black uppercase tracking-widest text-primary hover:underline">Olvide mi clave</a>
+                                </div>
+                                <div className="relative group">
+                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                                    <input
+                                        className="input-premium pl-12"
+                                        placeholder="••••••••••••"
                                         type="password"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
@@ -80,35 +95,44 @@ const Login = () => {
                                     />
                                 </div>
                             </div>
-                            <Button
-                                type="submit"
-                                className="w-full h-11 btn-gold shadow-lg shadow-primary/20 mt-2 font-semibold text-lg"
-                                disabled={isSubmitting}
-                            >
-                                {isSubmitting ? (
-                                    <Loader2 className="w-5 h-5 animate-spin" />
-                                ) : (
-                                    <>
-                                        <Sparkles className="w-4 h-4 mr-2" />
-                                        Entrar al Sistema
-                                    </>
-                                )}
-                            </Button>
-                        </form>
-                    </CardContent>
-                    <CardFooter className="flex flex-col space-y-4">
-                        <div className="text-sm text-center text-muted-foreground">
-                            ¿No tienes un ministerio?{" "}
-                            <Link to="/register" className="text-primary hover:text-primary/80 font-semibold transition-colors">
-                                Regístrate aquí
-                            </Link>
                         </div>
-                    </CardFooter>
-                </Card>
 
-                <p className="text-center mt-8 text-xs text-muted-foreground/50 uppercase tracking-widest">
-                    Premium SaaS Experience · 2026
-                </p>
+                        <Button
+                            type="submit"
+                            className="w-full h-14 btn-gold shadow-2xl shadow-primary/20 mt-4 rounded-2xl text-base font-black uppercase tracking-widest group"
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? (
+                                <Loader2 className="w-6 h-6 animate-spin" />
+                            ) : (
+                                <>
+                                    <span>Entrar al Sistema</span>
+                                    <Sparkles className="w-5 h-5 ml-2 group-hover:rotate-12 transition-transform" />
+                                </>
+                            )}
+                        </Button>
+                    </form>
+
+                    <div className="mt-10 pt-8 border-t border-border/50">
+                        <p className="text-sm text-center text-muted-foreground font-medium">
+                            ¿Aún no tienes un ministerio?{" "}
+                            <Link to="/register" className="text-primary hover:text-primary/80 font-black uppercase tracking-tight transition-colors">
+                                Regístrate Ahora
+                            </Link>
+                        </p>
+                    </div>
+                </div>
+
+                <div className="mt-12 text-center space-y-2">
+                    <p className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-[0.3em]">
+                        Handcrafted for Excellence • 2026
+                    </p>
+                    <div className="flex items-center justify-center gap-4">
+                        <div className="h-px w-8 bg-border/50" />
+                        <div className="w-1 h-1 rounded-full bg-primary/30" />
+                        <div className="h-px w-8 bg-border/50" />
+                    </div>
+                </div>
             </div>
         </div>
     );
