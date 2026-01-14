@@ -63,8 +63,9 @@ export default function Integrantes() {
   };
 
   const filteredMembers = members?.filter(member => {
+    if (!member || !member.name) return false;
     const matchesSearch = member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      member.email?.toLowerCase().includes(searchQuery.toLowerCase());
+      (member.email?.toLowerCase() || "").includes(searchQuery.toLowerCase());
     const matchesRole = !selectedRole || member.role === selectedRole;
     return matchesSearch && matchesRole;
   }) || [];
@@ -72,7 +73,12 @@ export default function Integrantes() {
   const roles = ["Director", "Vocalista", "Instrumentista", "Técnico", "Coordinador"];
 
   const getInitials = (name: string) => {
-    return name.split(' ').filter(Boolean).map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    if (!name) return "??";
+    try {
+      return name.split(' ').filter(Boolean).map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    } catch (e) {
+      return "??";
+    }
   };
 
   if (error) {
@@ -180,77 +186,81 @@ export default function Integrantes() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4 sm:px-0 pb-12">
             {filteredMembers.map((member, index) => {
+              if (!member || !member.name) return null;
               const RoleIcon = roleIcons[member.role as keyof typeof roleIcons] || Users;
+
               return (
                 <div
                   key={member.id}
-                  className="group card-premium p-6 slide-up overflow-hidden"
+                  className="group card-premium p-6 slide-up overflow-hidden border border-border/50 hover:border-primary/40 transition-all duration-500"
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
                   {/* Role Badge - Floating */}
                   <div className="absolute top-4 right-4 z-10">
-                    <Badge className={`rounded-lg text-[9px] font-black uppercase tracking-[0.1em] px-2 py-1 flex items-center gap-1.5 shadow-sm border-none ${roleColors[member.role as keyof typeof roleColors] || ''}`}>
+                    <Badge className={`rounded-lg text-[10px] font-black uppercase tracking-wider px-2.5 py-1.5 flex items-center gap-1.5 shadow-sm border-none ${roleColors[member.role as keyof typeof roleColors] || 'bg-secondary text-secondary-foreground'}`}>
                       <RoleIcon className="w-3 h-3" />
-                      {member.role}
+                      {member.role || "Miembro"}
                     </Badge>
                   </div>
 
-                  <div className="flex flex-col items-center text-center space-y-4 pt-4">
-                    <div className="relative p-1 rounded-full border-2 border-primary/20 group-hover:border-primary/50 transition-all duration-500">
-                      <Avatar className="w-20 h-20 ring-4 ring-background border border-border/50 shadow-xl">
+                  <div className="flex flex-col items-center text-center space-y-6 pt-6">
+                    <div className="relative p-1 rounded-full border-2 border-primary/20 group-hover:border-primary/50 transition-all duration-500 bg-background/50">
+                      <Avatar className="w-24 h-24 ring-4 ring-background border border-border/50 shadow-2xl">
                         <AvatarImage src={member.avatar_url || undefined} className="object-cover" />
-                        <AvatarFallback className="bg-secondary text-primary font-black text-2xl uppercase tracking-tighter">
+                        <AvatarFallback className="bg-secondary text-primary font-black text-3xl uppercase tracking-tighter">
                           {getInitials(member.name)}
                         </AvatarFallback>
                       </Avatar>
-                      <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg gold-gradient border-2 border-background flex items-center justify-center shadow-lg group-hover:scale-125 transition-transform">
-                        <Music className="w-3 h-3 text-white" />
+                      <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-xl gold-gradient border-2 border-background flex items-center justify-center shadow-lg group-hover:scale-125 transition-transform">
+                        <Music className="w-4 h-4 text-white" />
                       </div>
                     </div>
 
-                    <div className="space-y-1">
-                      <h3 className="text-xl font-black text-foreground uppercase tracking-tight leading-tight">
+                    <div className="space-y-3">
+                      <h3 className="text-2xl font-black text-foreground uppercase tracking-tight leading-none group-hover:text-primary transition-colors">
                         {member.name}
                       </h3>
-                      <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">
-                        {member.voice_type || "Instrumentista"}
-                      </p>
+                      <div className="flex justify-center">
+                        <p className="text-[11px] font-black text-primary/80 dark:text-primary/90 uppercase tracking-[0.3em] bg-primary/5 px-4 py-1.5 rounded-full ring-1 ring-primary/10 shadow-sm">
+                          {member.voice_type || member.role || "Talento"}
+                        </p>
+                      </div>
                     </div>
 
                     {/* Contact Pills */}
-                    <div className="flex items-center gap-2 pt-2">
+                    <div className="flex items-center gap-4 pt-4">
                       {member.phone && (
-                        <a href={`tel:${member.phone}`} className="h-9 w-9 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all shadow-sm">
-                          <Phone className="w-4 h-4" />
+                        <a href={`tel:${member.phone}`} className="h-12 w-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-2 border-emerald-500/20 flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all shadow-lg group/tel sm:h-14 sm:w-14">
+                          <Phone className="w-6 h-6 group-hover/tel:rotate-12 transition-transform" />
                         </a>
                       )}
                       {member.email && (
-                        <a href={`mailto:${member.email}`} className="h-9 w-9 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all shadow-sm">
-                          <Mail className="w-4 h-4" />
+                        <a href={`mailto:${member.email}`} className="h-12 w-12 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 border-2 border-blue-500/20 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all shadow-lg group/mail sm:h-14 sm:w-14">
+                          <Mail className="w-6 h-6 group-hover/mail:-rotate-12 transition-transform" />
                         </a>
                       )}
                     </div>
                   </div>
 
                   {/* Skills Section */}
-                  <div className="mt-8 pt-6 border-t border-border/50 space-y-4">
+                  <div className="mt-8 pt-6 border-t border-border/50 space-y-6">
                     <div className="flex flex-wrap justify-center gap-2">
-                      {member.instruments?.length ? (
+                      {member.instruments && member.instruments.length > 0 ? (
                         member.instruments.map((inst, idx) => (
-                          <Badge key={idx} variant="outline" className="rounded-full text-[10px] font-bold uppercase tracking-widest bg-secondary/30 border-transparent px-3">
+                          <Badge key={idx} variant="outline" className="rounded-xl text-[10px] font-bold uppercase tracking-widest bg-secondary/50 dark:bg-slate-800 border-border/40 px-3 py-1.5 text-foreground">
                             {inst}
                           </Badge>
                         ))
                       ) : (
-                        <Badge variant="outline" className="rounded-full text-[10px] font-bold uppercase tracking-widest bg-secondary/30 border-transparent px-3 opacity-50">
+                        <Badge variant="outline" className="rounded-xl text-[10px] font-bold uppercase tracking-widest bg-secondary/50 dark:bg-slate-800 border-transparent px-3 py-1.5 opacity-50">
                           TALENTO VOCAL
                         </Badge>
                       )}
                     </div>
 
                     {member.notes && (
-                      <div className="p-3 bg-primary/5 rounded-2xl border border-primary/10 group-hover:bg-primary/10 transition-colors">
-                        <p className="text-[10px] font-medium text-foreground/80 italic text-center leading-tight line-clamp-2">
+                      <div className="p-4 bg-primary/5 dark:bg-white/5 rounded-[1.5rem] border border-primary/10 group-hover:bg-primary/10 transition-colors">
+                        <p className="text-[11px] font-medium text-muted-foreground italic text-center leading-relaxed line-clamp-2">
                           "{member.notes}"
                         </p>
                       </div>
@@ -297,7 +307,8 @@ export default function Integrantes() {
                   </div>
                 </div>
               );
-            })}
+            })
+            }
           </div>
         )}
 

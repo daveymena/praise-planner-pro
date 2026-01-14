@@ -382,7 +382,7 @@ export default function Repertorio() {
                           <div className="w-8 h-px bg-primary/30" />
                           <FileText className="w-4 h-4" /> Letra Completa
                         </h3>
-                        <div className="bg-background/50 p-8 md:p-12 rounded-[3rem] border border-border/50 whitespace-pre-wrap text-lg md:text-2xl font-serif italic leading-relaxed text-foreground shadow-inner">
+                        <div className="bg-white/80 dark:bg-slate-900/80 p-8 md:p-12 rounded-[3rem] border border-border/50 whitespace-pre-wrap text-lg md:text-2xl font-serif italic font-medium leading-relaxed text-slate-900 dark:text-slate-100 shadow-2xl backdrop-blur-md">
                           {viewingSong.lyrics}
                         </div>
                       </section>
@@ -394,7 +394,7 @@ export default function Repertorio() {
                           <div className="w-8 h-px bg-amber-500/30" />
                           <Music className="w-4 h-4" /> Guía de Armonía
                         </h3>
-                        <div className="bg-amber-500/5 p-8 md:p-12 rounded-[3rem] border border-amber-500/20 whitespace-pre-wrap font-mono text-2xl md:text-4xl text-amber-600 dark:text-amber-400 tracking-widest shadow-inner">
+                        <div className="bg-amber-500/10 dark:bg-amber-500/5 p-8 md:p-12 rounded-[3rem] border-2 border-amber-500/30 whitespace-pre-wrap font-mono text-2xl md:text-5xl font-bold text-amber-700 dark:text-amber-400 tracking-wider shadow-2xl backdrop-blur-sm">
                           {viewingSong.chords}
                         </div>
                       </section>

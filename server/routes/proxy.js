@@ -43,7 +43,15 @@ router.get('/', async (req, res) => {
             'lacuerda.net',
             'www.lacuerda.net',
             'genius.com',
-            'www.genius.com'
+            'www.genius.com',
+            'google.com',
+            'www.google.com',
+            'google.es',
+            'www.google.es',
+            'bing.com',
+            'www.bing.com',
+            'musixmatch.com',
+            'www.musixmatch.com'
         ];
 
         if (!allowedDomains.includes(targetUrl.hostname)) {
