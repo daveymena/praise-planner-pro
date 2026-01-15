@@ -44,7 +44,7 @@ export default function Repertorio() {
 
 
   const getYoutubeVideoId = (url: string) => {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|live\/)([^#&?]*).*/;
     const match = url.match(regExp);
     return (match && match[2].length === 11) ? match[2] : null;
   };
@@ -379,7 +379,7 @@ export default function Repertorio() {
                       <iframe
                         width="100%"
                         height="100%"
-                        src={`https://www.youtube-nocookie.com/embed/${getYoutubeVideoId(viewingSong.youtube_url)}?rel=0&modestbranding=1&origin=${window.location.origin}`}
+                        src={`https://www.youtube-nocookie.com/embed/${getYoutubeVideoId(viewingSong.youtube_url)}?rel=0&modestbranding=1`}
                         title="YouTube video player"
                         frameBorder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
