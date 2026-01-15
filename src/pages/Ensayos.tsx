@@ -108,7 +108,7 @@ export default function Ensayos() {
                   </div>
                 </div>
               </DialogHeader>
-              <div className="p-8">
+              <div className="p-8 pb-40">
                 <RehearsalForm onSuccess={() => setIsDialogOpen(false)} />
               </div>
             </DialogContent>
@@ -310,8 +310,8 @@ export default function Ensayos() {
                               <div className="flex items-center gap-2">
                                 {getStatusIcon(attendance.status)}
                                 <span className={`text-[9px] font-black uppercase tracking-widest ${attendance.status === 'confirmed' ? 'text-emerald-500' :
-                                    attendance.status === 'absent' ? 'text-red-500' :
-                                      'text-amber-500'
+                                  attendance.status === 'absent' ? 'text-red-500' :
+                                    'text-amber-500'
                                   }`}>
                                   {getStatusText(attendance.status)}
                                 </span>

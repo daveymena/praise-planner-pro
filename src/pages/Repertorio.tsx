@@ -141,7 +141,7 @@ export default function Repertorio() {
                   <DialogTitle className="text-3xl font-black uppercase tracking-tighter">Nueva Canción</DialogTitle>
                   <DialogDescription className="text-sm font-medium uppercase tracking-widest text-primary/60">Agregando a {user?.ministry_name || "la biblioteca ministerial"}</DialogDescription>
                 </DialogHeader>
-                <div className="flex-1 overflow-y-auto p-8 md:p-12 pb-32 scrollbar-hide">
+                <div className="flex-1 overflow-y-auto p-8 md:p-12 pb-40 scrollbar-hide">
                   <SongForm
                     prefilledData={capturedData}
                     onSuccess={() => {

@@ -129,7 +129,7 @@ export default function Integrantes() {
                 </DialogTitle>
                 <DialogDescription>Registrando nuevo miembro para <span className="text-primary font-bold">{user?.ministry_name}</span>. Completa el perfil ministerial.</DialogDescription>
               </DialogHeader>
-              <div className="p-8 pb-24">
+              <div className="p-8 pb-40">
                 <MemberForm
                   onSuccess={() => setIsCreateDialogOpen(false)}
                   onCancel={() => setIsCreateDialogOpen(false)}

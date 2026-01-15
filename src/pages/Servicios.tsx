@@ -86,7 +86,7 @@ export default function Servicios() {
                 </DialogTitle>
                 <DialogDescription>Define el enfoque espiritual, el plan de alabanza y el equipo ministerial.</DialogDescription>
               </DialogHeader>
-              <div className="p-8">
+              <div className="p-8 pb-40">
                 <ServiceForm
                   onSuccess={() => setIsCreateDialogOpen(false)}
                   onCancel={() => setIsCreateDialogOpen(false)}
@@ -168,7 +168,7 @@ export default function Servicios() {
                             <DialogTitle className="text-2xl font-black text-foreground uppercase tracking-tight">Personalizar Servicio</DialogTitle>
                             <DialogDescription>Modificando: {service.name}</DialogDescription>
                           </DialogHeader>
-                          <div className="p-8">
+                          <div className="p-8 pb-40">
                             <ServiceForm
                               service={editingService}
                               onSuccess={() => setEditingService(null)}
