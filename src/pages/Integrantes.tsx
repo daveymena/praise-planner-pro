@@ -307,7 +307,7 @@ export default function Integrantes() {
                 Modificando información de <span className="text-primary font-bold">{editingMember?.name}</span>
               </DialogDescription>
             </DialogHeader>
-            <div className="p-8">
+            <div className="p-8 pb-40">
               {editingMember && (
                 <MemberForm
                   member={editingMember}

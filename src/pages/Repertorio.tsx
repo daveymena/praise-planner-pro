@@ -294,8 +294,9 @@ export default function Repertorio() {
                           <DialogContent className="max-w-2xl w-[95vw] max-h-[90vh] overflow-hidden flex flex-col p-0 glass-card">
                             <DialogHeader className="p-6 border-b border-border/50">
                               <DialogTitle className="text-2xl font-bold">Editar Canción</DialogTitle>
+                              <DialogDescription>Modifica los detalles, letra o acordes de esta canción.</DialogDescription>
                             </DialogHeader>
-                            <div className="flex-1 overflow-y-auto p-6 scrollbar-hide">
+                            <div className="flex-1 overflow-y-auto p-6 pb-40 scrollbar-hide">
                               <SongForm song={song} onSuccess={() => setIsCreateDialogOpen(false)} />
                             </div>
                           </DialogContent>
