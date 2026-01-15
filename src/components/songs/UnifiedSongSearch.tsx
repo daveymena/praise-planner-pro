@@ -166,9 +166,6 @@ export function UnifiedSongSearch({ onSongFound }: UnifiedSongSearchProps) {
                             <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest mt-1">IA Powers Enabled</span>
                         </div>
                     </DialogTitle>
-                    <DialogDescription className="sr-only">
-                        Busca canciones, extrae acordes e importa contenido automáticamente.
-                    </DialogDescription>
                 </DialogHeader>
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">

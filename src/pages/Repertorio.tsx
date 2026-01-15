@@ -129,12 +129,9 @@ export default function Repertorio() {
               }}
             />
 
-            <Dialog open={isCreateDialogOpen} onOpenChange={(open) => {
-              setIsCreateDialogOpen(open);
-              if (open) setCapturedData(null);
-            }}>
+            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="btn-premium h-12 px-6">
+                <Button className="btn-premium h-12 px-6" onClick={() => setCapturedData(null)}>
                   <Plus className="w-5 h-5 md:mr-2" />
                   <span className="hidden sm:inline">Agregar Canción</span>
                 </Button>
@@ -142,7 +139,6 @@ export default function Repertorio() {
               <DialogContent className="max-w-[100vw] w-full lg:max-w-[1200px] h-[100dvh] lg:h-[90vh] overflow-hidden flex flex-col p-0 glass-card border-primary/20 shadow-3xl lg:rounded-[2.5rem]">
                 <DialogHeader className="p-8 border-b border-border/50 bg-secondary/20">
                   <DialogTitle className="text-3xl font-black uppercase tracking-tighter">Nueva Canción</DialogTitle>
-                  <DialogDescription className="text-sm font-medium uppercase tracking-widest text-primary/60">Agregando a {user?.ministry_name || "la biblioteca ministerial"}</DialogDescription>
                 </DialogHeader>
                 <div className="flex-1 overflow-y-auto p-8 md:p-12 pb-40 scrollbar-hide">
                   <SongForm
@@ -297,7 +293,6 @@ export default function Repertorio() {
                           <DialogContent className="max-w-2xl w-[95vw] max-h-[90vh] overflow-hidden flex flex-col p-0 glass-card">
                             <DialogHeader className="p-6 border-b border-border/50">
                               <DialogTitle className="text-2xl font-bold">Editar Canción</DialogTitle>
-                              <DialogDescription>Modifica los detalles, letra o acordes de esta canción.</DialogDescription>
                             </DialogHeader>
                             <div className="flex-1 overflow-y-auto p-6 pb-40 scrollbar-hide">
                               <SongForm song={song} onSuccess={() => setIsCreateDialogOpen(false)} />
