@@ -11,15 +11,19 @@ import {
   Clock,
   MapPin,
   Loader2,
-  Sparkles
+  Sparkles,
+  Smartphone,
+  Download
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { useUpcomingRehearsals } from "@/hooks/useRehearsals";
 import { useUpcomingServices } from "@/hooks/useServices";
 import { useSongs } from "@/hooks/useSongs";
 import { useMembers } from "@/hooks/useMembers";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import type { Member, Song, Service } from "@/types/api";
 
 const quickActions = [
   { label: "Nuevo Ensayo", path: "/ensayos", icon: Mic2 },
@@ -30,9 +34,31 @@ const quickActions = [
 
 export default function Index() {
   const { data: upcomingRehearsals, isLoading: loadingRehearsals } = useUpcomingRehearsals();
-  const { data: upcomingServices, isLoading: loadingServices } = useUpcomingServices();
-  const { data: songs, isLoading: loadingSongs } = useSongs();
-  const { data: members, isLoading: loadingMembers } = useMembers();
+  const { data: upcomingServices, isLoading: loadingServices } = useUpcomingServices() as { data: Service[], isLoading: boolean };
+  const { data: songs, isLoading: loadingSongs } = useSongs() as { data: Song[], isLoading: boolean };
+  const { data: members, isLoading: loadingMembers } = useMembers() as { data: Member[], isLoading: boolean };
+
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+  useEffect(() => {
+    const handler = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') setDeferredPrompt(null);
+    } else {
+      // If no prompt, it might be iOS or already installed, show instructions
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+  };
 
   // Calculate stats
   const totalSongs = songs?.length || 0;
@@ -215,7 +241,29 @@ export default function Index() {
 
           {/* Quick Actions & Spiritual */}
           <div className="space-y-8 slide-up">
-            <div className="glass-card p-8 bg-gradient-to-br from-indigo-600 to-indigo-800 text-white shadow-xl shadow-indigo-500/20">
+            {/* PWA Install Card */}
+            <div className="glass-card p-8 bg-gradient-to-br from-primary to-indigo-600 text-white shadow-xl shadow-primary/20 relative overflow-hidden group">
+              <div className="absolute -right-4 -top-4 opacity-10 group-hover:scale-110 transition-transform duration-700">
+                <Smartphone className="w-32 h-32" />
+              </div>
+              <div className="relative z-10 space-y-4">
+                <h3 className="text-xl font-bold flex items-center gap-2 uppercase tracking-tighter">
+                  <Download className="w-5 h-5 text-amber-300" />
+                  App en tu Móvil
+                </h3>
+                <p className="text-sm text-white/80 font-medium leading-relaxed">
+                  Lleva tu ministerio siempre contigo. Instala Praise Pro para acceso rápido y notificaciones.
+                </p>
+                <Button
+                  onClick={handleInstall}
+                  className="w-full bg-white text-primary hover:bg-white/90 font-black h-12 rounded-2xl shadow-lg border-none uppercase tracking-widest text-xs"
+                >
+                  {deferredPrompt ? 'Instalar Ahora' : 'Cómo Instalar'}
+                </Button>
+              </div>
+            </div>
+
+            <div className="glass-card p-8 bg-gradient-to-br from-slate-800 to-slate-900 border-white/5 text-white shadow-xl">
               <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-amber-300" />
                 Acceso Rápido
@@ -227,7 +275,7 @@ export default function Index() {
                   return (
                     <Link key={index} to={action.path} className="block">
                       <button
-                        className="w-full h-24 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/10 flex flex-col items-center justify-center gap-2 transition-all group"
+                        className="w-full h-24 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 flex flex-col items-center justify-center gap-2 transition-all group"
                       >
                         <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                           <Icon className="w-5 h-5 text-white" />

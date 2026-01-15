@@ -20,7 +20,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useCreateRehearsal } from "@/hooks/useRehearsals";
+import { useCreateRehearsal, useUpdateRehearsal } from "@/hooks/useRehearsals";
 import { useSongs } from "@/hooks/useSongs";
 import { useMembers } from "@/hooks/useMembers";
 import { toast } from "sonner";
@@ -48,24 +48,31 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 interface RehearsalFormProps {
+    rehearsal?: any;
     onSuccess?: () => void;
 }
 
-export function RehearsalForm({ onSuccess }: RehearsalFormProps) {
+export function RehearsalForm({ rehearsal, onSuccess }: RehearsalFormProps) {
     const createRehearsal = useCreateRehearsal();
+    const updateRehearsal = useUpdateRehearsal();
     const { data: songsData } = useSongs();
     const { data: membersData } = useMembers();
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            date: new Date().toISOString().split('T')[0],
-            time: "19:00",
-            location: "Salón Principal",
-            type: "General",
-            notes: "",
-            songs: [],
-            members: [],
+            date: rehearsal?.date || new Date().toISOString().split('T')[0],
+            time: rehearsal?.time || "19:00",
+            location: rehearsal?.location || "Salón Principal",
+            type: (rehearsal?.type as any) || "General",
+            notes: rehearsal?.notes || "",
+            songs: rehearsal?.rehearsal_songs?.map((rs: any) => ({
+                song_id: rs.song_id,
+                leader_id: rs.leader_id || "",
+                notes: rs.notes || "",
+                order_position: rs.order_position || 0,
+            })) || [],
+            members: rehearsal?.rehearsal_attendance?.map((ra: any) => ra.member_id) || [],
         },
     });
 
@@ -76,12 +83,17 @@ export function RehearsalForm({ onSuccess }: RehearsalFormProps) {
 
     const onSubmit = async (values: FormValues) => {
         try {
-            await createRehearsal.mutateAsync(values);
-            toast.success("Ensayo programado exitosamente");
+            if (rehearsal) {
+                await updateRehearsal.mutateAsync({ id: rehearsal.id, ...values });
+                toast.success("Ensayo actualizado exitosamente");
+            } else {
+                await createRehearsal.mutateAsync(values);
+                toast.success("Ensayo programado exitosamente");
+            }
             form.reset();
             onSuccess?.();
         } catch (error) {
-            toast.error("Error al programar el ensayo");
+            toast.error(rehearsal ? "Error al actualizar el ensayo" : "Error al programar el ensayo");
             console.error(error);
         }
     };
@@ -346,15 +358,15 @@ export function RehearsalForm({ onSuccess }: RehearsalFormProps) {
                 <Button
                     type="submit"
                     className="w-full btn-premium py-8 h-auto text-xl font-black shadow-2xl shadow-primary/20 uppercase tracking-[0.1em]"
-                    disabled={createRehearsal.isPending}
+                    disabled={createRehearsal.isPending || updateRehearsal.isPending}
                 >
-                    {createRehearsal.isPending ? (
+                    {createRehearsal.isPending || updateRehearsal.isPending ? (
                         <>
                             <Loader2 className="mr-3 h-6 w-6 animate-spin" />
                             PROCESANDO...
                         </>
                     ) : (
-                        "PROGRAMAR Y NOTIFICAR"
+                        rehearsal ? "GUARDAR CAMBIOS" : "PROGRAMAR Y NOTIFICAR"
                     )}
                 </Button>
             </form>

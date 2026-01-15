@@ -17,10 +17,11 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { RehearsalForm } from "@/components/rehearsals/RehearsalForm";
-import { useRehearsals, useUpdateAttendance } from "@/hooks/useRehearsals";
+import { useRehearsals, useUpdateAttendance, useDeleteRehearsal } from "@/hooks/useRehearsals";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
+import { Edit, Trash2, XCircle, Mic2, AlertCircle } from "lucide-react";
 import type { Rehearsal, RehearsalSong, RehearsalAttendance } from "@/types/api";
 
 // Los tipos ya están importados desde @/types/api, no necesitamos redefinirlos
@@ -34,8 +35,21 @@ const typeColors: Record<string, string> = {
 export default function Ensayos() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedRehearsal, setSelectedRehearsal] = useState<Rehearsal | null>(null);
+  const [editingRehearsal, setEditingRehearsal] = useState<Rehearsal | null>(null);
   const { data: rehearsals, isLoading, error } = useRehearsals();
   const updateAttendance = useUpdateAttendance();
+  const deleteRehearsal = useDeleteRehearsal();
+
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`¿Estás seguro de eliminar el ensayo del ${name}?`)) return;
+    try {
+      await deleteRehearsal.mutateAsync(id);
+      toast.success("Ensayo eliminado");
+      setSelectedRehearsal(null);
+    } catch (error) {
+      toast.error("Error al eliminar el ensayo");
+    }
+  };
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -221,9 +235,37 @@ export default function Ensayos() {
                         <h2 className="text-2xl font-black text-foreground uppercase tracking-tight">
                           Detalles
                         </h2>
-                        <Button variant="ghost" size="icon" className="rounded-xl h-10 w-10 text-muted-foreground" onClick={() => setSelectedRehearsal(null)}>
-                          <XCircle className="w-5 h-5" />
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="ghost" size="icon" className="rounded-xl h-10 w-10 text-primary hover:bg-primary/10" onClick={() => setEditingRehearsal(selectedRehearsal)}>
+                                <Edit className="w-5 h-5" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-[95vw] sm:max-w-[600px] max-h-[90vh] overflow-y-auto rounded-[2rem] p-0">
+                              <DialogHeader className="p-8 border-b bg-secondary/20">
+                                <DialogTitle className="text-2xl font-bold">Editar Ensayo</DialogTitle>
+                              </DialogHeader>
+                              <div className="p-8 pb-40">
+                                <RehearsalForm
+                                  rehearsal={editingRehearsal}
+                                  onSuccess={() => setEditingRehearsal(null)}
+                                />
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="rounded-xl h-10 w-10 text-destructive hover:bg-destructive/10"
+                            onClick={() => handleDelete(selectedRehearsal.id, formatDate(selectedRehearsal.date))}
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="rounded-xl h-10 w-10 text-muted-foreground" onClick={() => setSelectedRehearsal(null)}>
+                            <XCircle className="w-5 h-5" />
+                          </Button>
+                        </div>
                       </div>
 
                       <div className="p-6 rounded-[2rem] bg-slate-900 text-white shadow-xl shadow-slate-900/10">
