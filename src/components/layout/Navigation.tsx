@@ -21,6 +21,7 @@ const navItems = [
     { path: "/integrantes", label: "Equipo", icon: Users },
     { path: "/calendario", label: "Agenda", icon: Calendar },
     { path: "/normas", label: "Manual", icon: FileText },
+    { path: "/tutorial", label: "Guía", icon: Sparkles },
 ];
 
 export function Navigation() {

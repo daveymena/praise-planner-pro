@@ -10,6 +10,7 @@ import Integrantes from "./pages/Integrantes";
 import Servicios from "./pages/Servicios";
 import Calendario from "./pages/Calendario";
 import Normas from "./pages/Normas";
+import Tutorial from "./pages/Tutorial";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/servicios" element={<ProtectedRoute><Servicios /></ProtectedRoute>} />
             <Route path="/calendario" element={<ProtectedRoute><Calendario /></ProtectedRoute>} />
             <Route path="/normas" element={<ProtectedRoute><Normas /></ProtectedRoute>} />
+            <Route path="/tutorial" element={<ProtectedRoute><Tutorial /></ProtectedRoute>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
