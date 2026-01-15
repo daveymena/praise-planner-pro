@@ -107,16 +107,22 @@ class LyricsService {
                 cleanedContent = cleanedContent.replace(new RegExp(`^${word}$`, 'gm'), '');
             }
 
-            // Clean up excessive whitespace
+            // Clean up excessive whitespace but preserve stanza breaks
             cleanedContent = cleanedContent
                 .split('\n')
                 .map(line => line.trim())
-                .filter(line => line.length > 0)
-                .join('\n')
-                .replace(/\n{3,}/g, '\n\n')
-                .trim();
+                .filter((line, index, array) => {
+                    // Keep the line if it's not empty, or if it's a gap between content
+                    return line.length > 0;
+                })
+                .join('\n');
 
-            return cleanedContent;
+            // Add double breaks before headers to create stanzas [VERSO], [CORO]
+            cleanedContent = cleanedContent.replace(/(\n|^)(\[(?:VERSO|VERSE|CORO|CHORUS|PUENTE|BRIDGE|INTRO|FINAL|OUTRO|INSTRUMENTAL)[^\]]*\])/gi, '\n\n$2\n');
+
+            // Final polish
+            return cleanedContent.trim()
+                .replace(/\n{3,}/g, '\n\n'); // Ensure max 2 line breaks between stanzas
         } catch (error) {
             console.error('❌ Direct extraction error:', error.message);
             return null;

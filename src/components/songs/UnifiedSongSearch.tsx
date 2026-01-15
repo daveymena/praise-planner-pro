@@ -170,50 +170,50 @@ export function UnifiedSongSearch({ onSongFound }: UnifiedSongSearchProps) {
                 </DialogHeader>
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-                    <TabsList className="grid w-full grid-cols-2 h-14 bg-secondary/30 p-1.5 rounded-none flex-shrink-0">
+                    <TabsList className="grid w-full grid-cols-2 h-12 md:h-14 bg-secondary/30 p-1 rounded-none flex-shrink-0">
                         <TabsTrigger
                             value="auto"
-                            className="gap-2 text-sm font-bold data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-xl transition-all"
+                            className="gap-2 text-xs md:text-sm font-bold data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-xl transition-all"
                         >
-                            <Sparkles className="w-4 h-4 text-primary" />
-                            MODO AUTOMÁTICO
+                            <Sparkles className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" />
+                            AUTOMÁTICO
                         </TabsTrigger>
                         <TabsTrigger
                             value="manual"
-                            className="gap-2 text-sm font-bold data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-xl transition-all"
+                            className="gap-2 text-xs md:text-sm font-bold data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-xl transition-all"
                         >
-                            <Globe className="w-4 h-4 text-primary" />
-                            NAVEGADOR WEB
+                            <Globe className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" />
+                            NAVEGADOR
                         </TabsTrigger>
                     </TabsList>
 
                     {/* Tab 1: Auto Search */}
-                    <TabsContent value="auto" className="flex-1 flex flex-col gap-8 md:gap-10 mt-0 w-full overflow-y-auto p-6 md:p-12 data-[state=inactive]:hidden data-[state=active]:flex">
-                        <div className="w-full space-y-12">
-                            <div className="bg-primary/5 border border-primary/20 rounded-[2rem] p-6 flex items-start gap-4">
-                                <div className="w-12 h-12 rounded-[1.25rem] bg-primary flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary/20">
-                                    <Sparkles className="w-6 h-6 text-white" />
+                    <TabsContent value="auto" className="flex-1 flex flex-col gap-6 md:gap-10 mt-0 w-full overflow-y-auto p-5 md:p-12 data-[state=inactive]:hidden data-[state=active]:flex">
+                        <div className="w-full space-y-8 md:space-y-12">
+                            <div className="bg-primary/5 border border-primary/20 rounded-[1.5rem] md:rounded-[2rem] p-4 md:p-6 flex items-start gap-3 md:gap-4">
+                                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-[1.25rem] bg-primary flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary/20">
+                                    <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-white" />
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-foreground text-lg">Búsqueda Predictiva</h4>
-                                    <p className="text-sm text-muted-foreground leading-relaxed mt-1">
-                                        Nuestra IA buscará la letra, acordes y enlaces de video en múltiples fuentes y los organizará para ti.
+                                    <h4 className="font-bold text-foreground text-base md:text-lg">Búsqueda Predictiva</h4>
+                                    <p className="text-xs md:text-sm text-muted-foreground leading-relaxed mt-1">
+                                        Nuestra IA buscará la letra, acordes y enlaces de video automáticamente.
                                     </p>
                                 </div>
                             </div>
 
-                            <div className="space-y-4">
-                                <label className="text-sm font-black text-primary uppercase tracking-[0.2em] ml-2">
-                                    Título de la canción / Artista
+                            <div className="space-y-3 md:space-y-4">
+                                <label className="text-[10px] md:text-sm font-black text-primary uppercase tracking-[0.2em] ml-2">
+                                    Título / Artista
                                 </label>
                                 <div className="relative group">
-                                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                                    <Search className="absolute left-4 md:left-5 top-1/2 -translate-y-1/2 w-5 h-5 md:w-6 md:h-6 text-muted-foreground group-focus-within:text-primary transition-colors" />
                                     <Input
-                                        placeholder="Ej: Way Maker - Sinach"
+                                        placeholder="Ej: Way Maker..."
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                         onKeyPress={(e) => e.key === "Enter" && handleAutoSearch()}
-                                        className="text-xl h-16 md:h-20 pl-16 pr-6 bg-secondary/30 border-transparent focus:bg-background focus:border-primary/30 focus:ring-4 focus:ring-primary/5 transition-all rounded-[1.5rem] shadow-none font-medium"
+                                        className="text-base md:text-xl h-14 md:h-20 pl-12 md:pl-16 pr-6 bg-secondary/30 border-transparent focus:bg-background focus:border-primary/30 focus:ring-4 focus:ring-primary/5 transition-all rounded-[1.25rem] md:rounded-[1.5rem] shadow-none font-medium"
                                     />
                                 </div>
                             </div>
@@ -221,27 +221,27 @@ export function UnifiedSongSearch({ onSongFound }: UnifiedSongSearchProps) {
                             <Button
                                 onClick={handleAutoSearch}
                                 disabled={isSearching}
-                                className="w-full btn-premium gap-3 h-14 md:h-16 text-lg font-bold"
+                                className="w-full btn-premium gap-3 h-12 md:h-16 text-base md:text-lg font-bold"
                                 size="lg"
                             >
                                 {isSearching ? (
                                     <>
-                                        <Loader2 className="w-6 h-6 animate-spin" />
-                                        PROCESANDO CON IA...
+                                        <Loader2 className="w-5 h-5 md:w-6 md:h-6 animate-spin" />
+                                        PROCESANDO...
                                     </>
                                 ) : (
                                     <>
-                                        <Search className="w-6 h-6" />
+                                        <Search className="w-5 h-5 md:w-6 md:h-6" />
                                         ENCONTRAR CANCIÓN
                                     </>
                                 )}
                             </Button>
 
-                            <div className="pt-6 border-t border-border/50">
-                                <h4 className="text-[10px] uppercase tracking-[0.3em] font-black text-muted-foreground mb-4">Fuentes sugeridas</h4>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <div className="pt-4 md:pt-6 border-t border-border/50">
+                                <h4 className="text-[9px] md:text-[10px] uppercase tracking-[0.3em] font-black text-muted-foreground mb-3 md:mb-4 text-center">IA Powers Enabled</h4>
+                                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
                                     {["LaCuerda.net", "Letras.com", "CifraClub", "Genius"].map(site => (
-                                        <div key={site} className="px-4 py-2 bg-secondary/50 rounded-xl text-[10px] font-bold text-center text-muted-foreground uppercase">
+                                        <div key={site} className="px-3 py-1.5 bg-secondary/50 rounded-lg text-[9px] md:text-[10px] font-bold text-center text-muted-foreground uppercase">
                                             {site}
                                         </div>
                                     ))}

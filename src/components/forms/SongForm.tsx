@@ -171,17 +171,17 @@ export function SongForm({ song, prefilledData, onSuccess, onCancel }: SongFormP
 
   return (
     <Form {...form}>
-      <div className="mb-8 space-y-4">
-        {/* Google-like Search Bar */}
+      <div className="mb-4 md:mb-8 space-y-4 px-4 md:px-0">
+        {/* Google-like Search Bar - Optimized for Mobile */}
         <div className="relative group">
-          <div className="absolute -inset-1 bg-gradient-to-r from-primary/50 to-gold/50 rounded-2xl blur opacity-25 group-focus-within:opacity-100 transition duration-1000 group-focus-within:duration-200"></div>
-          <div className="relative flex items-center bg-background border-2 border-primary/20 rounded-2xl p-1.5 focus-within:border-primary/50 transition-all shadow-xl">
-            <div className="flex-1 flex items-center px-4">
-              <Search className="w-5 h-5 text-muted-foreground mr-3" />
+          <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 to-gold/30 rounded-2xl blur opacity-20 group-focus-within:opacity-100 transition duration-1000 group-focus-within:duration-200"></div>
+          <div className="relative flex items-center bg-background border-2 border-primary/20 rounded-2xl p-1 md:p-1.5 focus-within:border-primary/50 transition-all shadow-lg">
+            <div className="flex-1 flex items-center px-3 md:px-4">
+              <Search className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground mr-2 md:mr-3" />
               <input
                 type="text"
-                placeholder="Busca cualquier canción (ej: Way Maker, La Bondad de Dios...)"
-                className="w-full bg-transparent border-none focus:ring-0 text-lg py-2 outline-none"
+                placeholder="Busca cualquier canción..."
+                className="w-full bg-transparent border-none focus:ring-0 text-sm md:text-lg py-1.5 md:py-2 outline-none"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
@@ -197,26 +197,24 @@ export function SongForm({ song, prefilledData, onSuccess, onCancel }: SongFormP
             </div>
             <Button
               type="button"
-              className="rounded-xl px-6 py-6 h-auto btn-gold shadow-md"
+              className="rounded-xl px-4 md:px-6 py-4 md:py-6 h-auto btn-gold shadow-md text-xs md:text-sm font-bold"
               disabled={isExtracting || !form.watch('name')}
               onClick={() => handleAIAutoFill('search')}
             >
               {isExtracting ? (
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                <Loader2 className="w-4 h-4 md:mr-2 animate-spin" />
               ) : (
-                <Sparkles className="w-5 h-5 mr-2" />
+                <Sparkles className="w-4 h-4 md:mr-2" />
               )}
-              {isExtracting ? 'Buscando...' : 'Completar con IA'}
+              <span className="hidden xs:inline">{isExtracting ? 'Buscando...' : 'Completar con IA'}</span>
+              <span className="inline xs:hidden">{isExtracting ? '' : ''}</span>
             </Button>
           </div>
-          <p className="text-[10px] text-center mt-2 text-muted-foreground/70 italic">
-            Escribe el nombre de la canción y presiona "Completar con IA" para rellenar todo el formulario automáticamente.
-          </p>
         </div>
       </div>
 
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6 px-4 md:px-0">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
           <FormField
             control={form.control}
             name="name"
