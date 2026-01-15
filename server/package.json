@@ -1,6 +1,6 @@
 {
   "name": "praise-planner-pro-server",
-  "version": "1.0.0",
+  "version": "0.0.7",
   "description": "Backend API for Praise Planner Pro",
   "main": "server.js",
   "type": "module",

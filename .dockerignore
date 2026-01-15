@@ -1,5 +1,4 @@
 node_modules
-<<<<<<< HEAD
 npm-debug.log
 .git
 .env
@@ -8,18 +7,12 @@ server/node_modules
 server/.env
 server/database.sqlite
 .DS_Store
-=======
-dist
 dist-ssr
-.git
 .gitignore
-.env
 .env.local
 .env.*.local
-npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.DS_Store
 .vscode
 .idea
 *.log
@@ -27,5 +20,3 @@ coverage
 .cache
 README.md
 bun.lockb
-
->>>>>>> 547bf4b29666d8a4068b92295cae21fc2f742582

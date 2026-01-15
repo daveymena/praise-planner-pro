@@ -56,7 +56,7 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       connectSrc: ["'self'", "http://localhost:3003", "https:", "wss:", "ws:"],
-      frameSrc: ["'self'", "https://*.youtube.com", "https://youtube.com", "https://youtu.be", "https://www.youtube-nocookie.com", "https://www.youtube.com"],
+      frameSrc: ["'self'", "https://www.youtube.com", "https://youtube.com", "https://*.youtube.com", "https://www.youtube-nocookie.com", "https://youtu.be"],
       imgSrc: ["'self'", "data:", "blob:", "https:"],
       scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
