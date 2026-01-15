@@ -14,7 +14,7 @@ const generateInviteCode = () => {
 router.post('/register', async (req, res) => {
     const client = await pool.connect();
     try {
-        const { email, password, ministryName, name } = req.body;
+        const { email, password, ministryName, adminName, groupType } = req.body;
 
         if (!email || !password || !ministryName) {
             return res.status(400).json({ error: 'Faltan campos obligatorios' });
@@ -44,7 +44,7 @@ router.post('/register', async (req, res) => {
         // 4. Create Member (link to user)
         await client.query(
             'INSERT INTO members (ministry_id, user_id, name, email, role) VALUES ($1, $2, $3, $4, $5)',
-            [ministryId, userId, name || ministryName, email, 'Director']
+            [ministryId, userId, adminName || ministryName, email, 'Director']
         );
 
         await client.query('COMMIT');

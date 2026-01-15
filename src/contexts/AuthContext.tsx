@@ -29,7 +29,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (token) {
                 try {
                     const userData = await apiClient.getMe();
-                    setUser(userData);
+                    setUser(userData as User);
                 } catch (error) {
                     console.error('Auth initialization failed:', error);
                     localStorage.removeItem('auth_token');
@@ -42,12 +42,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const login = async (data: any) => {
         const res = await apiClient.login(data);
-        setUser(res.user);
+        setUser({
+            ...res.user,
+            ministry_id: res.ministry.id,
+            ministry_name: res.ministry.name
+        });
     };
 
     const register = async (data: any) => {
         const res = await apiClient.register(data);
-        setUser(res.user);
+        setUser({
+            ...res.user,
+            ministry_id: res.ministry.id,
+            ministry_name: res.ministry.name
+        });
     };
 
     const logout = () => {

@@ -125,10 +125,8 @@ export function SongForm({ song, prefilledData, onSuccess, onCancel }: SongFormP
 
     setIsExtracting(true);
     try {
-      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
       const token = localStorage.getItem('auth_token');
-
-      const response = await fetch(`${API_BASE_URL}/ai/extract-song`, {
+      const response = await fetch('/api/ai/extract-song', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

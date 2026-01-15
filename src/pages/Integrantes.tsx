@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useMembers, useDeleteMember } from "@/hooks/useMembers";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Database } from "@/integrations/supabase/types";
@@ -47,7 +48,7 @@ export default function Integrantes() {
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<Member | null>(null);
-
+  const { user } = useAuth();
   const { data: members, isLoading, error } = useMembers();
   const deleteMember = useDeleteMember();
 
@@ -108,8 +109,8 @@ export default function Integrantes() {
               <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">
                 Integrantes
               </h1>
-              <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest">
-                {isLoading ? "Sincronizando..." : `${members?.length || 0} Miembros Conectados`}
+              <p className="text-sm font-medium text-primary uppercase tracking-widest animate-pulse">
+                {user?.ministry_name || "Ministerio Pro"}
               </p>
             </div>
           </div>
@@ -126,9 +127,9 @@ export default function Integrantes() {
                 <DialogTitle className="text-2xl font-bold text-foreground flex items-center gap-2">
                   <Users className="w-6 h-6 text-primary" /> Nuevo Miembro
                 </DialogTitle>
-                <DialogDescription>Completa el perfil ministerial del nuevo integrante.</DialogDescription>
+                <DialogDescription>Registrando nuevo miembro para <span className="text-primary font-bold">{user?.ministry_name}</span>. Completa el perfil ministerial.</DialogDescription>
               </DialogHeader>
-              <div className="p-8">
+              <div className="p-8 pb-24">
                 <MemberForm
                   onSuccess={() => setIsCreateDialogOpen(false)}
                   onCancel={() => setIsCreateDialogOpen(false)}

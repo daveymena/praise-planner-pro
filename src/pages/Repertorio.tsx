@@ -139,9 +139,9 @@ export default function Repertorio() {
               <DialogContent className="max-w-[100vw] w-full lg:max-w-[1200px] h-[100dvh] lg:h-[90vh] overflow-hidden flex flex-col p-0 glass-card border-primary/20 shadow-3xl lg:rounded-[2.5rem]">
                 <DialogHeader className="p-8 border-b border-border/50 bg-secondary/20">
                   <DialogTitle className="text-3xl font-black uppercase tracking-tighter">Nueva Canción</DialogTitle>
-                  <DialogDescription className="text-sm font-medium uppercase tracking-widest text-primary/60">Agregando a la biblioteca ministerial</DialogDescription>
+                  <DialogDescription className="text-sm font-medium uppercase tracking-widest text-primary/60">Agregando a {user?.ministry_name || "la biblioteca ministerial"}</DialogDescription>
                 </DialogHeader>
-                <div className="flex-1 overflow-y-auto p-8 md:p-12 scrollbar-hide">
+                <div className="flex-1 overflow-y-auto p-8 md:p-12 pb-32 scrollbar-hide">
                   <SongForm
                     prefilledData={capturedData}
                     onSuccess={() => {
@@ -380,7 +380,7 @@ export default function Repertorio() {
                       <iframe
                         width="100%"
                         height="100%"
-                        src={`https://www.youtube.com/embed/${getYoutubeVideoId(viewingSong.youtube_url)}?rel=0&enablejsapi=1&origin=${window.location.origin}`}
+                        src={`https://www.youtube-nocookie.com/embed/${getYoutubeVideoId(viewingSong.youtube_url)}?rel=0&modestbranding=1&origin=${window.location.origin}`}
                         title="YouTube video player"
                         frameBorder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -423,27 +423,30 @@ export default function Repertorio() {
                             LETRA Y REGIONES
                           </h3>
                         </div>
-                        <div className="bg-white/40 dark:bg-slate-900/40 p-5 md:p-14 rounded-[2rem] md:rounded-[3.5rem] border border-border/30 whitespace-pre-wrap text-[16px] md:text-2xl font-medium leading-[1.8] text-foreground shadow-lg backdrop-blur-md">
+                        <div className="bg-white/40 dark:bg-slate-900/40 p-5 md:p-14 rounded-[2rem] md:rounded-[3.5rem] border border-border/30 whitespace-pre-wrap text-[18px] md:text-3xl font-medium !leading-[2] text-foreground shadow-lg backdrop-blur-md">
                           {viewingSong.lyrics.split('\n').map((line, i) => {
-                            if (line.startsWith('[') && line.endsWith(']')) {
+                            const trimmedLine = line.trim();
+                            if ((trimmedLine.startsWith('[') && trimmedLine.endsWith(']')) ||
+                              trimmedLine.match(/^(CORO|VERSO|INTRO|PUENTE|ESTROFA|BRIDGE|CHORUS|VERSE|FINAL|OUTRO):?$/i)) {
                               return (
-                                <div key={i} className="flex items-center gap-4 mt-12 mb-6 opacity-60">
-                                  <div className="h-px w-6 bg-primary/30" />
-                                  <div className="text-primary font-black text-[10px] md:text-xs tracking-[0.3em] uppercase">
-                                    {line.replace(/[\[\]]/g, '')}
+                                <div key={i} className="flex items-center gap-4 mt-16 mb-8 first:mt-0">
+                                  <div className="h-px w-8 bg-primary/40" />
+                                  <div className="text-primary font-black text-xs md:text-sm tracking-[0.4em] uppercase py-2">
+                                    {trimmedLine.replace(/[\[\]:]/g, '')}
                                   </div>
-                                  <div className="h-px flex-1 bg-gradient-to-r from-primary/30 to-transparent" />
+                                  <div className="h-px flex-1 bg-gradient-to-r from-primary/40 to-transparent" />
                                 </div>
                               );
                             }
-                            if (line.includes('[REPETIR:')) {
+                            if (trimmedLine.includes('[REPETIR:')) {
                               return (
-                                <div key={i} className="text-amber-600 dark:text-amber-500 font-bold text-[10px] md:text-xs my-3 italic opacity-60">
-                                   // {line.replace(/[\[\]]/g, '').replace('REPETIR: ', 'Repetir ')}
+                                <div key={i} className="text-amber-600 dark:text-amber-500 font-black text-xs md:text-sm my-6 flex items-center gap-2 opacity-80 italic">
+                                   // {trimmedLine.replace(/[\[\]]/g, '').replace('REPETIR: ', 'Repetir ')}
                                 </div>
                               );
                             }
-                            return <div key={i} className="px-2">{line}</div>;
+                            if (!trimmedLine) return <div key={i} className="h-4 md:h-8" />;
+                            return <div key={i} className="px-2 mb-2">{trimmedLine}</div>;
                           })}
                         </div>
                       </section>
@@ -457,20 +460,23 @@ export default function Repertorio() {
                             GUÍA DE ACORDES
                           </h3>
                         </div>
-                        <div className="bg-amber-500/5 dark:bg-amber-500/5 p-6 md:p-12 rounded-[2.5rem] md:rounded-[4rem] border-2 border-amber-500/20 whitespace-pre-wrap font-mono text-xl md:text-5xl font-black text-amber-700 dark:text-amber-400 tracking-widest shadow-2xl backdrop-blur-sm">
+                        <div className="bg-amber-500/5 dark:bg-amber-500/5 p-6 md:p-16 rounded-[2.5rem] md:rounded-[4rem] border-2 border-amber-500/20 whitespace-pre-wrap font-mono text-2xl md:text-6xl font-black text-amber-700 dark:text-amber-400 tracking-widest shadow-2xl backdrop-blur-sm">
                           {viewingSong.chords.split('\n').map((line, i) => {
-                            if (line.startsWith('[') && line.endsWith(']')) {
+                            const trimmedLine = line.trim();
+                            if ((trimmedLine.startsWith('[') && trimmedLine.endsWith(']')) ||
+                              trimmedLine.match(/^(CORO|VERSO|INTRO|PUENTE|ESTROFA|BRIDGE|CHORUS|VERSE|FINAL|OUTRO):?$/i)) {
                               return (
-                                <div key={i} className="flex items-center gap-4 mt-12 mb-8 opacity-60">
-                                  <div className="h-px w-8 bg-amber-500/40" />
-                                  <div className="text-amber-600 dark:text-amber-400 font-black text-[10px] md:text-xs tracking-[0.4em] uppercase">
-                                    {line.replace(/[\[\]]/g, '')}
+                                <div key={i} className="flex items-center gap-4 mt-16 mb-10 first:mt-0">
+                                  <div className="h-px w-10 bg-amber-500/40" />
+                                  <div className="text-amber-600 dark:text-amber-400 font-black text-xs md:text-sm tracking-[0.5em] uppercase">
+                                    {trimmedLine.replace(/[\[\]:]/g, '')}
                                   </div>
                                   <div className="h-px flex-1 bg-gradient-to-r from-amber-500/40 to-transparent" />
                                 </div>
                               );
                             }
-                            return <div key={i} className="px-2">{line}</div>;
+                            if (!trimmedLine) return <div key={i} className="h-6 md:h-12" />;
+                            return <div key={i} className="px-2 mb-4 leading-relaxed">{trimmedLine}</div>;
                           })}
                         </div>
                       </section>
@@ -485,4 +491,3 @@ export default function Repertorio() {
     </Layout>
   );
 }
-
