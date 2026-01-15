@@ -1,5 +1,6 @@
 import express from 'express';
 import pool from '../config/database.js';
+import whatsappService from '../services/whatsappService.js';
 
 const router = express.Router();
 
@@ -200,6 +201,14 @@ router.post('/', async (req, res) => {
     }
 
     await client.query('COMMIT');
+
+    // Send automatic notifications in background
+    if (team && team.length > 0) {
+      whatsappService.notifyNewService(service, team).catch(err => {
+        console.error('Failed to send WhatsApp notifications for service:', err);
+      });
+    }
+
     res.status(201).json(service);
   } catch (error) {
     await client.query('ROLLBACK');

@@ -103,7 +103,9 @@ class LyricsService {
                 /Acordes para.*?\d+/gi,
                 /Tutorial.*?$/gim,
                 /Watch later/gi,
-                /Share on.*?$/gim
+                /Share on.*?$/gim,
+                /^[A-Z\s]+- (?:Letra|Lyrics)$/gm, // "ROBERTO ORELLANA - Letra"
+                /^[A-Z][a-z]+ [A-Z][a-z]+ [A-Z][a-z]+$/gm // Filter potential full author names on single lines
             ];
 
             for (const pattern of garbagePatterns) {
@@ -443,15 +445,26 @@ class LyricsService {
                         if (token.includes('(') || token.includes('[') || (token.toUpperCase() === token && token.length <= 4)) {
                             return '';
                         }
-                        // If it's something like "la" or "mi", keep it unless it's strictly a chord line
                     }
                     return token;
                 });
 
                 const cleanLine = cleanTokens.join('').replace(/\s{2,}/g, ' ').trim();
 
+                // Advanced step: If a line seems to have multiple sentences but no breaks, try to split them
+                // This fixes the "Tengo FeRoberto Orellana..." problem where names stick to lyrics
+                const splitMessyLines = (text) => {
+                    // Split if a word ends in lowercase and immediately followed by uppercase without space
+                    // e.g. "milagro estoyTengo fe" -> "milagro estoy\nTengo fe"
+                    let fixed = text.replace(/([a-z])([A-Z][a-z])/g, '$1\n$2');
+                    // Split if a sentence ends (.!?) and followed by Uppercase
+                    fixed = fixed.replace(/([\.!\?])([A-Z])/g, '$1\n$2');
+                    return fixed;
+                };
+
                 if (cleanLine.length > 0) {
-                    lyrics.push(cleanLine);
+                    const finalized = splitMessyLines(cleanLine);
+                    lyrics.push(finalized);
                 }
             }
         }

@@ -92,12 +92,17 @@ router.post('/extract-song', async (req, res) => {
 
                 // Improved logic-based extraction check:
                 // Only skip AI if we have BOTH good structure AND sufficient length
-                const hasStructure = /\[(CORO|VERSO|BRIDGE|PUENTE|INTRO)\]/i.test(separated.lyrics);
+                const hasStructure = /\[(CORO|VERSO|BRIDGE|PUENTE|ESTROFA|INTRO)\]/i.test(separated.lyrics);
                 const isLongEnough = separated.lyrics.length > 800;
                 const hasMultipleSections = (separated.lyrics.match(/\[/g) || []).length >= 3;
 
-                // Only use logic-based if we have a complete, well-structured song
-                if (hasStructure && isLongEnough && hasMultipleSections) {
+                // NEW: Check for "cleanliness" - if names or messy strings are detected, force AI
+                const isMessy = /([a-z][A-Z])/.test(separated.lyrics) || // Case stickiness like "estoyTengo"
+                    /(By:|Escrita por|Owner|Lyrics|Letra de|Copyright)/i.test(separated.lyrics) ||
+                    (separated.lyrics.length < fullContent.length * 0.4); // Too much lost in cleaning? Or too little cleaned?
+
+                // Only use logic-based if we have a complete, well-structured AND clean song
+                if (hasStructure && isLongEnough && hasMultipleSections && !isMessy) {
                     console.log(`✅ Using logic-based extraction (Complete & Structured)`);
                     const finalData = {
                         name: query.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),

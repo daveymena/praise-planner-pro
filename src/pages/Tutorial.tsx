@@ -72,6 +72,20 @@ const tutorialSteps = [
             "Comunicación directa y agenda compartida"
         ],
         tip: "Mantén actualizado el manual de normas para una visión unificada."
+    },
+    {
+        id: "instalacion",
+        title: "Instalar en el Móvil",
+        description: "Lleva Praise Planner Pro siempre contigo. Instala la app directamente desde el navegador sin pasar por la App Store.",
+        icon: Sparkles,
+        color: "rose-500",
+        features: [
+            "Android: Abre el menú del navegador y elige 'Instalar aplicación'.",
+            "iOS (iPhone): Dale a 'Compartir' (el cuadro con flecha) y 'Añadir a pantalla de inicio'.",
+            "Funciona sin ocupar espacio extra en tu dispositivo.",
+            "Acceso rápido desde tu pantalla principal como una app nativa."
+        ],
+        tip: "En iPhone, busca el botón central de compartir para encontrar la opción de añadir."
     }
 ];
 
@@ -118,8 +132,8 @@ export default function Tutorial() {
                                 key={step.id}
                                 onClick={() => setActiveStep(index)}
                                 className={`w-full flex items-center gap-4 p-5 rounded-3xl transition-all duration-500 border ${activeStep === index
-                                        ? "bg-primary text-white shadow-xl shadow-primary/20 border-primary scale-[1.02]"
-                                        : "bg-card/50 text-muted-foreground border-border/40 hover:bg-secondary/50"
+                                    ? "bg-primary text-white shadow-xl shadow-primary/20 border-primary scale-[1.02]"
+                                    : "bg-card/50 text-muted-foreground border-border/40 hover:bg-secondary/50"
                                     }`}
                             >
                                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${activeStep === index ? "bg-white/20" : "bg-primary/10"
