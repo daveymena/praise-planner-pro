@@ -129,9 +129,12 @@ export default function Repertorio() {
               }}
             />
 
-            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <Dialog open={isCreateDialogOpen} onOpenChange={(open) => {
+              setIsCreateDialogOpen(open);
+              if (open) setCapturedData(null);
+            }}>
               <DialogTrigger asChild>
-                <Button className="btn-premium h-12 px-6" onClick={() => setCapturedData(null)}>
+                <Button className="btn-premium h-12 px-6">
                   <Plus className="w-5 h-5 md:mr-2" />
                   <span className="hidden sm:inline">Agregar Canción</span>
                 </Button>
