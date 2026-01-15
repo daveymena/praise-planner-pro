@@ -96,7 +96,7 @@ export default function Index() {
               <Sparkles className="w-4 h-4 text-amber-400" />
               Ministerio en Excelencia
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight">
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight text-white">
               Eleva tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-indigo-400">Adoración</span> a otro nivel.
             </h1>
             <p className="text-lg text-slate-300 font-medium">
@@ -109,7 +109,7 @@ export default function Index() {
                 </Button>
               </Link>
               <Link to="/ensayos">
-                <Button variant="outline" className="h-14 px-8 text-base border-white/20 text-white hover:bg-white/10 rounded-2xl">
+                <Button variant="outline" className="h-14 px-8 text-base bg-white border-white text-slate-900 hover:bg-white/90 rounded-2xl font-bold">
                   Programar Ensayo
                 </Button>
               </Link>

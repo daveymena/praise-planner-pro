@@ -94,7 +94,16 @@ class LyricsService {
                 /Letra corregida por/gi,
                 /Publicidad/gi,
                 /PUBLICIDAD/gi,
-                /Anuncio/gi
+                /Anuncio/gi,
+                /Copyright.*?\d{4}.*?All Rights Reserved/gi,
+                /Report error/gi,
+                /Subscribe to newsletter/gi,
+                /Follow us on.*?$/gim,
+                /©\s*\d{4}.*?$/gim,
+                /Acordes para.*?\d+/gi,
+                /Tutorial.*?$/gim,
+                /Watch later/gi,
+                /Share on.*?$/gim
             ];
 
             for (const pattern of garbagePatterns) {

@@ -92,13 +92,13 @@ export function Navigation() {
                         <NavLink
                             key={item.path}
                             to={item.path}
-                            className={`relative flex flex-col items-center justify-center w-14 h-14 rounded-2xl transition-all duration-300 ${isActive ? "text-primary scale-110" : "text-slate-500"
+                            className={`relative flex flex-col items-center justify-center w-14 h-14 rounded-2xl transition-all duration-300 ${isActive ? "text-primary scale-110" : "text-white/60 hover:text-white"
                                 }`}
                         >
                             {isActive && (
-                                <div className="absolute -top-1 w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_10px_#2563eb]" />
+                                <div className="absolute -top-1 w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_12px_rgba(37,99,235,0.8)]" />
                             )}
-                            <Icon className={`w-6 h-6 transition-all ${isActive ? "drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]" : "opacity-60"}`} />
+                            <Icon className={`w-6 h-6 transition-all ${isActive ? "drop-shadow-[0_0_8px_rgba(37,99,235,0.4)]" : ""}`} />
                             <span className={`text-[9px] font-black uppercase tracking-widest mt-1.5 transition-all ${isActive ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 h-0"}`}>
                                 {item.label}
                             </span>
