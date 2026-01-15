@@ -15,6 +15,14 @@ import {
     Menu,
     HelpCircle
 } from "lucide-react";
+import { useState, useEffect } from "react";
+
+// Register beforeinstallprompt event type for TS
+interface BeforeInstallPromptEvent extends Event {
+    prompt: () => Promise<void>;
+    userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
+
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,7 +33,6 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet";
-import { useState } from "react";
 
 const navItems = [
     { path: "/", label: "Inicio", icon: Home },
@@ -43,6 +50,31 @@ export function Navigation() {
     const { user, logout } = useAuth();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [showInstallInfo, setShowInstallInfo] = useState(false);
+    const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+
+    useEffect(() => {
+        const handler = (e: Event) => {
+            e.preventDefault();
+            setDeferredPrompt(e as BeforeInstallPromptEvent);
+        };
+
+        window.addEventListener('beforeinstallprompt', handler);
+        return () => window.removeEventListener('beforeinstallprompt', handler);
+    }, []);
+
+    const handleInstallClick = async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                setDeferredPrompt(null);
+            }
+        } else {
+            // Fallback for iOS or already installed
+            setShowInstallInfo(true);
+        }
+        setIsMenuOpen(false);
+    };
 
     return (
         <>
@@ -153,14 +185,14 @@ export function Navigation() {
                             </NavLink>
 
                             <button
-                                onClick={() => {
-                                    setIsMenuOpen(false);
-                                    setShowInstallInfo(true);
-                                }}
-                                className="flex flex-col items-center gap-3 p-6 rounded-3xl bg-amber-500/5 border border-amber-500/10 text-amber-600 hover:bg-amber-500 hover:text-white transition-all group"
+                                onClick={handleInstallClick}
+                                className="flex flex-col items-center gap-3 p-6 rounded-3xl bg-amber-500/5 border border-amber-500/10 text-amber-600 hover:bg-amber-500 hover:text-white transition-all group relative overflow-hidden"
                             >
+                                {deferredPrompt && (
+                                    <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+                                )}
                                 <Smartphone className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                                <span className="text-[10px] font-black uppercase tracking-widest">Instalar</span>
+                                <span className="text-[10px] font-black uppercase tracking-widest">{deferredPrompt ? 'Instalar Ya' : 'Instalar'}</span>
                             </button>
 
                             <NavLink

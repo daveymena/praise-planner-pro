@@ -1,0 +1,22 @@
+{
+    "name": "Praise Planner Pro",
+    "short_name": "Praise Pro",
+    "description": "Gestión profesional para ministerios de alabanza.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#020617",
+    "theme_color": "#2563eb",
+    "icons": [
+        {
+            "src": "/pwa-icon.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/logo.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
