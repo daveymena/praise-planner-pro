@@ -59,8 +59,8 @@ const Register = () => {
                     <div className="mb-10 flex items-center gap-4">
                         <div className="w-1 h-8 rounded-full bg-primary" />
                         <div>
-                            <h2 className="text-xl font-black text-foreground uppercase tracking-tight">Configuración Global</h2>
-                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Paso 1: Datos de Administración</p>
+                            <h2 className="text-xl font-black text-foreground uppercase tracking-tight">Registro de Director / Admin</h2>
+                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Paso 1: Datos de Administración (Cuenta Única)</p>
                         </div>
                     </div>
 

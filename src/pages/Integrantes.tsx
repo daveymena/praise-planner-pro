@@ -107,10 +107,10 @@ export default function Integrantes() {
             <div className="w-2 h-10 rounded-full bg-primary" />
             <div className="space-y-1">
               <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">
-                Integrantes
+                Integrantes Internos
               </h1>
               <p className="text-sm font-medium text-primary uppercase tracking-widest animate-pulse">
-                {user?.ministry_name || "Ministerio Pro"}
+                Base de Datos de Equipo: {user?.ministry_name || "Ministerio Pro"}
               </p>
             </div>
           </div>
@@ -125,9 +125,9 @@ export default function Integrantes() {
             <DialogContent className="max-w-[95vw] sm:max-w-2xl rounded-[2rem] p-0 border-primary/20 bg-background shadow-2xl">
               <DialogHeader className="p-8 border-b border-border/50 bg-secondary/20">
                 <DialogTitle className="text-2xl font-bold text-foreground flex items-center gap-2">
-                  <Users className="w-6 h-6 text-primary" /> Nuevo Miembro
+                  <Users className="w-6 h-6 text-primary" /> Nuevo Integrante
                 </DialogTitle>
-                <DialogDescription>Registrando nuevo miembro para <span className="text-primary font-bold">{user?.ministry_name}</span>. Completa el perfil ministerial.</DialogDescription>
+                <DialogDescription>Registrando perfil interno (sin acceso al sistema) para <span className="text-primary font-bold">{user?.ministry_name}</span>.</DialogDescription>
               </DialogHeader>
               <div className="p-8 pb-40">
                 <MemberForm
@@ -302,9 +302,9 @@ export default function Integrantes() {
         <Dialog open={!!editingMember} onOpenChange={(open) => !open && setEditingMember(null)}>
           <DialogContent className="max-w-[95vw] sm:max-w-2xl rounded-[2.5rem] p-0 border-primary/20 overflow-hidden shadow-2xl">
             <DialogHeader className="p-8 border-b bg-secondary/20">
-              <DialogTitle className="text-2xl font-black text-foreground uppercase tracking-tight">Personalizar Perfil</DialogTitle>
+              <DialogTitle className="text-2xl font-black text-foreground uppercase tracking-tight">Editar Perfil Interno</DialogTitle>
               <DialogDescription>
-                Modificando información de <span className="text-primary font-bold">{editingMember?.name}</span>
+                Actualizando información administrativa de <span className="text-primary font-bold">{editingMember?.name}</span>
               </DialogDescription>
             </DialogHeader>
             <div className="p-8 pb-40">
