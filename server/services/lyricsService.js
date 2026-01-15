@@ -107,22 +107,18 @@ class LyricsService {
                 cleanedContent = cleanedContent.replace(new RegExp(`^${word}$`, 'gm'), '');
             }
 
-            // Clean up excessive whitespace but preserve stanza breaks
+            // Clean up lines but preserve stanza breaks
             cleanedContent = cleanedContent
+                .replace(/\r\n/g, '\n')
                 .split('\n')
                 .map(line => line.trim())
-                .filter((line, index, array) => {
-                    // Keep the line if it's not empty, or if it's a gap between content
-                    return line.length > 0;
-                })
-                .join('\n');
+                .join('\n')
+                .replace(/\n{3,}/g, '\n\n'); // Normalize multiple empty lines to exactly two
 
-            // Add double breaks before headers to create stanzas [VERSO], [CORO]
-            cleanedContent = cleanedContent.replace(/(\n|^)(\[(?:VERSO|VERSE|CORO|CHORUS|PUENTE|BRIDGE|INTRO|FINAL|OUTRO|INSTRUMENTAL)[^\]]*\])/gi, '\n\n$2\n');
+            // Ensure headers [VERSO], [CORO] always have a double break before them for clear structure
+            cleanedContent = cleanedContent.replace(/([^\n])\n(\[(?:VERSO|VERSE|CORO|CHORUS|PUENTE|BRIDGE|INTRO|FINAL|OUTRO|INSTRUMENTAL)[^\]]*\])/gi, '$1\n\n$2');
 
-            // Final polish
-            return cleanedContent.trim()
-                .replace(/\n{3,}/g, '\n\n'); // Ensure max 2 line breaks between stanzas
+            return cleanedContent.trim();
         } catch (error) {
             console.error('❌ Direct extraction error:', error.message);
             return null;
@@ -387,8 +383,9 @@ class LyricsService {
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i].trim();
             if (!line) {
-                // Determine if we need to preserve spacing?
-                // lyrics.push(''); 
+                // Keep empty lines as stanza breaks
+                lyrics.push('');
+                chords.push('');
                 continue;
             }
 

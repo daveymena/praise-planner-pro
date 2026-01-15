@@ -374,50 +374,68 @@ export default function Repertorio() {
               {/* Content area: Scrollable */}
               <div className="flex-1 flex flex-col overflow-hidden">
                 {/* Video Player (Top on Mobile, Side on Desktop) */}
-                <div className="w-full lg:w-1/2 lg:fixed lg:right-0 lg:top-[88px] lg:bottom-0 bg-slate-950 flex items-center justify-center relative border-b lg:border-l lg:border-b-0 border-white/5 order-first lg:order-last h-[250px] sm:h-[350px] lg:h-auto shrink-0">
+                <div className="w-full lg:w-5/12 lg:fixed lg:right-0 lg:top-[88px] lg:bottom-0 bg-slate-950 flex items-center justify-center relative border-b lg:border-l lg:border-b-0 border-white/5 order-first lg:order-last h-[220px] sm:h-[350px] lg:h-auto shrink-0 shadow-2xl z-10">
                   {viewingSong.youtube_url ? (
-                    <iframe
-                      width="100%"
-                      height="100%"
-                      src={`https://www.youtube.com/embed/${getYoutubeVideoId(viewingSong.youtube_url)}?autoplay=1&modestbranding=1&rel=0`}
-                      title="YouTube video player"
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      allowFullScreen
-                      className="w-full h-full opacity-90 hover:opacity-100 transition-opacity duration-700"
-                    />
-                  ) : (
-                    <div className="text-center p-8 max-w-sm">
-                      <div className="w-16 h-16 md:w-24 md:h-24 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-6 md:mb-8 animate-pulse">
-                        <Youtube className="w-8 h-8 md:w-12 md:h-12 text-muted-foreground/20" />
+                    <div className="relative w-full h-full">
+                      <iframe
+                        width="100%"
+                        height="100%"
+                        src={`https://www.youtube-nocookie.com/embed/${getYoutubeVideoId(viewingSong.youtube_url)}?rel=0&autoplay=1`}
+                        title="YouTube video player"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowFullScreen
+                        className="w-full h-full"
+                      />
+                      {/* Safety help link */}
+                      <div className="absolute top-4 right-4 z-20">
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className="text-[10px] h-9 bg-black/80 hover:bg-black text-white backdrop-blur-md border border-white/10 rounded-full px-4 font-bold shadow-xl transition-all"
+                          onClick={() => window.open(viewingSong.youtube_url!, '_blank')}
+                        >
+                          <Youtube className="w-4 h-4 mr-2 text-red-500" />
+                          <span>Ver en YouTube</span>
+                        </Button>
                       </div>
-                      <h4 className="text-lg font-bold text-white/40 uppercase tracking-widest">Sin Video</h4>
+                    </div>
+                  ) : (
+                    <div className="text-center p-6 max-w-sm">
+                      <div className="w-12 h-12 md:w-20 md:h-20 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4 animate-pulse">
+                        <Youtube className="w-6 h-6 md:w-10 md:h-10 text-muted-foreground/20" />
+                      </div>
+                      <h4 className="text-sm font-bold text-white/40 uppercase tracking-widest">Contenido Visual No Disponible</h4>
                     </div>
                   )}
                 </div>
 
                 {/* Main Content: Lyrics & Chords */}
-                <div className="flex-1 lg:w-1/2 p-4 md:p-8 lg:p-12 overflow-y-auto custom-scrollbar bg-card/10">
-                  <div className="max-w-2xl mx-auto space-y-8 md:space-y-12">
+                <div className="flex-1 lg:w-7/12 p-3 md:p-8 lg:p-12 overflow-y-auto custom-scrollbar bg-card/10">
+                  <div className="max-w-2xl mx-auto space-y-6 md:space-y-10">
                     {viewingSong.lyrics && (
                       <section className="fade-in">
-                        <h3 className="text-primary font-black uppercase tracking-[0.3em] text-[10px] mb-4 flex items-center gap-3">
+                        <div className="flex items-center gap-3 mb-3">
                           <div className="w-6 h-px bg-primary/30" />
-                          <FileText className="w-3.5 h-3.5" /> Letra Profesional
-                        </h3>
-                        <div className="bg-white/50 dark:bg-slate-900/50 p-6 md:p-10 rounded-[2rem] border border-border/40 whitespace-pre-wrap text-base md:text-xl font-medium leading-relaxed text-foreground shadow-xl backdrop-blur-md">
+                          <h3 className="text-primary font-black uppercase tracking-[0.2em] text-[9px] md:text-[10px]">
+                            ORDEN DE CANTO PROFESIONAL
+                          </h3>
+                        </div>
+                        <div className="bg-white/40 dark:bg-slate-900/40 p-5 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] border border-border/30 whitespace-pre-wrap text-[15px] md:text-xl font-medium leading-relaxed text-foreground shadow-lg backdrop-blur-md">
                           {viewingSong.lyrics}
                         </div>
                       </section>
                     )}
 
                     {viewingSong.chords && (
-                      <section className="fade-in" style={{ animationDelay: '200ms' }}>
-                        <h3 className="text-amber-500 font-black uppercase tracking-[0.3em] text-[10px] mb-4 flex items-center gap-3">
+                      <section className="fade-in" style={{ animationDelay: '150ms' }}>
+                        <div className="flex items-center gap-3 mb-3">
                           <div className="w-6 h-px bg-amber-500/30" />
-                          <Music className="w-3.5 h-3.5" /> Armonización
-                        </h3>
-                        <div className="bg-amber-500/10 dark:bg-amber-500/5 p-6 md:p-10 rounded-[2rem] border-2 border-amber-500/20 whitespace-pre-wrap font-mono text-xl md:text-4xl font-bold text-amber-700 dark:text-amber-400 tracking-wider shadow-2xl backdrop-blur-sm">
+                          <h3 className="text-amber-500 font-black uppercase tracking-[0.2em] text-[10px]">
+                            TRANSCRIPCIÓN ARMONÓMICA
+                          </h3>
+                        </div>
+                        <div className="bg-amber-500/10 dark:bg-amber-500/5 p-5 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] border-2 border-amber-500/20 whitespace-pre-wrap font-mono text-lg md:text-4xl font-bold text-amber-700 dark:text-amber-400 tracking-wider shadow-xl backdrop-blur-sm">
                           {viewingSong.chords}
                         </div>
                       </section>
