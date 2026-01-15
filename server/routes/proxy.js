@@ -12,12 +12,51 @@ router.get('/', async (req, res) => {
     const { url } = req.query;
     try {
         if (!url) {
-            return res.status(400).send(`
-                <div style="font-family: sans-serif; padding: 40px; text-align: center; color: #666;">
-                    <h2 style="color: #2563eb;">Navegador Harmony</h2>
-                    <p>Esperando una dirección URL válida para comenzar...</p>
-                    <div style="margin-top: 20px; font-size: 12px; opacity: 0.5;">Harmony Pro Proxy System</div>
-                </div>
+            return res.send(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="utf-8">
+                    <title>Harmony Browser</title>
+                    <style>
+                        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f8fafc; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+                        .card { background: white; padding: 2.5rem; border-radius: 1.5rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1); width: 90%; max-width: 480px; text-align: center; }
+                        h2 { color: #0f172a; margin: 0 0 0.5rem 0; font-weight: 800; letter-spacing: -0.025em; }
+                        p { color: #64748b; margin: 0 0 2rem 0; font-size: 0.95rem; }
+                        input { width: 100%; padding: 0.875rem 1rem; border: 2px solid #e2e8f0; border-radius: 0.75rem; margin-bottom: 1rem; box-sizing: border-box; font-size: 1rem; outline: none; transition: all 0.2s; }
+                        input:focus { border-color: #3b82f6; ring: 2px solid #3b82f6; }
+                        button { width: 100%; padding: 0.875rem; background: #3b82f6; color: white; border: none; border-radius: 0.75rem; cursor: pointer; font-weight: 700; font-size: 1rem; hover: background: #2563eb; transition: all 0.2s; }
+                        button:hover { background: #2563eb; transform: translateY(-1px); }
+                        .divider { display: flex; items-center; margin: 2rem 0; color: #94a3b8; font-size: 0.875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+                        .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: #e2e8f0; }
+                        .divider::before { margin-right: 1rem; }
+                        .divider::after { margin-left: 1rem; }
+                        .links { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+                        .link-btn { background: #f1f5f9; color: #475569; padding: 0.75rem; text-decoration: none; border-radius: 0.75rem; font-size: 0.875rem; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+                        .link-btn:hover { background: #e2e8f0; color: #1e293b; }
+                    </style>
+                </head>
+                <body>
+                    <div class="card">
+                        <h2>Navegador Harmony</h2>
+                        <p>Tu portal de recursos musicales</p>
+                        
+                        <form action="/api/proxy" method="GET">
+                            <input type="text" name="url" placeholder="https://..." required autofocus autocomplete="off">
+                            <button type="submit">Ir a la sitio web</button>
+                        </form>
+
+                        <div class="divider">Sitios Sugeridos</div>
+
+                        <div class="links">
+                            <a href="/api/proxy?url=https://www.lacuerda.net" class="link-btn">🎸 LaCuerda.net</a>
+                            <a href="/api/proxy?url=https://www.letras.com" class="link-btn">🎵 Letras.com</a>
+                            <a href="/api/proxy?url=https://www.cifraclub.com" class="link-btn">🎼 CifraClub</a>
+                            <a href="/api/proxy?url=https://www.google.com" class="link-btn">🔍 Google</a>
+                        </div>
+                    </div>
+                </body>
+                </html>
             `);
         }
 
@@ -34,32 +73,32 @@ router.get('/', async (req, res) => {
             `);
         }
 
-        // Whitelist allowed domains for security
-        const allowedDomains = [
-            'letras.com',
-            'www.letras.com',
-            'cifraclub.com',
-            'www.cifraclub.com',
-            'lacuerda.net',
-            'www.lacuerda.net',
-            'genius.com',
-            'www.genius.com',
-            'google.com',
-            'www.google.com',
-            'google.es',
-            'www.google.es',
-            'bing.com',
-            'www.bing.com',
-            'musixmatch.com',
-            'www.musixmatch.com'
-        ];
+        // Whitelist allowed domains for security - DISABLED for free browsing
+        // const allowedDomains = [
+        //     'letras.com',
+        //     'www.letras.com',
+        //     'cifraclub.com',
+        //     'www.cifraclub.com',
+        //     'lacuerda.net',
+        //     'www.lacuerda.net',
+        //     'genius.com',
+        //     'www.genius.com',
+        //     'google.com',
+        //     'www.google.com',
+        //     'google.es',
+        //     'www.google.es',
+        //     'bing.com',
+        //     'www.bing.com',
+        //     'musixmatch.com',
+        //     'www.musixmatch.com'
+        // ];
 
-        if (!allowedDomains.includes(targetUrl.hostname)) {
-            return res.status(403).json({
-                error: 'Domain not allowed',
-                allowed: allowedDomains
-            });
-        }
+        // if (!allowedDomains.includes(targetUrl.hostname)) {
+        //     return res.status(403).json({
+        //         error: 'Domain not allowed',
+        //         allowed: allowedDomains
+        //     });
+        // }
 
         console.log(`🔄 Proxying request to: ${url}`);
 
@@ -67,15 +106,15 @@ router.get('/', async (req, res) => {
         const response = await axios.get(url, {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
                 'Accept-Language': 'es-ES,es;q=0.9,en;q=0.8',
-                'Accept-Encoding': 'gzip, deflate, br',
-                'Connection': 'keep-alive',
-                'Upgrade-Insecure-Requests': '1',
-                'Referer': 'https://www.google.com/'
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache',
+                'Upgrade-Insecure-Requests': '1'
             },
-            timeout: 10000,
-            maxRedirects: 5
+            timeout: 15000,
+            maxRedirects: 5,
+            validateStatus: (status) => status < 400 // Reject 4xx/5xx explicitly
         });
 
         console.log(`✅ Fetched ${url} - Status: ${response.status}`);

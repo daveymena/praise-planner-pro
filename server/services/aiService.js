@@ -1,6 +1,12 @@
 import axios from 'axios';
 
 class AiService {
+    constructor() {
+        this.availableModelsCache = null;
+        this.lastCheckTime = 0;
+        this.CACHE_DURATION = 1000 * 60 * 60; // 1 hour
+    }
+
     get baseUrl() {
         return process.env.OLLAMA_URL;
     }
@@ -12,45 +18,50 @@ class AiService {
     async getBestAvailableModel() {
         if (!this.baseUrl) return this.defaultModel;
 
+        const now = Date.now();
+        if (this.availableModelsCache && (now - this.lastCheckTime < this.CACHE_DURATION)) {
+            return this.availableModelsCache;
+        }
+
         try {
-            console.log('🔎 Checking available Ollama models...');
-            const { data } = await axios.get(`${this.baseUrl}/api/tags`);
-            const availableModels = data.models.map(m => m.name); // e.g. ["llama3.2:3b", "gemma2:2b"]
+            // First check if a specific model is forced via env
+            if (process.env.OLLAMA_MODEL) {
+                console.log(`🎯 Using forced model from ENV: ${process.env.OLLAMA_MODEL}`);
+                this.availableModelsCache = process.env.OLLAMA_MODEL;
+                this.lastCheckTime = now;
+                return process.env.OLLAMA_MODEL;
+            }
 
-            console.log('📋 Available models:', availableModels);
+            console.log('🔎 Checking available Ollama models (Remote Easypanel)...');
+            const { data } = await axios.get(`${this.baseUrl}/api/tags`, { timeout: 3000 });
+            const availableModels = data.models.map(m => m.name);
 
-            // Priority List based on User's available models (Fastest first)
             const preferredModels = [
-                'qwen2.5:3b',   // Best instruction following / Fast (1.9GB)
-                'gemma2:2b',    // Good balance (1.6GB)
-                'llama3.2:3b',  // Stable (2.0GB)
-                'llama3.2:1b'   // Ultra fast but "too smart" with formatting (1.3GB)
+                'qwen2.5:3b',
+                'gemma2:2b',
+                'llama3.2:3b',
+                'llama3.2:1b'
             ];
 
-            console.log('📋 Available models on server:', availableModels);
-
-            // Find the first matching model from our preference list
             for (const preferred of preferredModels) {
                 const match = availableModels.find(m => m.includes(preferred));
                 if (match) {
-                    console.log(`✅ Selected optimal model: ${match}`);
+                    this.availableModelsCache = match;
+                    this.lastCheckTime = now;
                     return match;
                 }
             }
 
-            // Fallback: Use the first available model if none of the preferred ones match
             if (availableModels.length > 0) {
-                const firstModel = availableModels[0];
-                console.log(`⚠️ No preferred models found. Fail-safe to: ${firstModel}`);
-                return firstModel;
+                this.availableModelsCache = availableModels[0];
+                this.lastCheckTime = now;
+                return availableModels[0];
             }
-
         } catch (error) {
-            console.warn('⚠️ Could not check available models (might be offline or auth issue). Using default configuration.');
-            console.warn(error.message);
+            console.warn('⚠️ Could not check available models remotely. Using default.');
         }
 
-        return this.defaultModel; // Fallback to config default if check fails
+        return this.defaultModel;
     }
 
     async extractSongData(textContext) {
@@ -70,25 +81,26 @@ class AiService {
       INSTRUCCIONES CRÍTICAS:
 
       1. **LETRA (lyrics)**: 
-         - Debe contener SOLO el texto cantado, SIN acordes intercalados
-         - Estructura completa: Intro, Verso 1, Verso 2, Coro, Puente, Final, etc.
-         - Formato limpio con saltos de línea entre secciones
-         - NO incluyas símbolos como [Am], {C}, (Dm) - esos van en "chords"
-         - Si la letra está incompleta en el contexto, COMPLÉTALA con tu conocimiento
-         - NO uses "..." ni cortes - letra COMPLETA
+         - Debe contener la letra COMPLETA de la canción, sin cortes.
+         - NO USES "..." ni resúmenes. Si el texto de entrada está incompleto, USA TU CONOCIMIENTO para completarla.
+         - SOLO el texto cantado, SIN acordes intercalados (Ej: NO pongas "Do Mi corazón", pon solo "Mi corazón").
+         - Estructura limpia: [INTRO], [VERSO 1], [CORO], [VERSO 2], [PUENTE], [FINAL], etc.
+         - Formato con saltos de línea entre secciones.
 
       2. **ACORDES (chords)**:
-         - Estructura de acordes separada del texto
-         - Formato: "Intro: G C Em D\\nVerso: G D Em C\\n..."
-         - Solo la progresión, sin letras intercaladas
+         - Estructura de acordes separada del texto.
+         - USA NOTACIÓN AMERICANA (A, B, C, D, E, F, G) SIEMPRE.
+         - Formato: "Intro: G C Em D\\nVerso: G D Em C\\nCoro: C G D Em"
+         - Solo la progresión, sin letras intercaladas.
 
-      3. **YOUTUBE**: 
-         - Si encuentras "[REFERENCIA VIDEO YOUTUBE]: URL", úsala exactamente
-         - Si no hay URL en el contexto, genera la más popular de YouTube
+      3. **COMPLETITUD**: 
+         - Si el texto de entrada solo tiene una estrofa, DEBES BUSCAR en tu base de datos la letra completa.
+         - Asegúrate de incluir todos los puentes y repeticiones de coros.
+         - El usuario espera una canción lista para imprimir/proyectar.
 
-      4. **TONALIDAD (key)**: Detecta la tonalidad principal (ej: "G", "Am", "D#")
+      4. **TONALIDAD (key)**: Detecta la tonalidad principal (ej: "G", "Am", "D#").
 
-      5. **TIPO**: Solo estas opciones: "Alabanza", "Adoración", "Ministración", "Congregacional"
+      5. **TIPO**: Solo estas opciones: "Alabanza", "Adoración", "Ministración", "Congregacional".
 
       FORMATO JSON (OBLIGATORIO):
       {
@@ -102,7 +114,7 @@ class AiService {
     `;
 
         try {
-            console.log(`🤖 Sending request to Ollama (${selectedModel})...`);
+            console.log(`🤖 Sending request to Ollama (${selectedModel}) on Easypanel...`);
 
             const response = await axios.post(`${this.baseUrl}/api/generate`, {
                 model: selectedModel,
@@ -111,23 +123,54 @@ class AiService {
                 format: "json",
                 options: {
                     temperature: 0.2,       // Low for consistency
-                    num_ctx: 12288,         // Large context for full content
-                    num_predict: 5120,      // Enough tokens for complete lyrics
+                    num_ctx: 4096,          // Reduced to speed up processing (lyrics fit easily)
+                    num_predict: 2048,      // Enough tokens for complete lyrics
                     top_k: 40,
                     repeat_penalty: 1.1,
                     stop: ["</s>"]
                 }
+            }, {
+                timeout: 120000 // 2 minutes timeout for remote AI on Easypanel
             });
 
             const jsonResponse = response.data.response;
+            console.log('🤖 Raw AI Response Received (first 100 chars):', jsonResponse.substring(0, 100));
 
             try {
+                // Try direct parse first
                 return JSON.parse(jsonResponse);
             } catch (parseError) {
-                console.error('Failed to parse AI JSON:', jsonResponse);
-                // Attempt to clean markdown if present (e.g. ```json ... ```)
-                const cleanJson = jsonResponse.replace(/```json/g, '').replace(/```/g, '').trim();
-                return JSON.parse(cleanJson);
+                console.warn('⚠️ Direct JSON parse failed, attempting cleaning...');
+
+                // Detailed cleaning for common LLM artifacts
+                let cleanJson = jsonResponse.trim();
+
+                // Remove markdown blocks
+                if (cleanJson.includes('```')) {
+                    const match = cleanJson.match(/```(?:json)?([\s\S]*?)```/);
+                    if (match && match[1]) {
+                        cleanJson = match[1].trim();
+                    } else {
+                        cleanJson = cleanJson.replace(/```json/g, '').replace(/```/g, '').trim();
+                    }
+                }
+
+                // Remove any text before the first '{' or after the last '}'
+                const startIdx = cleanJson.indexOf('{');
+                const endIdx = cleanJson.lastIndexOf('}');
+                if (startIdx !== -1 && endIdx !== -1) {
+                    cleanJson = cleanJson.substring(startIdx, endIdx + 1);
+                }
+
+                try {
+                    const parsed = JSON.parse(cleanJson);
+                    console.log('✅ AI JSON cleaned and parsed successfully');
+                    return parsed;
+                } catch (secondError) {
+                    console.error('❌ Failed to parse AI JSON even after cleaning.');
+                    console.error('Raw content around error:', cleanJson.substring(0, 500));
+                    throw new Error(`AI JSON Parsing failed: ${secondError.message}`);
+                }
             }
 
         } catch (error) {

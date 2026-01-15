@@ -152,19 +152,30 @@ router.patch('/:id/favorite', async (req, res) => {
 
 // DELETE /api/songs/:id - Delete song
 router.delete('/:id', async (req, res) => {
+  const client = await pool.connect();
   try {
+    await client.query('BEGIN');
     const { id } = req.params;
 
-    const result = await pool.query('DELETE FROM songs WHERE id = $1 AND ministry_id = $2 RETURNING *', [id, req.user.ministryId]);
+    // Explicitly delete from related tables first (safety net against missing CASCADEs)
+    await client.query('DELETE FROM service_songs WHERE song_id = $1', [id]);
+    await client.query('DELETE FROM rehearsal_songs WHERE song_id = $1', [id]);
+
+    const result = await client.query('DELETE FROM songs WHERE id = $1 AND ministry_id = $2 RETURNING *', [id, req.user.ministryId]);
 
     if (result.rows.length === 0) {
+      await client.query('ROLLBACK');
       return res.status(404).json({ error: 'Song not found' });
     }
 
+    await client.query('COMMIT');
     res.json({ message: 'Song deleted successfully' });
   } catch (error) {
+    await client.query('ROLLBACK');
     console.error('Error deleting song:', error);
     res.status(500).json({ error: 'Failed to delete song' });
+  } finally {
+    client.release();
   }
 });
 

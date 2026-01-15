@@ -65,9 +65,9 @@ export default function Integrantes() {
   const filteredMembers = Array.isArray(members)
     ? members.filter(member => {
       if (!member || !member.name) return false;
-      const matchesSearch = member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      const matchesSearch = (member.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
         (member.email?.toLowerCase() || "").includes(searchQuery.toLowerCase());
-      const matchesRole = !selectedRole || member.role === selectedRole;
+      const matchesRole = !selectedRole || selectedRole === "all" || member.role === selectedRole;
       return matchesSearch && matchesRole;
     })
     : [];
@@ -163,7 +163,7 @@ export default function Integrantes() {
                   {role}
                 </Button>
               ))}
-              <Select onValueChange={(val) => setSelectedRole(val)} value={selectedRole || ""}>
+              <Select onValueChange={(val) => setSelectedRole(val)} value={selectedRole || "all"}>
                 <SelectTrigger className="h-11 w-40 rounded-xl font-bold text-xs uppercase tracking-widest bg-secondary/50 border-transparent">
                   <SelectValue placeholder="MÁS ROLES" />
                 </SelectTrigger>
@@ -171,7 +171,7 @@ export default function Integrantes() {
                   {roles.map(r => (
                     <SelectItem key={r} value={r} className="font-bold text-xs uppercase tracking-widest">{r}</SelectItem>
                   ))}
-                  <SelectItem value="" className="font-bold text-xs uppercase tracking-widest">Todos</SelectItem>
+                  <SelectItem value="all" className="font-bold text-xs uppercase tracking-widest">Todos</SelectItem>
                 </SelectContent>
               </Select>
             </div>

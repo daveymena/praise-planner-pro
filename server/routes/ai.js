@@ -77,8 +77,11 @@ router.post('/extract-song', async (req, res) => {
             const query = searchQuery || req.body.name;
             console.log(`🌐 Backend extracting FULL content for: ${query}`);
 
-            // Get complete lyrics from web
-            const fullContent = await lyricsService.searchAndGetLyrics(query);
+            // Start both searches in parallel
+            const [fullContent, ytVideo] = await Promise.all([
+                lyricsService.searchAndGetLyrics(query),
+                youtubeService.searchVideo(query)
+            ]);
 
             if (fullContent) {
                 console.log(`✅ Backend extracted ${fullContent.length} characters`);
@@ -87,15 +90,18 @@ router.post('/extract-song', async (req, res) => {
                 const separated = lyricsService.separateLyricsAndChords(fullContent);
                 const detectedKey = lyricsService.detectKey(fullContent);
 
-                // Get YouTube video
-                const ytVideo = await youtubeService.searchVideo(query);
+                // Improved logic-based extraction check:
+                // Only skip AI if we have BOTH good structure AND sufficient length
+                const hasStructure = /\[(CORO|VERSO|BRIDGE|PUENTE|INTRO)\]/i.test(separated.lyrics);
+                const isLongEnough = separated.lyrics.length > 800;
+                const hasMultipleSections = (separated.lyrics.match(/\[/g) || []).length >= 3;
 
-                // If we have good separated content, use it directly
-                if (separated.lyrics.length > 200) {
-                    console.log(`✅ Using logic-based extraction (NO AI needed)`);
+                // Only use logic-based if we have a complete, well-structured song
+                if (hasStructure && isLongEnough && hasMultipleSections) {
+                    console.log(`✅ Using logic-based extraction (Complete & Structured)`);
                     const finalData = {
                         name: query.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-                        type: 'Adoración', // Default, user can change
+                        type: 'Adoración',
                         key: detectedKey,
                         youtube_url: ytVideo?.url || '',
                         lyrics: separated.lyrics,
@@ -108,10 +114,20 @@ router.post('/extract-song', async (req, res) => {
                     });
                 }
 
-                // If logic-based didn't work well, use AI to organize
-                console.log(`🤖 Using AI to organize extracted content...`);
-                context = `[CONTENIDO COMPLETO EXTRAÍDO DE INTERNET]:\n${fullContent}\n\n[VIDEO YOUTUBE]: ${ytVideo?.url || 'No encontrado'}`;
-                sourceInfo = "Web Extraction + AI Formatting";
+                // Otherwise, use AI to complete/organize the content
+                console.log(`🤖 Content needs AI enhancement (${separated.lyrics.length} chars, ${(separated.lyrics.match(/\[/g) || []).length} sections)`);
+                context = `[CONTENIDO EXTRAÍDO DE INTERNET]:\n${fullContent}\n\n[VIDEO YOUTUBE]: ${ytVideo?.url || 'No encontrado'}\n\n[INSTRUCCIÓN ESPECIAL]: La letra parece incompleta. Por favor, complétala usando tu conocimiento de esta canción.`;
+                sourceInfo = "Web Extraction + AI Completion";
+
+                // Store fallback data in case AI fails
+                req.fallbackData = {
+                    name: query.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+                    type: 'Adoración',
+                    key: detectedKey,
+                    youtube_url: ytVideo?.url || '',
+                    lyrics: separated.lyrics,
+                    chords: separated.chords
+                };
             } else {
                 // No web content, fall back to AI knowledge
                 context = `Song Name: ${query}`;
@@ -164,6 +180,9 @@ router.post('/extract-song', async (req, res) => {
             }
         }
 
+        // Prepend any specific user query context if needed, but instructions are in aiService
+        context = `Song Request: ${query || 'Unknown'}\n\n` + context;
+
         // 3. Call AI
         const extractedData = await aiService.extractSongData(context);
 
@@ -210,13 +229,30 @@ router.post('/extract-song', async (req, res) => {
         console.log(`   📄 Lyrics: ${finalData.lyrics.length} chars`);
         console.log(`   🎸 Chords: ${finalData.chords.length} chars`);
 
-        res.json({
+        const responsePayload = {
             source: sourceInfo,
             data: finalData
-        });
+        };
+
+        console.log(`📤 Sending response to client: ${sourceInfo}`);
+        console.log(`   - Name: ${finalData.name}`);
+        console.log(`   - Lyrics: ${finalData.lyrics?.length || 0} chars`);
+        console.log(`   - Chords: ${finalData.chords?.length || 0} chars`);
+
+        res.json(responsePayload);
 
     } catch (error) {
         console.error('❌ Extraction Failed:', error.message);
+
+        // If we have fallback data from web scraping, use it instead of failing
+        if (req.fallbackData) {
+            console.log('⚠️ AI failed, using fallback web extraction data');
+            return res.json({
+                source: 'Web Extraction (AI Timeout Fallback)',
+                data: req.fallbackData
+            });
+        }
+
         res.status(500).json({
             error: 'Extraction failed',
             details: error.message,

@@ -48,7 +48,7 @@ const authMiddleware = (req, res, next) => {
 // Enable trust proxy for EasyPanel/Traefik
 app.set('trust proxy', 1);
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3003;
 
 // Middleware
 app.use(helmet({
@@ -71,7 +71,8 @@ app.use(cors({
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  max: 500, // Increased for active development and testing
+  message: { error: 'Demasiadas solicitudes, por favor intenta más tarde' }
 });
 app.use(limiter);
 
