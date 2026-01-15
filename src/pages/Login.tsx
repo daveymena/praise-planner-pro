@@ -52,10 +52,10 @@ const Login = () => {
                 </div>
 
                 <div className="card-premium p-10 backdrop-blur-xl bg-card/80 border-primary/10 shadow-3xl">
-                    <div className="space-y-2 mb-10 text-center">
+                    <div className="space-y-3 mb-10 text-center px-4">
                         <h2 className="text-2xl font-black text-foreground uppercase tracking-tight">Iniciar Sesión</h2>
-                        <p className="text-sm font-medium text-muted-foreground">
-                            Accede a la plataforma de gestión ministerial.
+                        <p className="text-xs md:text-sm font-medium text-muted-foreground leading-relaxed">
+                            Gestiona tu ministerio con herramientas profesionales. Organiza ensayos, repertorio y servicios en un solo lugar.
                         </p>
                     </div>
 

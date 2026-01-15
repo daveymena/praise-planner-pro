@@ -389,12 +389,27 @@ class LyricsService {
                 continue;
             }
 
+            // Detect Repetitions e.g. (x2), x2, (2 veces), etc.
+            const repetitionMatch = line.match(/^[\(\[]?\s*x\s*\d+\s*[\)\]]?$/i) || line.match(/^[\(\[]?\s*\d+\s*veces\s*[\)\]]?$/i);
+            if (repetitionMatch) {
+                const rep = `[REPETIR: ${repetitionMatch[0].toUpperCase()}]`;
+                lyrics.push(rep);
+                chords.push(rep);
+                continue;
+            }
+
             // Detect Sections (headers)
-            if (/^\[?((?:Intro|Verso|Verse|Coro|Chorus|Puente|Bridge|Estrofa|Estribillo|Pre-?Chorus|Pre-?Coro|Outro|Final|Solo|Interludio|Instrumental)[\s\d]*):?\]?$/i.test(line)) {
-                const sectionName = line.replace(/[\[\]:]/g, '').trim();
-                const header = `[${sectionName.toUpperCase()}]`;
-                lyrics.push('\n' + header);
-                chords.push('\n' + header);
+            const sectionRegex = /^\[?((?:Intro|Introducción|Introduccion|Preludio|Interludio|Verso|Verse|Coro|Chorus|Puente|Bridge|Estrofa|Estribillo|Pre-?Chorus|Pre-?Coro|Outro|Final|Solo|Instrumental|Coda)[\s\d]*):?\]?$/i;
+            const sectionMatch = line.match(sectionRegex);
+
+            if (sectionMatch) {
+                const sectionName = sectionMatch[1].replace(/[\[\]:]/g, '').trim().toUpperCase();
+                const header = `[${sectionName}]`;
+
+                // Add extra spacing before headers if not first line
+                const prefix = (lyrics.length > 0 && lyrics[lyrics.length - 1] !== '') ? '\n' : '';
+                lyrics.push(prefix + header);
+                chords.push(prefix + header);
                 continue;
             }
 
@@ -402,17 +417,24 @@ class LyricsService {
                 chords.push(line);
             } else {
                 // Lyric Line with potential embedded chords
-                // Tokenize and filter
-                const tokens = line.split(/(\s+)/); // Keep delimiters to preserve spacing
+                // Detect inline repetitions like "blabla (x2)"
+                let processedLine = line;
+                const inlineRepMatch = line.match(/[\(\[]\s*x\s*\d+\s*[\)\]]$|[\(\[]\s*\d+\s*veces\s*[\)\]]$/i);
+                if (inlineRepMatch) {
+                    // Highlight the repetition
+                    processedLine = line.replace(inlineRepMatch[0], ` **${inlineRepMatch[0].toUpperCase()}**`);
+                }
+
+                // Tokenize and filter chords from lyric lines
+                const tokens = processedLine.split(/(\s+)/);
                 const cleanTokens = tokens.map(token => {
                     if (!token.trim()) return token;
-
-                    // If it's a chord token BUT looks like part of a word or sentence, be careful
                     if (isChordToken(token)) {
-                        // If it's in a lyric line, only remove it if it's clearly a chord (e.g. in parentheses or capitalized isolated)
-                        if (token.includes('(') || token.includes('[') || token.toUpperCase() === token) {
+                        // Remove if it looks like an isolated chord in a lyrics line
+                        if (token.includes('(') || token.includes('[') || (token.toUpperCase() === token && token.length <= 4)) {
                             return '';
                         }
+                        // If it's something like "la" or "mi", keep it unless it's strictly a chord line
                     }
                     return token;
                 });
@@ -426,8 +448,8 @@ class LyricsService {
         }
 
         return {
-            lyrics: lyrics.join('\n').trim(),
-            chords: chords.join('\n').trim()
+            lyrics: lyrics.join('\n').replace(/\n{3,}/g, '\n\n').trim(),
+            chords: chords.join('\n').replace(/\n{3,}/g, '\n\n').trim()
         };
     }
 

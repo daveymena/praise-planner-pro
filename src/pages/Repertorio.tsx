@@ -380,19 +380,20 @@ export default function Repertorio() {
                       <iframe
                         width="100%"
                         height="100%"
-                        src={`https://www.youtube-nocookie.com/embed/${getYoutubeVideoId(viewingSong.youtube_url)}?rel=0&autoplay=1`}
+                        src={`https://www.youtube-nocookie.com/embed/${getYoutubeVideoId(viewingSong.youtube_url)}?rel=0&autoplay=1&enablejsapi=1`}
                         title="YouTube video player"
                         frameBorder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                         allowFullScreen
+                        referrerPolicy="strict-origin-when-cross-origin"
                         className="w-full h-full"
                       />
-                      {/* Safety help link */}
+                      {/* Safety help link - visible on mobile and hover desktop */}
                       <div className="absolute top-4 right-4 z-20">
                         <Button
                           variant="secondary"
                           size="sm"
-                          className="text-[10px] h-9 bg-black/80 hover:bg-black text-white backdrop-blur-md border border-white/10 rounded-full px-4 font-bold shadow-xl transition-all"
+                          className="text-[10px] h-9 md:h-8 bg-black/80 hover:bg-black text-white backdrop-blur-md border border-white/10 rounded-full px-4 font-bold shadow-xl transition-all"
                           onClick={() => window.open(viewingSong.youtube_url!, '_blank')}
                         >
                           <Youtube className="w-4 h-4 mr-2 text-red-500" />
@@ -405,7 +406,7 @@ export default function Repertorio() {
                       <div className="w-12 h-12 md:w-20 md:h-20 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4 animate-pulse">
                         <Youtube className="w-6 h-6 md:w-10 md:h-10 text-muted-foreground/20" />
                       </div>
-                      <h4 className="text-sm font-bold text-white/40 uppercase tracking-widest">Contenido Visual No Disponible</h4>
+                      <h4 className="text-sm font-bold text-white/40 uppercase tracking-widest">Video No Disponible</h4>
                     </div>
                   )}
                 </div>
@@ -413,30 +414,80 @@ export default function Repertorio() {
                 {/* Main Content: Lyrics & Chords */}
                 <div className="flex-1 lg:w-7/12 p-3 md:p-8 lg:p-12 overflow-y-auto custom-scrollbar bg-card/10">
                   <div className="max-w-2xl mx-auto space-y-6 md:space-y-10">
+
+                    {/* Song Brief Summary / Sequence */}
+                    <div className="fade-in bg-secondary/20 p-4 rounded-2xl border border-border/50 flex flex-wrap gap-4 items-center">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="h-6 px-3 bg-background font-black text-[10px] border-primary/20">{viewingSong.key || 'C'}</Badge>
+                        <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Tono</span>
+                      </div>
+                      <div className="h-4 w-px bg-border/50" />
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Secuencia:</span>
+                        <div className="flex gap-1">
+                          {viewingSong.lyrics?.match(/\[(.*?)\]/g)?.slice(0, 5).map((m, i) => (
+                            <span key={i} className="text-[9px] font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded uppercase">{m.replace(/[\[\]]/g, '')}</span>
+                          ))}
+                          <span className="text-[9px] font-bold opacity-40">...</span>
+                        </div>
+                      </div>
+                    </div>
+
                     {viewingSong.lyrics && (
-                      <section className="fade-in">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="w-6 h-px bg-primary/30" />
-                          <h3 className="text-primary font-black uppercase tracking-[0.2em] text-[9px] md:text-[10px]">
-                            ORDEN DE CANTO PROFESIONAL
+                      <section className="fade-in" style={{ animationDelay: '100ms' }}>
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-8 h-px bg-primary/40" />
+                          <h3 className="text-primary font-black uppercase tracking-[0.3em] text-[10px] flex items-center gap-2">
+                            <FileText className="w-3.5 h-3.5" /> MANUAL DE LETRA
                           </h3>
                         </div>
-                        <div className="bg-white/40 dark:bg-slate-900/40 p-5 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] border border-border/30 whitespace-pre-wrap text-[15px] md:text-xl font-medium leading-relaxed text-foreground shadow-lg backdrop-blur-md">
-                          {viewingSong.lyrics}
+                        <div className="bg-white/50 dark:bg-slate-900/40 p-6 md:p-12 rounded-[2rem] md:rounded-[3rem] border border-border/30 whitespace-pre-wrap text-[16px] md:text-xl font-medium leading-[1.8] text-foreground shadow-2xl backdrop-blur-md lyrics-container">
+                          {viewingSong.lyrics.split('\n').map((line, i) => {
+                            if (line.startsWith('[') && line.endsWith(']')) {
+                              return (
+                                <div key={i} className="flex items-center gap-3 mt-8 mb-4">
+                                  <div className="h-0.5 w-4 bg-primary/20" />
+                                  <div className="text-primary font-black text-[11px] md:text-xs tracking-[0.3em] uppercase bg-primary/10 px-4 py-1.5 rounded-full border border-primary/10 shadow-sm">
+                                    {line.replace(/[\[\]]/g, '')}
+                                  </div>
+                                  <div className="h-0.5 flex-1 bg-gradient-to-r from-primary/20 to-transparent" />
+                                </div>
+                              );
+                            }
+                            if (line.includes('[REPETIR:')) {
+                              return <div key={i} className="text-amber-600 dark:text-amber-500 font-black text-[10px] md:text-xs my-2 bg-amber-500/10 px-4 py-1.5 rounded-xl border border-amber-500/20 shadow-sm flex items-center gap-2 w-fit">
+                                <Plus className="w-3 h-3 rotate-45" /> {line.replace(/[\[\]]/g, '')}
+                              </div>;
+                            }
+                            return <div key={i} className="px-1">{line}</div>;
+                          })}
                         </div>
                       </section>
                     )}
 
                     {viewingSong.chords && (
-                      <section className="fade-in" style={{ animationDelay: '150ms' }}>
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="w-6 h-px bg-amber-500/30" />
-                          <h3 className="text-amber-500 font-black uppercase tracking-[0.2em] text-[10px]">
-                            TRANSCRIPCIÓN ARMONÓMICA
+                      <section className="fade-in" style={{ animationDelay: '200ms' }}>
+                        <div className="flex items-center gap-3 mb-4 mt-8">
+                          <div className="w-8 h-px bg-amber-500/40" />
+                          <h3 className="text-amber-500 font-black uppercase tracking-[0.3em] text-[10px] flex items-center gap-2">
+                            <Music className="w-3.5 h-3.5" /> GUÍA DE ARMONÍA
                           </h3>
                         </div>
-                        <div className="bg-amber-500/10 dark:bg-amber-500/5 p-5 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] border-2 border-amber-500/20 whitespace-pre-wrap font-mono text-lg md:text-4xl font-bold text-amber-700 dark:text-amber-400 tracking-wider shadow-xl backdrop-blur-sm">
-                          {viewingSong.chords}
+                        <div className="bg-amber-500/5 dark:bg-amber-500/5 p-6 md:p-12 rounded-[2rem] md:rounded-[3rem] border-2 border-amber-500/20 whitespace-pre-wrap font-mono text-xl md:text-5xl font-black text-amber-700 dark:text-amber-400 tracking-widest shadow-2xl backdrop-blur-sm chords-container">
+                          {viewingSong.chords.split('\n').map((line, i) => {
+                            if (line.startsWith('[') && line.endsWith(']')) {
+                              return (
+                                <div key={i} className="flex items-center gap-3 mt-10 mb-5">
+                                  <div className="h-0.5 w-4 bg-amber-500/30" />
+                                  <div className="text-amber-600 dark:text-amber-400 font-black text-[11px] md:text-xs tracking-[0.3em] uppercase bg-amber-500/10 px-4 py-1.5 rounded-full border border-amber-500/20">
+                                    {line.replace(/[\[\]]/g, '')}
+                                  </div>
+                                  <div className="h-0.5 flex-1 bg-gradient-to-r from-amber-500/20 to-transparent" />
+                                </div>
+                              );
+                            }
+                            return <div key={i} className="px-1">{line}</div>;
+                          })}
                         </div>
                       </section>
                     )}
