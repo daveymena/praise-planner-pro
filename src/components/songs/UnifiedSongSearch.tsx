@@ -187,7 +187,7 @@ export function UnifiedSongSearch({ onSongFound }: UnifiedSongSearchProps) {
                     </TabsList>
 
                     {/* Tab 1: Auto Search */}
-                    <TabsContent value="auto" className="flex-1 flex flex-col gap-6 md:gap-10 mt-0 w-full overflow-y-auto p-5 md:p-12 pb-32 data-[state=inactive]:hidden data-[state=active]:flex">
+                    <TabsContent value="auto" className="flex-1 flex flex-col gap-6 md:gap-10 mt-0 w-full overflow-y-auto p-5 md:p-12 pb-40 data-[state=inactive]:hidden data-[state=active]:flex">
                         <div className="w-full space-y-8 md:space-y-12">
                             <div className="bg-primary/5 border border-primary/20 rounded-[1.5rem] md:rounded-[2rem] p-4 md:p-6 flex items-start gap-3 md:gap-4">
                                 <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-[1.25rem] bg-primary flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary/20">
