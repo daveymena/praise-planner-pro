@@ -55,14 +55,15 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false,
   crossOriginOpenerPolicy: false,
   crossOriginResourcePolicy: false,
-  frameguard: false, // Permite que el reproductor de YouTube maneje sus propios marcos
+  frameguard: false,
+  referrerPolicy: { policy: "no-referrer-when-downgrade" },
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
       connectSrc: ["'self'", "https:", "http:", "wss:", "ws:"],
       frameSrc: ["'self'", "https://www.youtube.com", "https://youtube.com", "https://*.youtube.com", "https://www.youtube-nocookie.com", "https://youtu.be"],
-      imgSrc: ["'self'", "data:", "blob:", "https:"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://www.youtube.com", "https://s.ytimg.com", "https://*.ytimg.com", "https://www.google-analytics.com"],
+      imgSrc: ["'self'", "data:", "blob:", "https:", "https://*.ytimg.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://www.youtube.com", "https://*.youtube.com", "https://s.ytimg.com", "https://*.ytimg.com", "https://www.google-analytics.com"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
     },
