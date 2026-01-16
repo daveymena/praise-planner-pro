@@ -55,8 +55,8 @@ export default function Index() {
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === 'accepted') setDeferredPrompt(null);
     } else {
-      // If no prompt, it might be iOS or already installed, show instructions
-      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      // Navigate to Tutorial page and scroll to installation step
+      window.location.href = '/tutorial';
     }
   };
 

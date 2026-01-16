@@ -79,7 +79,7 @@ export function Navigation() {
     return (
         <>
             {/* Desktop Top Navbar */}
-            <header className="fixed top-0 left-0 right-0 h-20 bg-background/60 backdrop-blur-2xl border-b border-border/40 z-50 hidden lg:flex items-center px-10 justify-between">
+            <header className="fixed top-0 left-0 right-0 h-16 bg-background/60 backdrop-blur-2xl border-b border-border/40 z-50 hidden lg:flex items-center px-10 justify-between">
                 <div className="flex items-center gap-10">
                     <div className="flex items-center gap-3 group cursor-default">
                         <div className="w-12 h-12 rounded-[1.25rem] gold-gradient flex items-center justify-center shadow-xl shadow-primary/20 shrink-0 group-hover:scale-105 transition-all">
@@ -132,7 +132,7 @@ export function Navigation() {
             </header>
 
             {/* Mobile Bottom Navigation (A native-app feel) */}
-            <nav className="fixed bottom-0 left-0 right-0 h-20 bg-slate-900/95 backdrop-blur-3xl border-t border-white/10 flex items-center justify-around px-2 z-50 lg:hidden shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.5)]">
+            <nav className="fixed bottom-0 left-0 right-0 h-16 bg-slate-900/95 backdrop-blur-3xl border-t border-white/10 flex items-center justify-around px-2 z-50 lg:hidden shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.5)]">
                 {navItems.slice(0, 4).map((item) => {
                     const Icon = item.icon;
                     const isActive = location.pathname === item.path;
@@ -258,7 +258,7 @@ export function Navigation() {
             </Sheet>
 
             {/* Mobile Logo/Top Bar */}
-            <div className="lg:hidden fixed top-0 left-0 right-0 h-16 flex items-center justify-between px-6 z-40 bg-background/80 backdrop-blur-xl border-b border-border/10">
+            <div className="lg:hidden fixed top-0 left-0 right-0 h-14 flex items-center justify-between px-6 z-40 bg-background/80 backdrop-blur-xl border-b border-border/10">
                 <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-xl gold-gradient flex items-center justify-center shadow-lg">
                         <Music className="w-5 h-5 text-white" />

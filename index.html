@@ -1,38 +1,42 @@
 <!doctype html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Alabanza Planner Pro - Gestión de Ministerios</title>
-    <meta name="description" content="Gestiona tu ministerio de alabanza de forma profesional. Organiza ensayos, repertorio, integrantes y servicios en un solo lugar." />
-    <meta name="author" content="Praise Planner Team" />
-    <link rel="icon" href="/favicon.ico" />
-    <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#2563eb" />
-    <link rel="apple-touch-icon" href="/pwa-icon.png" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-    <meta property="og:title" content="Alabanza Planner Pro" />
-    <meta property="og:description" content="Gestión profesional para ministerios de alabanza." />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="/logo.png" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alabanza Planner Pro - Gestión de Ministerios</title>
+  <meta name="description"
+    content="Gestiona tu ministerio de alabanza de forma profesional. Organiza ensayos, repertorio, integrantes y servicios en un solo lugar." />
+  <meta name="author" content="Praise Planner Team" />
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#2563eb" />
+  <link rel="apple-touch-icon" href="/logo.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Praise Pro" />
 
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Alabanza Planner Pro" />
-    <meta name="twitter:description" content="Gestión profesional para ministerios de alabanza." />
-    <meta name="twitter:image" content="/logo.png" />
-  </head>
+  <meta property="og:title" content="Alabanza Planner Pro" />
+  <meta property="og:description" content="Gestión profesional para ministerios de alabanza." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/logo.png" />
 
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js');
-        });
-      }
-    </script>
-  </body>
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Alabanza Planner Pro" />
+  <meta name="twitter:description" content="Gestión profesional para ministerios de alabanza." />
+  <meta name="twitter:image" content="/logo.png" />
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js');
+      });
+    }
+  </script>
+</body>
+
 </html>
