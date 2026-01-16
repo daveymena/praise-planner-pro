@@ -132,8 +132,8 @@ export function Navigation() {
             </header>
 
             {/* Mobile Bottom Navigation (A native-app feel) */}
-            <nav className="fixed bottom-0 left-0 right-0 h-16 bg-slate-900/95 backdrop-blur-3xl border-t border-white/10 flex items-center justify-around px-2 z-50 lg:hidden shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.5)]">
-                {navItems.slice(0, 4).map((item) => {
+            <nav className="fixed bottom-0 left-0 right-0 h-16 bg-slate-900/95 backdrop-blur-3xl border-t border-white/10 flex items-center justify-around px-1 z-50 lg:hidden shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.5)]">
+                {navItems.slice(0, 5).map((item) => {
                     const Icon = item.icon;
                     const isActive = location.pathname === item.path;
 
@@ -141,14 +141,14 @@ export function Navigation() {
                         <NavLink
                             key={item.path}
                             to={item.path}
-                            className={`relative flex flex-col items-center justify-center w-14 h-14 rounded-2xl transition-all duration-300 ${isActive ? "text-primary scale-110" : "text-white/60 hover:text-white"
+                            className={`relative flex flex-col items-center justify-center w-12 h-12 rounded-xl transition-all duration-300 ${isActive ? "text-primary scale-110" : "text-white/60 hover:text-white"
                                 }`}
                         >
                             {isActive && (
-                                <div className="absolute -top-1 w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_12px_rgba(37,99,235,0.8)]" />
+                                <div className="absolute -top-1 w-1 h-1 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(37,99,235,0.8)]" />
                             )}
-                            <Icon className={`w-6 h-6 transition-all ${isActive ? "drop-shadow-[0_0_8px_rgba(37,99,235,0.4)]" : ""}`} />
-                            <span className={`text-[9px] font-black uppercase tracking-widest mt-1.5 transition-all ${isActive ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 h-0"}`}>
+                            <Icon className={`w-5 h-5 transition-all ${isActive ? "drop-shadow-[0_0_8px_rgba(37,99,235,0.4)]" : ""}`} />
+                            <span className={`text-[8px] font-black uppercase tracking-tight mt-1 transition-all ${isActive ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 h-0"}`}>
                                 {item.label}
                             </span>
                         </NavLink>
